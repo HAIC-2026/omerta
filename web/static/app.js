@@ -224,6 +224,10 @@
       case "statewide_context":
         return "Range of " + metricLabel(a.metric) + " across " +
           (a.chamber === "both" ? "State House and State Senate" : ch) + " districts";
+      case "find_programs":
+        return "Assistance programs" + (a.need && a.need !== "any" ? " for " + String(a.need).replace(/_/g, " ") : "");
+      case "district_program_context":
+        return "Programs and related measures: " + ch + " District " + a.district;
       default:
         return TOOL_LABELS[t.tool] || t.tool;
     }
@@ -278,8 +282,10 @@
         var census = (t.source_urls || []).filter(function (u) { return u.indexOf("https://api.census.gov/") === 0; });
         (t.source_urls || []).forEach(function (u) {
           var isReport = u.indexOf("https://elections.hawaii.gov/") === 0;
+          var isCensus = u.indexOf("https://api.census.gov/") === 0;
           var label = isReport ? "Reapportionment Commission final report (PDF)"
-            : "Census API query" + (census.length > 1 ? " " + (census.indexOf(u) + 1) : "");
+            : isCensus ? "Census API query" + (census.length > 1 ? " " + (census.indexOf(u) + 1) : "")
+            : "Program source: " + u.replace(/^https:\/\/(www\.)?/, "").split("/")[0];
           li.appendChild(document.createTextNode(" — "));
           li.appendChild(el("a", { href: u, rel: "noopener noreferrer", target: "_blank" }, [
             label,

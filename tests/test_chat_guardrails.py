@@ -22,8 +22,10 @@ from dotenv import load_dotenv
 from agent.grounding import (
     collect_tool_numbers,
     extract_numbers,
+    eligibility_claims,
     flagged_values_without_caveat,
     is_supported,
+    unsourced_programs,
 )
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -169,5 +171,13 @@ def test_every_number_comes_from_tools(client, qid, question):
     )
     if qid == "low_reliability":
         assert missing["stated"], "the flagged value should be stated (with its caveat)"
+    # Program facts must come from tool results; eligibility is never declared.
+    outputs = [c.output for c in r.tool_calls]
+    REPORT["questions"][-1]["unsourced_programs"] = unsourced_programs(r.text, outputs)
+    REPORT["questions"][-1]["eligibility_claims"] = eligibility_claims(r.text)
+    assert not REPORT["questions"][-1]["unsourced_programs"], (
+        f"Programs named without a tool result: {REPORT['questions'][-1]['unsourced_programs']}\n{r.text}")
+    assert not REPORT["questions"][-1]["eligibility_claims"], (
+        f"Eligibility stated as fact: {REPORT['questions'][-1]['eligibility_claims']}\n{r.text}")
     if r.tool_calls and not all(c.is_error for c in r.tool_calls):
         assert re.search(r"ACS 2023 5-year", r.text), "answer with data must cite the dataset"

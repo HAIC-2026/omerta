@@ -124,6 +124,58 @@ def flagged_values_without_caveat(text: str, outputs: Iterable[dict]) -> dict:
     return {"stated": stated, "missing": missing}
 
 
+def _program_aliases() -> dict[str, list[str]]:
+    import json
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent / "data" / "programs.json"
+    if not p.exists():
+        return {}
+    progs = json.loads(p.read_text(encoding="utf-8"))["programs"]
+    return {pr["id"]: [pr["name"], *pr.get("also_known_as", [])] for pr in progs}
+
+
+def _alias_re(alias: str) -> re.Pattern:
+    # Acronyms match case-sensitively; phrases case-insensitively. Whole words only.
+    flags = 0 if alias.isupper() else re.I
+    return re.compile(rf"(?<![\w-]){re.escape(alias)}(?![\w-])", flags)
+
+
+def unsourced_programs(text: str, outputs: Iterable[dict]) -> list[str]:
+    """Programs the answer names that no tool result this turn mentions.
+
+    A program counts as sourced when a program tool returned it, or when one of its names
+    appears anywhere in the tool output (e.g. "SNAP" in an ACS metric label)."""
+    import json
+    blob = json.dumps(list(outputs), ensure_ascii=False)
+    returned_ids = set(re.findall(r'"id": "([a-z0-9_]+)"', blob))
+    missing = []
+    for pid, aliases in _program_aliases().items():
+        named = [a for a in aliases if _alias_re(a).search(text)]
+        if not named or pid in returned_ids:
+            continue
+        if not any(_alias_re(a).search(blob) for a in named):
+            missing.append(named[0])
+    return missing
+
+
+# "is eligible", "you qualify for" ... unless hedged ("may", "might", "could") or negated.
+_CLAIM_RE = re.compile(r"\b(?:is|are|you're|you are|they're|they are|will be)\s+eligible\b|"
+                       r"\bqualif(?:y|ies)\s+for\b|\bwill\s+qualify\b", re.I)
+_HEDGE_RE = re.compile(r"\b(?:may|might|could|not|n't|whether|if|unless|only the agency|cannot|can't)\b", re.I)
+
+
+def eligibility_claims(text: str) -> list[str]:
+    """Sentences that state eligibility as fact rather than 'may qualify'."""
+    out = []
+    for sent in re.split(r"(?<=[.!?])\s+|\n", text):
+        for m in _CLAIM_RE.finditer(sent):
+            before = sent[max(0, m.start() - 40):m.start()]
+            if not _HEDGE_RE.search(before) and not _HEDGE_RE.search(m.group(0)):
+                out.append(sent.strip())
+                break
+    return out
+
+
 def stated_flagged_values(text: str, outputs: Iterable[dict]) -> list[dict]:
     """Low-reliability values that the answer actually states, with the exact substrings
     that state them (so a UI can mark them) and the tool's caveat."""

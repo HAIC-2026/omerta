@@ -256,7 +256,16 @@ def _citations(outputs: list[dict]) -> list[str]:
     return [c for c in seen if not redundant(c)]
 
 
-SOURCE_URL_PREFIXES = ("https://api.census.gov/", "https://elections.hawaii.gov/")
+def _program_source_prefixes() -> tuple[str, ...]:
+    try:
+        from agent.program_tools import load_programs
+        doms = load_programs()["metadata"]["allowed_source_domains"]
+    except Exception:
+        return ()
+    return tuple(f"https://{d}/" for d in doms) + tuple(f"https://www.{d}/" for d in doms)
+
+
+SOURCE_URL_PREFIXES = ("https://api.census.gov/", "https://elections.hawaii.gov/") + _program_source_prefixes()
 
 
 def _source_urls(output: dict) -> list[str]:

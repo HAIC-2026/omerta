@@ -22,7 +22,7 @@ from typing import Any, Callable
 import anthropic
 from dotenv import load_dotenv
 
-from agent import tools
+from agent import program_tools, tools
 
 # ---------------------------------------------------------------------------
 # Config: swap the model here.
@@ -42,8 +42,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SYSTEM_PROMPT = """\
 You answer questions from Hawaiʻi state legislators and their staff about the socio-economic \
 profile of Hawaiʻi State House and State Senate districts. Your only data source is the set of \
-tools you have, which return U.S. Census Bureau American Community Survey (ACS) estimates and \
-district context from the State of Hawaiʻi 2021 Reapportionment Commission final report.
+tools you have, which return U.S. Census Bureau American Community Survey (ACS) estimates, \
+district context from the State of Hawaiʻi 2021 Reapportionment Commission final report, and \
+assistance program facts quoted from official agency web pages.
 
 Numbers
 - Every number you state must appear in a tool result from this conversation. This includes \
@@ -95,6 +96,20 @@ add context. Say the two figures measure different things (see the tool's `note`
 present the difference as a count of military members or students, and don't speculate \
 beyond what the report states.
 
+Assistance programs (find_programs, district_program_context)
+- Describe a program only with facts from these tools: its name, agency, who it serves, \
+eligibility factors, income figures, how to apply and source. Don't add programs, \
+requirements, dollar amounts, deadlines or phone numbers from general knowledge. If a program \
+isn't in the tool results, say the tool doesn't cover it.
+- Never say someone is eligible or qualifies. Say they "may qualify" and must confirm with the \
+agency. Pass on each program's screening notes, time-sensitive notes (such as closed waiting \
+lists, with the verification date) and published-requirement mismatches.
+- Cite each program with its `citation` (agency, page URL, verification date).
+- With district_program_context, district measures show where needs may be concentrated; say \
+they don't show who qualifies. Compare a district with the `median_of_districts_display` only.
+- Ask for household facts only if they would change the answer, and only use facts the user \
+actually stated.
+
 Limits
 - The tools don't know who represents a district, and know its geography only through \
 `district_context.areas`. Don't guess anything beyond that.
@@ -117,6 +132,7 @@ def build_tool_schemas() -> list[dict]:
                "description": "'house' (State House, lower chamber) or 'senate' (State Senate, upper chamber)."}
     metric = {"type": "string", "enum": metrics,
               "description": "Metric key. Rates are percentages (0-100)."}
+    program_needs = program_tools.load_programs()["needs"]
     return [
         {
             "name": "get_district_profile",
@@ -197,6 +213,56 @@ def build_tool_schemas() -> list[dict]:
             },
             "strict": True,
         },
+        {
+            "name": "find_programs",
+            "description": (
+                "Find Hawaiʻi assistance programs for a need, with facts quoted from official agency "
+                "pages: who the program serves, key eligibility factors, published income figures "
+                "(only where the agency publishes them), how to apply, and source. Optional household "
+                "facts are compared with published requirements; the result never decides "
+                "eligibility. Use for 'what help is there for...' questions."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "need": {"type": "string", "enum": program_needs + ["any"],
+                             "description": "The kind of help needed, or 'any'."},
+                    "household": {
+                        "type": "object",
+                        "description": "Only facts the user actually stated. Leave out anything unknown.",
+                        "properties": {
+                            "household_size": {"type": "integer"},
+                            "island": {"type": "string", "enum": list(program_tools.ISLANDS)},
+                            **{k: {"type": "boolean"} for k in program_tools.FACT_KEYS},
+                        },
+                        "additionalProperties": False,
+                    },
+                },
+                "required": ["need"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        },
+        {
+            "name": "district_program_context",
+            "description": (
+                "For one district, pair its ACS measures that relate to each assistance program "
+                "(for example SNAP receipt and poverty for SNAP, veterans for veterans services, "
+                "renter cost burden for housing vouchers) with the program's official description "
+                "and the median of districts in the chamber. Use for 'which programs matter most "
+                "for district N' questions."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "chamber": chamber,
+                    "district": {"type": "integer", "description": "District number."},
+                },
+                "required": ["chamber", "district"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        },
     ]
 
 
@@ -209,6 +275,8 @@ TOOL_FUNCS: dict[str, Callable[..., dict]] = {
     "compare_districts": tools.compare_districts,
     "rank_districts": tools.rank_districts,
     "statewide_context": _statewide,
+    "find_programs": program_tools.find_programs,
+    "district_program_context": program_tools.district_program_context,
 }
 
 

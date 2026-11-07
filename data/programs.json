@@ -1,0 +1,643 @@
+{
+  "metadata": {
+    "description": "Hawaiʻi assistance programs. Every fact has a verbatim quote from an official government or agency web page. scripts/verify_programs.py re-fetches each source and checks every quote; date_verified is the date that check last passed. Income figures are included only where the source page states them; otherwise they are left out.",
+    "framing": "These are program descriptions, not eligibility decisions. People may qualify; only the administering agency can decide. Confirm with the agency.",
+    "date_verified": "2026-11-07",
+    "allowed_source_domains": [
+      "humanservices.hawaii.gov",
+      "medquest.hawaii.gov",
+      "health.hawaii.gov",
+      "hpha.hawaii.gov",
+      "dod.hawaii.gov",
+      "hawaiipublicschools.org",
+      "elderlyaffairs.com",
+      "benefits.va.gov"
+    ],
+    "source_domain_notes": {
+      "hawaiipublicschools.org": "Official site of the Hawaiʻi State Department of Education.",
+      "elderlyaffairs.com": "Official site of the City and County of Honolulu Elderly Affairs Division (the Oʻahu Area Agency on Aging).",
+      "benefits.va.gov": "U.S. Department of Veterans Affairs."
+    }
+  },
+  "programs": [
+    {
+      "id": "snap",
+      "name": "Supplemental Nutrition Assistance Program (SNAP)",
+      "also_known_as": [
+        "SNAP",
+        "food stamps",
+        "EBT"
+      ],
+      "agency": "Hawaiʻi Department of Human Services, Benefit, Employment & Support Services Division (BESSD)",
+      "agency_quote": "In Hawaii, this service is provided by the Department of Human Services (DHS) Benefit, Employment & Support Services Division (BESSD).",
+      "needs": [
+        "food"
+      ],
+      "source_url": "https://humanservices.hawaii.gov/bessd/snap/",
+      "serves": {
+        "text": "Food and nutrition support for qualifying low-income households.",
+        "quote": "The SNAP program provides crucial food and nutritional support to qualifying low-income and needy households, and those making the transition from welfare to self-sufficiency."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "Households must meet eligibility requirements and provide proof of household circumstances.",
+          "quote": "Households must meet specific eligibility requirements and provide proof of their statements about household circumstances."
+        },
+        {
+          "factor": "U.S. citizens and some lawful permanent residents may qualify.",
+          "quote": "U.S. citizens and some aliens who are admitted for permanent residency may qualify."
+        },
+        {
+          "factor": "Household income is compared with federal poverty level standards; the agency's chart is for reference only and an intake worker makes the final determination.",
+          "quote": "This Federal Poverty Limit (FPL) chart is for reference only. An intake worker will make the final determination of your eligibility category."
+        }
+      ],
+      "income_standards": {
+        "note": "Published reference standards. An intake worker assigns the applicable standard and makes the final determination.",
+        "tables": [
+          {
+            "title": "SNAP Gross Monthly Income Eligibility Standards (Effective 10/1/2026)",
+            "columns": [
+              "130% Federal Poverty Level",
+              "200% Federal Poverty Level (BBCE)"
+            ],
+            "rows": {
+              "1": [
+                "$1,989",
+                "$3,060"
+              ],
+              "2": [
+                "$2,697",
+                "$4,150"
+              ],
+              "3": [
+                "$3,404",
+                "$5,238"
+              ],
+              "4": [
+                "$4,112",
+                "$6,326"
+              ],
+              "5": [
+                "$4,819",
+                "$7,414"
+              ],
+              "6": [
+                "$5,527",
+                "$8,502"
+              ],
+              "7": [
+                "$6,234",
+                "$9,590"
+              ],
+              "8": [
+                "$6,941",
+                "$10,680"
+              ]
+            },
+            "each_additional_member": [
+              "+$708",
+              "+$1,090"
+            ],
+            "quote": "SNAP Gross Monthly Income Eligibility Standards (Effective 10/1/2026) Household Size 130% Federal Poverty Level 200% Federal Poverty Level (BBCE) 1 $1,989 $3,060 2 $2,697 $4,150 3 $3,404 $5,238 4 $4,112 $6,326 5 $4,819 $7,414 6 $5,527 $8,502 7 $6,234 $9,590 8 $6,941 $10,680 Each additional member +$708 +$1,090"
+          },
+          {
+            "title": "SNAP Net Monthly Income Eligibility Standards (Effective 10/1/2026)",
+            "columns": [
+              "100% Federal Poverty Level"
+            ],
+            "rows": {
+              "1": [
+                "$1,530"
+              ],
+              "2": [
+                "$2,075"
+              ],
+              "3": [
+                "$2,619"
+              ],
+              "4": [
+                "$3,163"
+              ],
+              "5": [
+                "$3,707"
+              ],
+              "6": [
+                "$4,251"
+              ],
+              "7": [
+                "$4,795"
+              ],
+              "8": [
+                "$5,340"
+              ]
+            },
+            "each_additional_member": [
+              "+$545"
+            ],
+            "quote": "SNAP Net Monthly Income Eligibility Standards (Effective 10/1/2026) Household Size 100% Federal Poverty Level 1 $1,530 2 $2,075 3 $2,619 4 $3,163 5 $3,707 6 $4,251 7 $4,795 8 $5,340 Each additional member +$545"
+          }
+        ]
+      },
+      "application": {
+        "url": "https://pais.dhs.hawaii.gov/PAIS/#!/",
+        "how": "Apply online, by mail, or in person at a DHS processing center. Information line: 1-855-643-1643.",
+        "quotes": [
+          "Apply online using the new ONLINE APPLICATION",
+          "For more information call Public Assistance Toll Free Information Line at 1-855-643-1643."
+        ]
+      },
+      "screening": {},
+      "district_metrics": [
+        "snap_household_rate",
+        "snap_households",
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "med_quest",
+      "name": "Med-QUEST (Hawaiʻi Medicaid)",
+      "also_known_as": [
+        "Med-QUEST",
+        "QUEST",
+        "Medicaid",
+        "QUEST Integration"
+      ],
+      "agency": "Hawaiʻi Department of Human Services, Med-QUEST Division",
+      "agency_quote": "The Med-QUEST Division accepts applications for medical assistance coverage online, over the phone, by mail or Fax.",
+      "agency_quote_source_url": "https://medquest.hawaii.gov/en/members-applicants/get-started/how-to-apply",
+      "needs": [
+        "health_coverage"
+      ],
+      "source_url": "https://medquest.hawaii.gov/en/members-applicants/get-started/programs",
+      "serves": {
+        "text": "Medicaid health coverage, with programs for adults, children, parents and caretakers, pregnant people, and aged, blind or disabled individuals.",
+        "quote": "Your caseworker will help you find the Medicaid programs that fit your personal situation."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "A program for adults age nineteen or older and under age sixty-five.",
+          "quote": "Provides Medicaid eligibility for individuals age nineteen years or older and under age sixty-five years."
+        },
+        {
+          "factor": "A program for infants and children under age nineteen (or under twenty-one in foster care, kinship guardianship or adoption assistance).",
+          "quote": "Provides Medicaid eligibility for infants and children under age nineteen, or under age twenty one years old and in receipt of foster care, kinship guardianship, or adoption assistance."
+        },
+        {
+          "factor": "A program for a parent or caretaker relative living with a child under age nineteen.",
+          "quote": "Provides Medicaid eligibility for a parent or other caretaker relative living with a child under age nineteen years."
+        },
+        {
+          "factor": "A program for aged, blind and disabled individuals.",
+          "quote": "Provides Medicaid eligibility for aged, blind, and disabled individuals under the provisions of Title XIX of the Social Security Act."
+        }
+      ],
+      "application": {
+        "url": "https://medical.mybenefits.hawaii.gov/",
+        "how": "Apply online through KOLEA, by phone, by mail or by fax.",
+        "quotes": [
+          "The Med-QUEST Division accepts applications for medical assistance coverage online, over the phone, by mail or Fax."
+        ],
+        "quote_source_url": "https://medquest.hawaii.gov/en/members-applicants/get-started/how-to-apply"
+      },
+      "screening": {},
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "wic",
+      "name": "Special Supplemental Nutrition Program for Women, Infants and Children (WIC)",
+      "also_known_as": [
+        "WIC"
+      ],
+      "agency": "Hawaiʻi State Department of Health, WIC Services Branch",
+      "agency_quote": "Hawaii WIC clinics are operated under the auspices of the Hawaii WIC Services Branch of the Hawaii State Department of Health.",
+      "needs": [
+        "food",
+        "pregnancy_and_young_children"
+      ],
+      "source_url": "https://health.hawaii.gov/wic/program_details/",
+      "serves": {
+        "text": "Supplemental foods, nutrition education and referrals for pregnant, breastfeeding or postpartum women and children under five.",
+        "quote": "The participants of WIC are either pregnant, breastfeeding, or postpartum women, and infants and children under age five who meet income guidelines and have a medical or nutritional risk."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "Must be pregnant, breastfeeding or postpartum, or have children under 5 with nutritional needs; meet federal income guidelines; and live in Hawaiʻi.",
+          "quote": "To qualify for Hawaii WIC services you must be either a pregnant, breastfeeding, or postpartum woman, or have children under 5 years old who have nutritional needs, meet federal income guidelines and be a resident of Hawaii."
+        },
+        {
+          "factor": "People with proof of QUEST, TANF or SNAP benefits meet WIC's income requirement.",
+          "quote": "Individuals with proof of Quest or TANF benefit documents or food stamps meet WIC income eligibility requirements."
+        }
+      ],
+      "application": {
+        "url": "https://health.hawaii.gov/wic/",
+        "how": "Contact a Hawaiʻi WIC clinic; local WIC agency staff determine eligibility.",
+        "quotes": [
+          "To qualify for Hawaii WIC services you must be either a pregnant, breastfeeding, or postpartum woman"
+        ]
+      },
+      "screening": {
+        "requires_any": {
+          "facts": [
+            "pregnant_or_postpartum",
+            "child_under_5"
+          ],
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "h_heap",
+      "name": "Hawaiʻi Home Energy Assistance Program (H-HEAP, Hawaiʻi's LIHEAP)",
+      "also_known_as": [
+        "H-HEAP",
+        "LIHEAP",
+        "energy assistance"
+      ],
+      "agency": "Hawaiʻi Department of Human Services; applications handled by each island's Community Action Agency",
+      "agency_quote": "Applications for H-HEAP are only accepted and processed by Community Action Agency that serves your island.",
+      "needs": [
+        "energy_bills"
+      ],
+      "source_url": "https://humanservices.hawaii.gov/bessd/liheap/",
+      "serves": {
+        "text": "A one-time payment toward an eligible household's electric or gas bill.",
+        "quote": "The Hawai`i Home Energy Assistance Program (H-HEAP) provides heating and/or cooling assistance to eligible Hawai`i households by assisting with a one-time payment towards their electric or gas bill."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "Energy Crisis Intervention helps households whose electric or gas service has been or will be disconnected (with a disconnect notice); accepted year-round but monthly approvals are limited.",
+          "quote": "Energy Crisis Intervention (ECI) assists needy households in crisis, the electric or gas service has been or will be disconnected, as the household has been notified via a disconnect notice from the utility company."
+        },
+        {
+          "factor": "Energy Credit applications are accepted only in June.",
+          "quote": "Applications for EC will only accepted from June 1 - June 30."
+        },
+        {
+          "factor": "One type of H-HEAP payment per program year (October 1 to September 30).",
+          "quote": "Households may only receive one type of H-HEAP payment per program year which runs from October 1 - September 30:"
+        }
+      ],
+      "application": {
+        "url": "https://humanservices.hawaii.gov/bessd/files/2026/06/2026-Application-Packet.pdf",
+        "how": "Apply through the Community Action Agency for your island, not DHS offices.",
+        "quotes": [
+          "Applications for H-HEAP are only accepted and processed by Community Action Agency that serves your island."
+        ]
+      },
+      "screening": {},
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "tanf_taonf",
+      "name": "Temporary Assistance for Needy Families (TANF) and Temporary Assistance for Other Needy Families (TAONF)",
+      "also_known_as": [
+        "TANF",
+        "TAONF",
+        "cash assistance"
+      ],
+      "agency": "Hawaiʻi Department of Human Services, Benefit, Employment & Support Services Division",
+      "agency_quote": "Temporary Assistance for Needy Families or TANF Program is a federal-funded block grant program that provides temporary cash assistance to eligible families that include at least one specified relative adult and a minor dependent child who resides in the same home.",
+      "needs": [
+        "cash_assistance"
+      ],
+      "source_url": "https://humanservices.hawaii.gov/bessd/tanf/",
+      "serves": {
+        "text": "Temporary monthly cash assistance for families with a minor child living with a related adult. TAONF serves families not eligible for TANF because of citizenship status.",
+        "quote": "provides temporary cash assistance to eligible families that include at least one specified relative adult and a minor dependent child who resides in the same home."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "The family must include a related adult and a minor dependent child living in the same home.",
+          "quote": "eligible families that include at least one specified relative adult and a minor dependent child who resides in the same home."
+        },
+        {
+          "factor": "TAONF covers families who would otherwise qualify but are not eligible for TANF because of citizenship status.",
+          "quote": "to provide cash assistance to families that would have been eligible for benefits through the former AFDC Program but are not eligible through the TANF Program due to their citizenship status."
+        },
+        {
+          "factor": "Monthly gross income must be below 185% of the 2006 federal poverty level ($2,941 for a family of three), and adjusted net income below 100% of the 2006 level ($1,590 for a family of three).",
+          "quote": "To qualify, a family's monthly gross income must be below 185% of the 2006 Federal Poverty level (FPL) or $2,941 for a family of three, and the adjusted net income must be below 100% of the 2006 FPL or $1,590 for the same family size."
+        },
+        {
+          "factor": "Lifetime limit of 60 months of cash assistance.",
+          "quote": "Families may receive no more than sixty (60) months of cash assistance benefits in their lifetime through the TANF or TAONF Program."
+        },
+        {
+          "factor": "Families must take part in the First-To-Work Program.",
+          "quote": "As a condition of eligibility, TANF and TAONF recipient families are required to participate with the First-To-Work Program."
+        }
+      ],
+      "application": {
+        "url": "https://pais.dhs.hawaii.gov/PAIS/#!/",
+        "how": "Apply online through the Public Assistance Information System or with the DHS 1240 paper form.",
+        "quotes": [
+          "Public Assistance Information System"
+        ]
+      },
+      "screening": {
+        "requires_any": {
+          "facts": [
+            "has_children"
+          ],
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "hcv_section8",
+      "name": "Housing Choice Voucher Program (Section 8), Hawaiʻi Public Housing Authority",
+      "also_known_as": [
+        "Section 8",
+        "Housing Choice Voucher",
+        "HCV",
+        "HPHA"
+      ],
+      "agency": "Hawaiʻi Public Housing Authority (HPHA)",
+      "agency_quote": "The HPHA provides rental assistance to low-income families in the private rental market through the Housing Choice Voucher (HCV) Program which is funded by the U.S. Department of Housing and Urban Development.",
+      "needs": [
+        "housing"
+      ],
+      "source_url": "https://hpha.hawaii.gov/programs-and-resources/voucher-programs",
+      "serves": {
+        "text": "Rental assistance for low-income families renting in the private market. The HPHA program covers Oʻahu only.",
+        "quote": "The HPHA provides rental assistance to low-income families in the private rental market through the Housing Choice Voucher (HCV) Program which is funded by the U.S. Department of Housing and Urban Development."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "The HPHA voucher program covers the island of Oʻahu only.",
+          "quote": "The HPHA's HCV Program covers the island of Oahu only."
+        },
+        {
+          "factor": "Eligibility is based on annual gross income; whether the applicant is elderly, has a disability, or is a family; and U.S. citizenship or eligible immigration status.",
+          "quote": "The HPHA determines your eligibility based on annual gross income; whether an applicant qualifies as elderly, a person with a disability, or as a family; and U.S. citizenship or eligible immigration status."
+        },
+        {
+          "factor": "HUD defines low-income families as earning 50% or less of the area median income.",
+          "quote": "Low-income families are defined by HUD as earning 50% or less of the median income for a given county or metropolitan area."
+        }
+      ],
+      "time_sensitive": [
+        {
+          "note": "When verified, the HPHA said all waiting lists for this program were closed.",
+          "quote": "All waiting lists for this program are currently closed. Please check back later.",
+          "source_url": "https://hpha.hawaii.gov/how-to-apply"
+        }
+      ],
+      "application": {
+        "url": "https://hpha.hawaii.gov/how-to-apply",
+        "how": "Online pre-application when a waiting list is open.",
+        "quotes": [
+          "The HPHA's Housing Choice Voucher program (a.k.a. Section 8) on Oahu uses an online pre-application form."
+        ],
+        "quote_source_url": "https://hpha.hawaii.gov/how-to-apply"
+      },
+      "screening": {
+        "islands_only": {
+          "islands": [
+            "Oahu"
+          ],
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "renter_cost_burden_rate",
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "school_meals",
+      "name": "Free and Reduced-Price School Meals (National School Lunch Program)",
+      "also_known_as": [
+        "school meals",
+        "free lunch",
+        "free and reduced",
+        "school lunch"
+      ],
+      "agency": "Hawaiʻi State Department of Education, School Food Services Branch",
+      "agency_quote": "The program is administered locally by the Department’s School Food Services Branch.",
+      "needs": [
+        "food",
+        "school_meals"
+      ],
+      "source_url": "https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/",
+      "serves": {
+        "text": "Free or low-cost school meals for children in public schools.",
+        "quote": "It provides nutritionally balanced, low-cost or free lunches to children each school day."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "For school year 2026-27, free meals extend to families with household incomes at or below 300% of the federal poverty level (Act 139, SLH 2025).",
+          "quote": "Effective for the school year 2026-27, the Department has expanded its free meal eligibility to families with household incomes at or below 300% of the federal poverty level (ALICE households) under Act 139 (Session Laws of Hawaiʻi 2025)."
+        },
+        {
+          "factor": "Eligible students receive one free breakfast and one free lunch each school day.",
+          "quote": "Eligible students will receive one free breakfast and one free lunch each school day."
+        }
+      ],
+      "application": {
+        "url": "https://secure.ezmealapp.com/Default.aspx",
+        "how": "Apply through EZMealApp.",
+        "quotes": [
+          "To submit an application for Free and Reduced-Price Meal Benefits, please visit EZMealApp."
+        ]
+      },
+      "screening": {
+        "requires_any": {
+          "facts": [
+            "has_children"
+          ],
+          "factor_index": 1
+        }
+      },
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "kupuna_care",
+      "name": "Kūpuna Care",
+      "also_known_as": [
+        "Kūpuna Care",
+        "Kupuna Care"
+      ],
+      "agency": "Hawaiʻi Executive Office on Aging, through county Area Agencies on Aging (on Oʻahu, the City and County of Honolulu Elderly Affairs Division)",
+      "agency_quote": "Administered by: County Area Agencies on Aging (e.g., Elderly Affairs Division on O'ahu).",
+      "needs": [
+        "older_adult_care"
+      ],
+      "source_url": "https://elderlyaffairs.com/services/eligibility-requirements/",
+      "serves": {
+        "text": "Community-based long-term care services that help older adults keep living at home.",
+        "quote": "Kupuna Care is state/county funding designed to provide designed to provide community-based long-term care services to older adults with the goals of remaining at home for as long as possible."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "Age 60 or older.",
+          "quote": "Age Requirement: 60 years or older."
+        },
+        {
+          "factor": "Must be a Hawaiʻi resident.",
+          "quote": "Residency: Must be a Hawai'i resident."
+        },
+        {
+          "factor": "Must have functional needs (limits in daily activities) and not qualify for Medicaid or comparable programs.",
+          "quote": "Eligibility: Must have functional needs (frailty or limitations in activities of daily living [ADLs] and/or instrumental activities of daily living [IADLs]). Does not qualify for Medicaid or other comparable programs."
+        },
+        {
+          "factor": "Cost-sharing may apply based on income; most services have waitlists.",
+          "quote": "Cost: Cost-sharing may apply, based on income and ability to pay."
+        }
+      ],
+      "time_sensitive": [
+        {
+          "note": "When verified, the Elderly Affairs Division said most services have waitlists.",
+          "quote": "Most services have waitlists.",
+          "source_url": "https://elderlyaffairs.com/services/eligibility-requirements/"
+        }
+      ],
+      "application": {
+        "url": "https://elderlyaffairs.com/services/eligibility-requirements/",
+        "how": "On Oʻahu, call the Senior Helpline at (808) 768-7700. On other islands, contact the county Area Agency on Aging (see the Hawaiʻi ADRC).",
+        "quotes": [
+          "Call the Senior Helpline at (808) 768-7700 to get started."
+        ]
+      },
+      "screening": {
+        "min_age": {
+          "age": 60,
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "median_age"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "veterans_services",
+      "name": "Veterans benefits help, Hawaiʻi Office of Veterans' Services (OVS)",
+      "also_known_as": [
+        "Office of Veterans' Services",
+        "OVS",
+        "VA benefits",
+        "VA claims"
+      ],
+      "agency": "Hawaiʻi Department of Defense, Office of Veterans' Services; federal benefits from the U.S. Department of Veterans Affairs",
+      "agency_quote": "Advocacy is the primary service offered by the office. OVS may take action on behalf of Veterans, their families, and survivors to secure appropriate rights, benefits, & services.",
+      "needs": [
+        "veterans"
+      ],
+      "source_url": "https://dod.hawaii.gov/ovs/benefits-and-services/",
+      "serves": {
+        "text": "Advocacy and help with VA claims for veterans, their families and survivors, plus state benefits such as home tax exemptions for totally disabled veterans.",
+        "quote": "Advocacy is the primary service offered by the office. OVS may take action on behalf of Veterans, their families, and survivors to secure appropriate rights, benefits, & services."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "OVS helps prepare VA claims.",
+          "quote": "Assist in preparation of VA claims"
+        },
+        {
+          "factor": "People not qualified for VA benefits are referred to other agencies.",
+          "quote": "Refer individuals not qualified for VA benefits to other agencies"
+        },
+        {
+          "factor": "Real property tax exemptions for a home owned and occupied by a totally disabled veteran or their widow(er); varies by island.",
+          "quote": "Tax exemptions on real property owned and occupied as a home by a totally disabled Veteran or their widow(er)."
+        }
+      ],
+      "application": {
+        "url": "https://benefits.va.gov/benefits/",
+        "how": "Contact OVS for help with a VA claim, or apply for federal benefits with the VA.",
+        "quotes": [
+          "Apply for Benefits"
+        ],
+        "quote_source_url": "https://benefits.va.gov/benefits/"
+      },
+      "screening": {
+        "requires_any": {
+          "facts": [
+            "veteran"
+          ],
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "veterans",
+        "veteran_rate"
+      ],
+      "date_verified": "2026-11-07"
+    },
+    {
+      "id": "child_care_subsidy",
+      "name": "Child Care Subsidy",
+      "also_known_as": [
+        "Child Care Subsidy",
+        "child care assistance",
+        "Preschool Open Doors"
+      ],
+      "agency": "Hawaiʻi Department of Human Services, Child Care Program",
+      "agency_quote": "The Child Care Subsidy program helps low-income families to sustain their employment, educational efforts and job training by paying a subsidy for their children who are in the care of DHS-approved child care providers.",
+      "needs": [
+        "child_care"
+      ],
+      "source_url": "https://humanservices.hawaii.gov/bessd/ccch-subsidies/",
+      "serves": {
+        "text": "Help paying for child care so low-income parents can work, go to school or train.",
+        "quote": "The Child Care Subsidy program helps low-income families to sustain their employment, educational efforts and job training by paying a subsidy for their children who are in the care of DHS-approved child care providers."
+      },
+      "eligibility_factors": [
+        {
+          "factor": "Child under 13 (or 13 to 18 if unable to do self care).",
+          "quote": "Child: Under 13 years, or between 13 to 18 years if the child cannot do self care and resides with their parent(s) or caretakers;"
+        },
+        {
+          "factor": "Parents or caretakers must be working, in school, or in job training.",
+          "quote": "Parents or Caretakers: Must be employed, attending school, or participating in a job-training program."
+        },
+        {
+          "factor": "Gross monthly income must not exceed 85% of the State Median Income for the family size.",
+          "quote": "Income limits by family size: Gross monthly income (before taxes and deductions) must not exceed 85% of the State Median Income for the family size."
+        }
+      ],
+      "application": {
+        "url": "https://childcaresubsidyapplication.dhs.hawaii.gov/",
+        "how": "Apply online or with the DHS 911 paper form.",
+        "quotes": [
+          "Apply online at ChildCareSubsidyApplication.dhs.hawaii.gov"
+        ]
+      },
+      "screening": {
+        "requires_any": {
+          "facts": [
+            "child_under_13"
+          ],
+          "factor_index": 0
+        }
+      },
+      "district_metrics": [
+        "poverty_rate"
+      ],
+      "date_verified": "2026-11-07"
+    }
+  ]
+}

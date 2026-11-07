@@ -55,6 +55,14 @@ python scripts/build_district_context.py --pdf PATH  # or use a local copy
 
 `get_district_profile` returns this as `district_context`. It also includes a side-by-side of the ACS total population and the reapportionment population. The difference is computed by the tool, not the model.
 
+### Assistance programs
+
+`data/programs.json` describes Hawaiʻi assistance programs: SNAP, Med-QUEST, WIC, H-HEAP (Hawaiʻi's LIHEAP), TANF/TAONF, the HPHA Housing Choice Voucher (Section 8) program, school meals, Kūpuna Care, veterans' services, and the Child Care Subsidy.
+
+- **Sourcing:** every fact carries a verbatim quote from an official agency page. Income figures appear only where the agency publishes them.
+- **Verification:** `python scripts/verify_programs.py` re-fetches each page and checks every quote word for word. It stamps `date_verified` only if every quote passes.
+- **Tools:** `find_programs(need, household)` and `district_program_context(chamber, district)` describe programs as "may qualify, confirm with the agency". They never decide eligibility.
+
 ## Chat agent
 
 `agent/chat.py` is a Claude agent (model set by `MODEL` at the top of the file) that answers questions using only the tools in `agent/tools.py`. Add `ANTHROPIC_API_KEY` to `.env`, then:
