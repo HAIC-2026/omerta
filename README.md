@@ -39,7 +39,21 @@ Metrics: total population, median age, median household income, poverty rate, SN
 python -m agent.chat
 ```
 
-Tests: `python -m pytest` runs everything. The live guardrail tests in `tests/test_chat_guardrails.py` call the API and are skipped when `ANTHROPIC_API_KEY` isn't set. Run only those with `python -m pytest -m live -s` to see token usage.
+## Web app
+
+```
+uvicorn web.app:app --reload
+```
+
+Then open http://127.0.0.1:8000. The FastAPI backend ([web/app.py](web/app.py)) keeps the Anthropic key on the server and exposes one `POST /chat` endpoint, which returns the answer, its citations, any low-reliability values it states, and the tool results used. Requests are rate-limited per IP (default 6 per minute and 150 per day) and globally (30 per minute), with at most 4 running at once. Override these with `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_DAY`, `RATE_LIMIT_GLOBAL_PER_MINUTE` and `CHAT_MAX_CONCURRENT`. Behind a reverse proxy, set `TRUST_PROXY=1` so limits apply per client rather than per proxy.
+
+The frontend ([web/static/](web/static/)) is plain HTML, CSS and JS with no build step, built to meet WCAG 2.1 AA.
+
+## Tests
+
+`python -m pytest -m "not live"` runs every test that doesn't call the API. That includes endpoint tests with a mocked agent and the browser accessibility checks, which need `python -m playwright install chromium` once.
+
+`python -m pytest` runs everything. The live guardrail tests in `tests/test_chat_guardrails.py` call the API and are skipped when `ANTHROPIC_API_KEY` isn't set. Run only those with `python -m pytest -m live -s` to see token usage.
 
 ## Notes on the data
 

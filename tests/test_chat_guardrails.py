@@ -13,11 +13,18 @@ from __future__ import annotations
 import json
 import os
 import re
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
+
+from agent.grounding import (
+    collect_tool_numbers,
+    extract_numbers,
+    flagged_values_without_caveat,
+    is_supported,
+)
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -60,59 +67,7 @@ QUESTIONS = [
     ("invalid_district", "What's the median household income in House District 60?"),
 ]
 
-# A number: optional $, digits with optional thousands commas, optional decimals, optional %.
-# Not part of a word or ID (B19013, C16002_004) and not part of a longer number.
-NUM_RE = re.compile(
-    r"(?<![A-Za-z0-9_.])\$?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?(?:st|nd|rd|th)?(?![A-Za-z0-9_])"
-)
-
 REPORT: dict = {"questions": [], "totals": {}}
-
-
-def extract_numbers(text: str) -> list[str]:
-    """Numbers as normalized strings, keeping the stated precision ('12.10' stays '12.10')."""
-    return [(m.group(1).replace(",", "") + (m.group(2) or "")) for m in NUM_RE.finditer(text)]
-
-
-def collect_tool_numbers(obj, out: set[Decimal]) -> None:
-    """Every number in tool output: numeric fields, plus numbers inside strings
-    (citations, caveats, notes, URLs)."""
-    if isinstance(obj, bool) or obj is None:
-        return
-    if isinstance(obj, (int, float)):
-        out.add(Decimal(repr(obj)))
-    elif isinstance(obj, str):
-        out.update(Decimal(n) for n in extract_numbers(obj))
-    elif isinstance(obj, dict):
-        for v in obj.values():
-            collect_tool_numbers(v, out)
-    elif isinstance(obj, list):
-        for v in obj:
-            collect_tool_numbers(v, out)
-
-
-def _round(v: Decimal, places: int) -> Decimal:
-    return v.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)
-
-
-def is_supported(stated: str, sources: set[Decimal]) -> bool:
-    """True if `stated` equals a source number, or is a source number rounded to the stated
-    precision. Fractions (e.g. moe_to_estimate 0.3712) may be stated as percents (37%).
-    Whole numbers with trailing zeros (80,000) may be a source rounded to that place, as long
-    as at least two significant digits remain."""
-    a = Decimal(stated)
-    places = len(stated.split(".")[1]) if "." in stated else 0
-    candidates = set(sources) | {v * 100 for v in sources if abs(v) < 1}
-    for v in candidates:
-        if v == a or _round(v, places) == a:
-            return True
-        if places == 0 and a != 0:
-            digits = str(int(a))
-            trailing = len(digits) - len(digits.rstrip("0"))
-            for k in range(1, min(trailing, len(digits) - 2) + 1):
-                if _round(v, -k) == a:
-                    return True
-    return False
 
 
 @pytest.fixture(scope="module")
@@ -206,7 +161,7 @@ def test_every_number_comes_from_tools(client, qid, question):
         assert any(c.is_error for c in r.tool_calls) or not r.tool_calls
         assert "51" in r.text  # the valid range from the tool's error
     # Any flagged value the answer states must carry its caveat.
-    missing = flagged_values_without_caveat(r.text, r.tool_calls)
+    missing = flagged_values_without_caveat(r.text, [c.output for c in r.tool_calls])
     REPORT["questions"][-1]["flagged_values_stated"] = missing["stated"]
     REPORT["questions"][-1]["flagged_values_missing_caveat"] = missing["missing"]
     assert not missing["missing"], (
@@ -216,111 +171,3 @@ def test_every_number_comes_from_tools(client, qid, question):
         assert missing["stated"], "the flagged value should be stated (with its caveat)"
     if r.tool_calls and not all(c.is_error for c in r.tool_calls):
         assert re.search(r"ACS 2023 5-year", r.text), "answer with data must cite the dataset"
-
-
-CAVEAT_RE = re.compile(r"low[- ]reliab|unreliab|not reliable|less reliable|reliability (is )?low|"
-                       r"use (it )?with caution|treat (this|it|these)[^.]{0,40}approximate", re.I)
-
-
-def _flagged_metrics(output, district=None):
-    """Yield (district, metric dict) for every low_reliability metric view in a tool output."""
-    if isinstance(output, dict):
-        district = output.get("district", district)
-        if output.get("low_reliability") is True and "value" in output:
-            yield district, output
-        for v in output.values():
-            yield from _flagged_metrics(v, district)
-    elif isinstance(output, list):
-        for v in output:
-            yield from _flagged_metrics(v, district)
-
-
-def _sig_digits(stated: str) -> int:
-    """Significant digits in a stated number. A one-digit number like a rank ('2nd') is too
-    coarse to identify a specific flagged value (1.53 rounds to 2)."""
-    return len(stated.replace(".", "").lstrip("0").rstrip("0" if "." not in stated else "")) or 1
-
-
-def flagged_values_without_caveat(text: str, tool_calls) -> dict:
-    """Find flagged values the answer states, and those with no caveat near them.
-
-    A flagged value counts as stated when a number in the answer matches it (allowing
-    rounding). Its caveat must appear in the same paragraph or the paragraph right after
-    it; for a table, in the same row or a note after the table."""
-    blocks = [b for b in re.split(r"\n\s*\n", text) if b.strip()]
-    stated, missing = [], []
-    for call in tool_calls:
-        for district, m in _flagged_metrics(call.output):
-            if m["value"] is None:
-                continue
-            src = {Decimal(repr(m["value"]))}
-            for i, block in enumerate(blocks):
-                lines = block.splitlines()
-                hit_lines = [ln for ln in lines if any(
-                    _sig_digits(n) >= 2 and is_supported(n, src) for n in extract_numbers(ln))]
-                if not hit_lines:
-                    continue
-                label = f"{m.get('label', '?')} (district {district}) = {m['value']}"
-                if label not in stated:
-                    stated.append(label)
-                is_table = all(ln.lstrip().startswith("|") for ln in hit_lines)
-                if is_table:
-                    covered = (any(CAVEAT_RE.search(ln) for ln in hit_lines)
-                               or any(CAVEAT_RE.search(b) for b in blocks[i + 1:]))
-                else:
-                    # Same paragraph, or a caveat paragraph directly after it.
-                    covered = any(CAVEAT_RE.search(b) for b in blocks[i:i + 2])
-                if not covered and label not in missing:
-                    missing.append(label)
-    return {"stated": stated, "missing": missing}
-
-
-# --- offline unit tests for the number checker itself -------------------------------
-
-def test_checker_offline():
-    src = {Decimal("79754.0"), Decimal("12.09"), Decimal("0.3712"), Decimal("2023")}
-    assert is_supported("79754", src)
-    assert is_supported("12.1", src)
-    assert is_supported("12.09", src)
-    assert is_supported("37", src)        # fraction stated as percent
-    assert is_supported("80000", src)     # rounded to thousands
-    assert not is_supported("100000", src)  # one significant digit: too loose
-    assert not is_supported("12.2", src)
-    assert not is_supported("5000", src)
-    assert extract_numbers("Table B19013, $79,754 (± 6,803), 12.1%, 3rd, C16002_004") == \
-        ["79754", "6803", "12.1", "3"]
-
-
-def test_caveat_checker_offline():
-    from agent.chat import ToolCall
-    out = {"district": 7, "metrics": {
-        "limited_english_household_rate": {"label": "LEP", "value": 6.43, "moe": 4.27,
-                                           "low_reliability": True},
-        "median_age": {"label": "Age", "value": 42.1, "moe": 1.8, "low_reliability": False}}}
-    calls = [ToolCall("get_district_profile", {}, out, False)]
-
-    ok = "About 6.4% of households are limited-English. This is a low-reliability estimate."
-    assert flagged_values_without_caveat(ok, calls) == {"stated": ["LEP (district 7) = 6.43"], "missing": []}
-
-    bad = "Median age is 42.1.\n\nAbout 6.43% of households are limited-English."
-    assert flagged_values_without_caveat(bad, calls)["missing"] == ["LEP (district 7) = 6.43"]
-
-    # A caveat paragraph directly after the value counts...
-    nxt = "6.43% are limited-English.\n\n**Low reliability:** treat this figure as approximate."
-    assert not flagged_values_without_caveat(nxt, calls)["missing"]
-    # ...but one further away does not.
-    far = ("6.43% are limited-English.\n\nMedian age is 42.1.\n\n"
-           "A low-reliability note about something else.")
-    assert flagged_values_without_caveat(far, calls)["missing"]
-    # ...but a note after a table does.
-    table = "| Metric | Value |\n|---|---|\n| LEP | 6.43% |\n\n* LEP is a low-reliability estimate."
-    assert not flagged_values_without_caveat(table, calls)["missing"]
-
-    # A one-digit number (a rank like "2nd") doesn't count as stating 1.53.
-    rank_out = {"district": 3, "label": "LEP", "value": 1.53, "low_reliability": True}
-    rank_calls = [ToolCall("rank_districts", {}, {"results": [rank_out]}, False)]
-    assert flagged_values_without_caveat("| 2nd | SD 16 | 11.59% |", rank_calls)["stated"] == []
-    assert flagged_values_without_caveat("It is 1.5%.", rank_calls)["missing"]
-
-    # Unflagged values never need a caveat.
-    assert flagged_values_without_caveat("Median age is 42.1.", calls) == {"stated": [], "missing": []}

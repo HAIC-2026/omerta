@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hawaiʻi District Profiles</title>
+  <meta name="description" content="Sourced Census profiles of Hawaiʻi State House and State Senate districts.">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#question">Skip to question box</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Hawaiʻi District Profiles</h1>
+      <p class="tagline">Census data for Hawaiʻi State House and State Senate districts, with a source for every figure.</p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="intro" aria-labelledby="intro-heading">
+      <h2 id="intro-heading" class="visually-hidden">About this tool</h2>
+      <p>Ask about population, age, income, poverty, SNAP, rent burden, veterans or limited-English households in any legislative district, from Kauaʻi and Oʻahu to Lānaʻi and Hawaiʻi Island. Answers come only from U.S. Census Bureau American Community Survey estimates and list their sources.</p>
+    </section>
+
+    <section class="helpers" aria-labelledby="helpers-heading">
+      <h2 id="helpers-heading" class="visually-hidden">Ways to start</h2>
+
+      <div class="examples">
+        <h3 class="small-heading" id="examples-heading">Example questions</h3>
+        <ul class="chips" aria-labelledby="examples-heading">
+          <li><button type="button" class="chip" data-question="Give me a profile of House District 46.">Profile House District 46</button></li>
+          <li><button type="button" class="chip" data-question="Which 5 Senate districts have the highest poverty rate?">Top 5 Senate districts by poverty rate</button></li>
+          <li><button type="button" class="chip" data-question="Compare median household income in House Districts 20, 21 and 22.">Compare income: House 20, 21, 22</button></li>
+          <li><button type="button" class="chip" data-question="Which 5 House districts have the highest share of renters paying 30% or more of income on rent?">Highest renter cost burden (House)</button></li>
+          <li><button type="button" class="chip" data-question="How does the veteran share in Senate District 24 compare to other Senate districts?">Veterans: Senate 24 in context</button></li>
+        </ul>
+      </div>
+
+      <form id="picker" class="picker" novalidate>
+        <fieldset>
+          <legend class="small-heading">Build a question</legend>
+          <div class="picker-row">
+            <div class="field">
+              <label for="pick-chamber">Chamber</label>
+              <select id="pick-chamber" name="chamber">
+                <option value="house">State House</option>
+                <option value="senate">State Senate</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pick-district">District</label>
+              <select id="pick-district" name="district" aria-describedby="pick-district-hint">
+                <option value="">Loading…</option>
+              </select>
+              <span id="pick-district-hint" class="visually-hidden">Choose a district number.</span>
+            </div>
+            <div class="field field-wide">
+              <label for="pick-topic">Topic</label>
+              <select id="pick-topic" name="topic">
+                <option value="profile">Full profile</option>
+              </select>
+            </div>
+            <div class="field field-button">
+              <button type="submit" class="btn btn-secondary">Use this question</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+
+    <section class="conversation" aria-labelledby="conversation-heading">
+      <div class="conversation-head">
+        <h2 id="conversation-heading" class="small-heading">Conversation</h2>
+        <button type="button" id="new-chat" class="btn btn-link">Start a new conversation</button>
+      </div>
+
+      <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation">
+        <p class="empty-state" id="empty-state">No questions yet. Pick an example, build a question above, or type your own below.</p>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <form id="chat-form" class="chat-form" novalidate>
+        <label for="question" class="question-label">Your question</label>
+        <p id="question-hint" class="hint">Press Enter to send, Shift+Enter for a new line.</p>
+        <div class="input-row">
+          <textarea id="question" name="question" rows="3" maxlength="2000"
+                    aria-describedby="question-hint form-error" required></textarea>
+          <button type="submit" id="send" class="btn btn-primary">Ask</button>
+        </div>
+        <p id="form-error" class="field-error" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p id="data-note">Data: U.S. Census Bureau, American Community Survey 5-year estimates for Hawaiʻi legislative districts.</p>
+      <p>Answers are written by an AI model that may only use figures returned by the data tools. Check important figures against the listed sources. This tool is nonpartisan, makes no policy recommendations, and is not an official product of the Hawaiʻi State Legislature or the U.S. Census Bureau.</p>
+    </div>
+  </footer>
+</body>
+</html>

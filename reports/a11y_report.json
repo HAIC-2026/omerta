@@ -1,0 +1,54 @@
+{
+  "axe_version": "4.12.1",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "best-practice"
+  ],
+  "states": [
+    {
+      "state": "initial (desktop)",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "answer + sources open",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "loading",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "error",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "empty-question validation",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "phone width 375px + answer",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "200% zoom + answer",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    }
+  ]
+}
