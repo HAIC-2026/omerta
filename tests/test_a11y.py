@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import socket
 import threading
 import time
@@ -223,6 +224,40 @@ def test_zoom_200_percent(browser, base_url):
     assert no_horizontal_scroll(page)
     assert page.is_visible("#send") and page.is_visible("#question")
     assert run_axe(page, "200% zoom + answer") == []
+
+
+def test_axe_profile_print_page(browser, base_url):
+    page = browser.new_context(viewport={"width": 1280, "height": 900}).new_page()
+    page.goto(base_url + "/district/house/46/profile")
+    assert run_axe(page, "district profile print page") == []
+    page.emulate_media(media="print")
+    assert run_axe(page, "district profile (print media)") == []
+
+
+def _longest_profiles(n=3):
+    """Districts whose profile has the most text (most areas listed)."""
+    ctx = tools.load_context()
+    recs = sorted(ctx["districts"], key=lambda r: len(r["boundary_description"]["description"]), reverse=True)
+    return [(r["chamber"], r["district"]) for r in recs[:n]] + [("house", 46)]
+
+
+def test_profile_prints_on_one_page(browser, base_url, tmp_path):
+    from pypdf import PdfReader
+    page = browser.new_context().new_page()
+    for chamber, d in _longest_profiles():
+        page.goto(f"{base_url}/district/{chamber}/{d}/profile")
+        pdf = tmp_path / f"{chamber}{d}.pdf"
+        page.pdf(path=str(pdf), format="Letter", prefer_css_page_size=True, print_background=True)
+        n = len(PdfReader(str(pdf)).pages)
+        assert n == 1, f"{chamber} {d} prints on {n} pages"
+
+
+def test_export_link_on_profile_answer(browser, base_url):
+    page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    ask(page, "Profile a district")
+    page.wait_for_selector("article.msg-agent .exports a[download]")
+    href = page.get_attribute("article.msg-agent .exports a[download]", "href")
+    assert re.fullmatch(r"/district/house/\d+/profile\?download=1", href)
 
 
 def test_axe_detects_planted_violations(browser, base_url):

@@ -259,6 +259,11 @@ mark.lowrel .lowrel-icon { font-weight: 700; color: var(--warn-text); margin-lef
 .lowrel-panel li + li { margin-top: 0.4rem; }
 .lowrel-panel strong { color: var(--text); }
 
+/* District profile export links */
+.exports { margin-top: 0.75rem; }
+.exports p { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+.exports a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+
 /* Sources panel */
 details.sources {
   margin-top: 0.75rem;

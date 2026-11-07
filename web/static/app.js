@@ -300,6 +300,33 @@
     return details;
   }
 
+  // One-page profile links for every district profile this answer looked up. The page is
+  // built on the server from tool data only, never from the model's text.
+  function buildExports(data) {
+    var seen = {}, items = [];
+    (data.tool_results || []).forEach(function (t) {
+      if (t.tool !== "get_district_profile" || t.is_error || !t.input) return;
+      var key = t.input.chamber + "-" + t.input.district;
+      if (seen[key]) return;
+      seen[key] = true;
+      items.push(t.input);
+    });
+    if (!items.length) return null;
+    var box = el("div", { class: "exports" });
+    items.forEach(function (a) {
+      var base = "/district/" + encodeURIComponent(a.chamber) + "/" + encodeURIComponent(a.district) + "/profile";
+      var name = chamberName(a.chamber) + " District " + a.district;
+      box.appendChild(el("p", {}, [
+        el("a", { class: "btn btn-secondary", href: base + "?download=1", download: "" },
+          ["Download district profile", el("span", { class: "visually-hidden", text: ": " + name })]),
+        " ",
+        el("a", { href: base, target: "_blank", rel: "noopener" },
+          ["Open print view of " + name, el("span", { class: "visually-hidden", text: " (opens in a new tab)" })])
+      ]));
+    });
+    return box;
+  }
+
   function addUserMessage(text) {
     if (emptyState) { emptyState.remove(); emptyState = null; }
     var art = el("article", { class: "msg msg-user", "aria-label": "Your question" }, [
@@ -323,6 +350,8 @@
     if (data.hit_tool_limit) {
       art.appendChild(el("p", { class: "hint", text: "This answer reached the lookup limit for one question, so it may be incomplete. Try asking a narrower question." }));
     }
+    var exp = buildExports(data);
+    if (exp) art.appendChild(exp);
     art.appendChild(buildSources(data));
     log.appendChild(art);
   }

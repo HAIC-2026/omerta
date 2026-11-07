@@ -207,6 +207,19 @@ def index():
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.get("/district/{chamber}/{district}/profile", include_in_schema=False)
+def district_profile(chamber: str, district: str, download: int = 0):
+    """Print-ready one-page profile built only from tool data (no model involved)."""
+    from fastapi.responses import HTMLResponse
+    from web.profile_page import render
+    status, html = render(chamber, district)
+    headers = {"Cache-Control": "no-cache"}
+    if download and status == 200:
+        headers["Content-Disposition"] = (f'attachment; filename="hawaii-{chamber.lower()}-district-'
+                                          f'{int(district)}-profile.html"')
+    return HTMLResponse(html, status_code=status, headers=headers)
+
+
 @app.get("/healthz")
 def healthz():
     return {"ok": True}

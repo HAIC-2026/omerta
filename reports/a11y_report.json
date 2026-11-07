@@ -49,6 +49,18 @@
       "axe_version": "4.12.1",
       "wcag": [],
       "best_practice": []
+    },
+    {
+      "state": "district profile print page",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "district profile (print media)",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
     }
   ]
 }
