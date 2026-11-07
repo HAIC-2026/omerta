@@ -3,6 +3,7 @@ python-dotenv>=1.0
 anthropic>=2.6
 fastapi>=0.115
 uvicorn[standard]>=0.30
+pypdf>=4.0          # scripts/build_district_context.py
 
 # tests
 pytest>=8.0

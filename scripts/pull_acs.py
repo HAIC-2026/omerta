@@ -127,6 +127,22 @@ METRICS: dict[str, dict] = {
         "denominator_add": ["B21001_001"],
         "denominator_sub": [],
     },
+    "armed_forces": {
+        "label": "People in the Armed Forces (population 16 years and over)",
+        "unit": "people",
+        "table": "B23025",
+        "kind": "direct",
+        "var": "B23025_006",  # In labor force: Armed Forces
+    },
+    "armed_forces_rate": {
+        "label": "Share of the population 16 years and over in the Armed Forces",
+        "unit": "percent",
+        "table": "B23025",
+        "kind": "rate",
+        "numerator": ["B23025_006"],
+        "denominator_add": ["B23025_001"],  # Total population 16 years and over
+        "denominator_sub": [],
+    },
     "limited_english_household_rate": {
         "label": "Share of households that are limited English speaking",
         "unit": "percent",

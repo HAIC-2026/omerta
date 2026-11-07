@@ -233,9 +233,10 @@ def _citations(outputs: list[dict]) -> list[str]:
 
     def walk(o: Any):
         if isinstance(o, dict):
-            c = o.get("citation")
-            if isinstance(c, str) and c not in seen:
-                seen.append(c)
+            found = [o.get("citation"), *(o.get("citations") or [])]
+            for c in found:
+                if isinstance(c, str) and c not in seen:
+                    seen.append(c)
             for v in o.values():
                 walk(v)
         elif isinstance(o, list):
@@ -255,6 +256,9 @@ def _citations(outputs: list[dict]) -> list[str]:
     return [c for c in seen if not redundant(c)]
 
 
+SOURCE_URL_PREFIXES = ("https://api.census.gov/", "https://elections.hawaii.gov/")
+
+
 def _source_urls(output: dict) -> list[str]:
     urls: list[str] = []
 
@@ -262,7 +266,7 @@ def _source_urls(output: dict) -> list[str]:
         if isinstance(o, dict):
             u = o.get("source_url")
             for x in (u if isinstance(u, list) else [u]):
-                if isinstance(x, str) and x.startswith("https://api.census.gov/") and x not in urls:
+                if isinstance(x, str) and x.startswith(SOURCE_URL_PREFIXES) and x not in urls:
                     urls.append(x)
             for v in o.values():
                 walk(v)

@@ -44,6 +44,21 @@ def _districts_in(chamber: str) -> list[int]:
     return sorted(d for (c, d) in load_data()["index"] if c == chamber)
 
 
+CONTEXT_PATH = DATA_PATH.parent / "district_context.json"
+
+
+@lru_cache(maxsize=None)
+def load_context(path: str | None = None) -> dict | None:
+    """District context from the 2021 Reapportionment Commission final report, or None
+    if data/district_context.json hasn't been built."""
+    p = Path(path) if path else CONTEXT_PATH
+    if not p.exists():
+        return None
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    raw["index"] = {(r["chamber"], r["district"]): r for r in raw["districts"]}
+    return raw
+
+
 # ---------------------------------------------------------------------------
 # Validation (strict: no guessing)
 # ---------------------------------------------------------------------------
@@ -126,6 +141,34 @@ def _bounds(value, moe) -> dict:
     return {"lower_bound": round(max(value - moe, 0), 2), "upper_bound": round(value + moe, 2)}
 
 
+# Display precision by unit, so every value and MOE of a kind is shown the same way
+# (e.g. "12.10%" and "± 2.10", never "± 2.1" next to "± 1.74").
+DISPLAY_DECIMALS = {"percent": 2, "dollars": 0, "people": 0, "households": 0, "years": 1}
+
+
+def _fmt(x, unit: str, *, sign: str = "") -> str | None:
+    if x is None:
+        return None
+    d = DISPLAY_DECIMALS.get(unit, 2)
+    s = f"{x:,.{d}f}"
+    if unit == "percent":
+        s += "%"
+    elif unit == "dollars":
+        s = "$" + s
+    return sign + s
+
+
+def _display(m: dict) -> dict:
+    v, e, u = m["value"], m["moe"], m["unit"]
+    b = _bounds(v, e)
+    return {
+        "value_display": _fmt(v, u),
+        "moe_display": _fmt(e, u, sign="± "),
+        "range_display": (f"{_fmt(b['lower_bound'], u)} to {_fmt(b['upper_bound'], u)}"
+                          if b["lower_bound"] is not None else None),
+    }
+
+
 def _metric_view(m: dict) -> dict:
     """Public shape of one metric value."""
     out = {
@@ -133,6 +176,7 @@ def _metric_view(m: dict) -> dict:
         "unit": m["unit"],
         "value": m["value"],
         "moe": m["moe"],
+        **_display(m),
         "moe_to_estimate": m.get("moe_to_estimate"),
         "moe_percent_of_estimate": (round(m["moe_to_estimate"] * 100, 1)
                                     if isinstance(m.get("moe_to_estimate"), (int, float)) else None),
@@ -172,12 +216,98 @@ def get_district_profile(chamber: str, district: int) -> dict:
         return err
     rec = load_data()["index"][(chamber, district)]
     metrics = {k: _metric_view(v) for k, v in rec["metrics"].items()}
-    return {
+    out = {
         **_district_label(rec),
         "metrics": metrics,
         "low_reliability_metrics": sorted(k for k, v in metrics.items() if v["low_reliability"]),
         "citation": _citation([v["table_id"] for v in metrics.values()]),
     }
+    ctx = _district_context(chamber, district, rec)
+    if ctx:
+        out["district_context"] = ctx
+    return out
+
+
+REPORT_SHORT = "State of Hawaiʻi 2021 Reapportionment Commission, Final Report and Reapportionment Plan"
+
+
+def _page_cite(src: dict) -> str:
+    return f"p. {src['page_label']} (PDF p. {src['pdf_page']})"
+
+
+def _district_context(chamber: str, district: int, rec: dict) -> dict | None:
+    """Areas covered and reapportionment population, from the Commission's final report,
+    plus a side-by-side with the ACS population (the difference is computed here so the
+    narrating model never does arithmetic)."""
+    ctx = load_context()
+    if not ctx:
+        return None
+    c = ctx["index"].get((chamber, district))
+    if not c:
+        return None
+    url = ctx["source"]["url"]
+    out: dict[str, Any] = {"source": REPORT_SHORT, "source_url": url}
+
+    bd = c.get("boundary_description")
+    if bd:
+        out["areas"] = {
+            "areas_as_written": bd.get("areas"),
+            "islands_as_written": bd.get("islands"),
+            "representative_districts_listed": bd.get("representative_districts_listed"),
+            "description_verbatim": bd["description"],
+            "note": "Place names are as written in the report, without ʻokina or kahakō. "
+                    "'A portion of' means the district includes only part of that area.",
+            "citation": f"{REPORT_SHORT}, Appendix D (District Boundary Descriptions), {_page_cite(bd)}",
+        }
+
+    ra = c.get("reapportionment")
+    if ra:
+        pb = ctx["population_basis"]
+        sw, biu = ra["sources"][0], ra["sources"][1]
+        out["reapportionment_population"] = {
+            "permanent_resident_population": ra["permanent_resident_population"],
+            "permanent_resident_population_display": f"{ra['permanent_resident_population']:,}",
+            "statewide_target": ra["statewide_target"],
+            "statewide_deviation_pct": ra["statewide_deviation_pct"],
+            "island_unit_as_written": ra["island_unit"],
+            "island_unit_target": ra["island_unit_target"],
+            "island_unit_deviation_pct": ra["island_unit_deviation_pct"],
+            "citation": f"{REPORT_SHORT}, {sw['table']}, {_page_cite(sw)}; "
+                        f"{biu['table']}, {_page_cite(biu)}",
+            "population_basis": {
+                "name": pb["name"],
+                "statement_verbatim": pb["statement"],
+                "statement_citation": f"{REPORT_SHORT}, {_page_cite(pb['statement_source'])}",
+                "exclusion_verbatim": pb["exclusion_statement"],
+                "exclusion_citation": f"{REPORT_SHORT}, Executive Summary, {_page_cite(pb['exclusion_source'])}",
+                "census_population": pb["census_population"],
+                "non_permanent_residents_extracted": pb["non_permanent_residents_extracted"],
+                "permanent_resident_population_statewide": pb["permanent_resident_population"],
+            },
+        }
+        acs = rec["metrics"].get("total_population")
+        if acs and acs["value"] is not None:
+            diff = acs["value"] - ra["permanent_resident_population"]
+            out["acs_vs_reapportionment"] = {
+                "acs_total_population": acs["value"],
+                "acs_total_population_moe": acs["moe"],
+                "reapportionment_population": ra["permanent_resident_population"],
+                "acs_minus_reapportionment": diff,
+                "acs_minus_reapportionment_moe": acs["moe"],
+                "display": f"{diff:,.0f} {_fmt(acs['moe'], 'people', sign='± ')}",
+                "note": (
+                    "These are different measures and are not expected to match. The ACS figure is "
+                    "a survey estimate of everyone living in the district (with a margin of error). "
+                    "The reapportionment figure is the Commission's permanent resident population, "
+                    "which per the report removed non-permanent military and student residents from "
+                    "the U.S. Census population. The difference also reflects different years and "
+                    "methods, so it is not a count of military members or students. The MOE shown is "
+                    "the ACS estimate's MOE; the reapportionment count has no sampling error."
+                ),
+                "citations": [_citation([acs["table_id"]]),
+                              f"{REPORT_SHORT}, {sw['table']}, {_page_cite(sw)}"],
+            }
+    return out
 
 
 def compare_districts(chamber: str, districts: list[int], metric: str) -> dict:

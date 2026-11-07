@@ -16,7 +16,9 @@
     renter_cost_burden_rate: "share of renters paying 30% or more of income on rent",
     veterans: "number of veterans",
     veteran_rate: "veteran share of the adult population",
-    limited_english_household_rate: "share of limited-English households"
+    limited_english_household_rate: "share of limited-English households",
+    armed_forces: "number of people in the Armed Forces",
+    armed_forces_rate: "share of people 16 and over in the Armed Forces"
   };
   var TOOL_LABELS = {};
   var MAX_HISTORY_MESSAGES = 18;   // server allows 20 incl. the new question
@@ -69,10 +71,12 @@
     return TOPIC_PHRASES[key] || String(key).replace(/_/g, " ");
   }
 
+  // Fallback only; mirrors DISPLAY_DECIMALS in agent/tools.py.
+  var DECIMALS = { percent: 2, dollars: 0, people: 0, households: 0, years: 1 };
   function formatValue(v, unit) {
     if (v === null || v === undefined) return "n/a";
-    var n = Number(v);
-    var s = Number.isInteger(n) ? n.toLocaleString("en-US") : n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    var d = unit in DECIMALS ? DECIMALS[unit] : 2;
+    var s = Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
     if (unit === "percent") return s + "%";
     if (unit === "dollars") return "$" + s;
     return s;
@@ -232,9 +236,11 @@
     items.forEach(function (it) {
       var where = it.district ? chamberName(it.chamber) + " District " + it.district : "";
       var li = el("li");
+      // Prefer the server's display strings so decimals match everywhere.
+      var val = it.value_display || formatValue(it.value, it.unit);
+      var moe = it.moe_display || (it.moe !== null && it.moe !== undefined ? "± " + formatValue(it.moe, it.unit) : "");
       li.appendChild(el("strong", {
-        text: it.label + (where ? " (" + where + ")" : "") + ": " + formatValue(it.value, it.unit) +
-          (it.moe !== null && it.moe !== undefined ? " ± " + formatValue(it.moe, it.unit) : "")
+        text: it.label + (where ? " (" + where + ")" : "") + ": " + val + (moe ? " " + moe : "")
       }));
       li.appendChild(document.createTextNode(". " + (it.caveat || "This estimate has a large margin of error.")));
       ul.appendChild(li);
@@ -269,10 +275,14 @@
         if (t.is_error) {
           li.appendChild(el("span", { class: "tool-error", text: " — not found: " + ((t.output && t.output.error) || "error") }));
         }
-        (t.source_urls || []).forEach(function (u, idx) {
+        var census = (t.source_urls || []).filter(function (u) { return u.indexOf("https://api.census.gov/") === 0; });
+        (t.source_urls || []).forEach(function (u) {
+          var isReport = u.indexOf("https://elections.hawaii.gov/") === 0;
+          var label = isReport ? "Reapportionment Commission final report (PDF)"
+            : "Census API query" + (census.length > 1 ? " " + (census.indexOf(u) + 1) : "");
           li.appendChild(document.createTextNode(" — "));
           li.appendChild(el("a", { href: u, rel: "noopener noreferrer", target: "_blank" }, [
-            "Census API query" + ((t.source_urls.length > 1) ? " " + (idx + 1) : ""),
+            label,
             el("span", { class: "visually-hidden", text: " for " + describeTool(t) + " (opens in a new tab)" })
           ]));
         });

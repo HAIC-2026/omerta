@@ -1,0 +1,3465 @@
+{
+  "source": {
+    "title": "State of Hawaii 2021 Reapportionment Commission Final Report and Reapportionment Plan",
+    "publisher": "State of Hawaiʻi 2021 Reapportionment Commission (published by the Office of Elections)",
+    "submitted_to": "Thirty-First Legislature, Regular Session 2022",
+    "url": "https://elections.hawaii.gov/wp-content/uploads/2021-Reapportionment-Commission-Final-Report-952-pages-February-25-2022.pdf",
+    "listing_url": "https://elections.hawaii.gov/about-us/boards-and-commissions/reapportionment/",
+    "pdf_pages": 952,
+    "date_in_filename": "February 25, 2022",
+    "note": "Page citations give the printed page label and the page number in the PDF file. Place names are quoted as written in the report (without ʻokina or kahakō)."
+  },
+  "population_basis": {
+    "name": "Permanent resident population (reapportionment population base)",
+    "census_population": 1455271,
+    "non_permanent_residents_extracted": 107217,
+    "permanent_resident_population": 1348054,
+    "statement": "The Commission approved on January 6, 2022 a permanent resident reapportionment population base that extracted 107,217 non- permanent residents from the U.S. Census population of Hawaii, resulting in an adjusted population of 1,348,054 to be used to apportion state legislative seats and redraw district boundaries for the State House and State Senate in the four basic island units.",
+    "statement_source": {
+      "pdf_page": 16,
+      "page_label": "8"
+    },
+    "exclusion_statement": "Briefly, non-permanent military and student residents were extracted from the U.S. Census population of the census blocks of each basic island unit: (1) by residence address or extended zip code where sufficient data was provided by the military and university data agencies, and (2) by disaggregation where there was insufficient data to pinpoint the census block in which the non-permanent resident resided.",
+    "exclusion_source": {
+      "pdf_page": 6,
+      "page_label": "ii"
+    }
+  },
+  "districts": [
+    {
+      "chamber": "house",
+      "district": 1,
+      "reapportionment": {
+        "permanent_resident_population": 25166,
+        "statewide_target": 26432,
+        "statewide_deviation": -1266,
+        "statewide_deviation_pct": -4.79,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": 0.67,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 1st Representative District comprises the portion of the island of Hawaii including Akona, Kukuihaele, Kapulena, Honokaa, Paauhau, Hanaipoe, Paauilo, Halepiula, Keanakolu, Ookala, Laupahoehoe Papaaloa, Hakalau, Honomu, Pepeekeo, Papaikou, portion of Hilo, and Kaumana",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Akona",
+          "Kukuihaele",
+          "Kapulena",
+          "Honokaa",
+          "Paauhau",
+          "Hanaipoe",
+          "Paauilo",
+          "Halepiula",
+          "Keanakolu",
+          "Ookala",
+          "Laupahoehoe Papaaloa",
+          "Hakalau",
+          "Honomu",
+          "Pepeekeo",
+          "Papaikou",
+          "portion of Hilo",
+          "Kaumana"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 875,
+        "page_label": "D-001"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 2,
+      "reapportionment": {
+        "permanent_resident_population": 24908,
+        "statewide_target": 26432,
+        "statewide_deviation": -1524,
+        "statewide_deviation_pct": -5.77,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": -0.36,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 2nd Representative District comprises the portion of the island of Hawaii including a portion of Hilo",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "a portion of Hilo"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 876,
+        "page_label": "D-002"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 3,
+      "reapportionment": {
+        "permanent_resident_population": 25035,
+        "statewide_target": 26432,
+        "statewide_deviation": -1397,
+        "statewide_deviation_pct": -5.29,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": 0.14,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 3rd Representative District comprises the portion of the island of Hawaii including a portion of Hilo, Keaukaha, Orchidlands Estate, Ainaloa, Hawaiian Acres, Fern Acres, a portion of Kurtistown, and a portion of Keaau",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "a portion of Hilo",
+          "Keaukaha",
+          "Orchidlands Estate",
+          "Ainaloa",
+          "Hawaiian Acres",
+          "Fern Acres",
+          "a portion of Kurtistown",
+          "a portion of Keaau"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 877,
+        "page_label": "D-003"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 4,
+      "reapportionment": {
+        "permanent_resident_population": 25065,
+        "statewide_target": 26432,
+        "statewide_deviation": -1367,
+        "statewide_deviation_pct": -5.17,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": 0.26,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 4th Representative District comprises the portion of the island of Hawaii including Hawaiian Paradise Park, Hawaiian Beaches, Koae, Kapoho, Pohoiki, Leilani Estates, and Kehena",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Hawaiian Paradise Park",
+          "Hawaiian Beaches",
+          "Koae",
+          "Kapoho",
+          "Pohoiki",
+          "Leilani Estates",
+          "Kehena"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 878,
+        "page_label": "D-004"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 5,
+      "reapportionment": {
+        "permanent_resident_population": 25485,
+        "statewide_target": 26432,
+        "statewide_deviation": -947,
+        "statewide_deviation_pct": -3.58,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": 1.94,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 5th Representative District comprises the portion of the island of Hawaii including a portion of Keaau, a portion of Kurtistown, Mountain View, Glenwood, Fern Forest, Volcano, Pahala, Punaluu, Honuapo, Naalehu, Waiohinu, Hawaiian Ocean View, Milolii, Hoopuloa, Hookena, and Pawaina",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "a portion of Keaau",
+          "a portion of Kurtistown",
+          "Mountain View",
+          "Glenwood",
+          "Fern Forest",
+          "Volcano",
+          "Pahala",
+          "Punaluu",
+          "Honuapo",
+          "Naalehu",
+          "Waiohinu",
+          "Hawaiian Ocean View",
+          "Milolii",
+          "Hoopuloa",
+          "Hookena",
+          "Pawaina"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 878,
+        "page_label": "D-004"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 6,
+      "reapportionment": {
+        "permanent_resident_population": 24931,
+        "statewide_target": 26432,
+        "statewide_deviation": -1501,
+        "statewide_deviation_pct": -5.68,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": -0.27,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 6th Representative District comprises the portion of the island of Hawaii including Honaunau, Napoopoo, Captain Cook, Kealakekua, Keauhou, Holualoa, and a portion of Kailua- Kona",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Honaunau",
+          "Napoopoo",
+          "Captain Cook",
+          "Kealakekua",
+          "Keauhou",
+          "Holualoa",
+          "a portion of Kailua- Kona"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 880,
+        "page_label": "D-006"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 7,
+      "reapportionment": {
+        "permanent_resident_population": 24299,
+        "statewide_target": 26432,
+        "statewide_deviation": -2133,
+        "statewide_deviation_pct": -8.07,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": -2.8,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 7th Representative District comprises the portion of the island of Hawaii including a portion of Kailua-Kona, Honokohau, Kalaoa, Makalawena, Kaupulehu, Kukio, Puuanahulu, Anaehoomalu, Lahuipuaa, Puako, and a portion of Waikoloa and Waikui",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "a portion of Kailua-Kona",
+          "Honokohau",
+          "Kalaoa",
+          "Makalawena",
+          "Kaupulehu",
+          "Kukio",
+          "Puuanahulu",
+          "Anaehoomalu",
+          "Lahuipuaa",
+          "Puako",
+          "a portion of Waikoloa",
+          "Waikui"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 880,
+        "page_label": "D-006"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 8,
+      "reapportionment": {
+        "permanent_resident_population": 25101,
+        "statewide_target": 26432,
+        "statewide_deviation": -1331,
+        "statewide_deviation_pct": -5.04,
+        "island_unit": "Hawaii",
+        "island_unit_target": 24999,
+        "island_unit_deviation_pct": 0.41,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 3 - Hawaii Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 8th Representative District comprises the portion of the island of Hawaii including Hawi, Halaula, Waiaka, Waimea, Makahalau, Palihooukapapa, Waikii, a portion of Waikoloa, a portion of Waikui, Kawaihae, and Mahukona",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Hawi",
+          "Halaula",
+          "Waiaka",
+          "Waimea",
+          "Makahalau",
+          "Palihooukapapa",
+          "Waikii",
+          "a portion of Waikoloa",
+          "a portion of Waikui",
+          "Kawaihae",
+          "Mahukona"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 881,
+        "page_label": "D-007"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 9,
+      "reapportionment": {
+        "permanent_resident_population": 28143,
+        "statewide_target": 26432,
+        "statewide_deviation": 1711,
+        "statewide_deviation_pct": 6.47,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": 2.63,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 9th Representative District comprises the portion of the island of Maui including Kahului, Puunene, and a portion of Wailuku",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "Kahului",
+          "Puunene",
+          "a portion of Wailuku"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 882,
+        "page_label": "D-008"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 10,
+      "reapportionment": {
+        "permanent_resident_population": 26928,
+        "statewide_target": 26432,
+        "statewide_deviation": 496,
+        "statewide_deviation_pct": 1.88,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": -1.81,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 10th Representative District comprises the portion of the island of Maui including a portion of Waiehu, Paukukalo, a portion of Wailuku, Wailuku Heights, Waikapu, and Hyashi Village",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "a portion of Waiehu",
+          "Paukukalo",
+          "a portion of Wailuku",
+          "Wailuku Heights",
+          "Waikapu",
+          "Hyashi Village"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 883,
+        "page_label": "D-009"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 11,
+      "reapportionment": {
+        "permanent_resident_population": 27548,
+        "statewide_target": 26432,
+        "statewide_deviation": 1116,
+        "statewide_deviation_pct": 4.22,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": 0.46,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 11th Representative District comprises the portion of the island of Maui including a portion of Maalaea, Kihei, Keawakapu, Wailea, Makena, Kanahena, and Keoneoio",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "a portion of Maalaea",
+          "Kihei",
+          "Keawakapu",
+          "Wailea",
+          "Makena",
+          "Kanahena",
+          "Keoneoio"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 883,
+        "page_label": "D-009"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 12,
+      "reapportionment": {
+        "permanent_resident_population": 27164,
+        "statewide_target": 26432,
+        "statewide_deviation": 732,
+        "statewide_deviation_pct": 2.77,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": -0.94,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 12th Representative District comprises the portion of the island of Maui including a portion of Keahua, Haliimaile, Pukalani, Makawao, Pulehu, Waiakoa, Keokea, and Ulupalakua",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "a portion of Keahua",
+          "Haliimaile",
+          "Pukalani",
+          "Makawao",
+          "Pulehu",
+          "Waiakoa",
+          "Keokea",
+          "Ulupalakua"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 884,
+        "page_label": "D-010"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 13,
+      "reapportionment": {
+        "permanent_resident_population": 27466,
+        "statewide_target": 26432,
+        "statewide_deviation": 1034,
+        "statewide_deviation_pct": 3.91,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": 0.16,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 13th Representative District comprises the islands of Molokai, Lanai, Kahoolawe, Papanui O Kane, Puukii, and Alau, Molokini, and portion of the island of Maui including a portion of Kahului, Paia, Kuau, Haiku, Peahi, Huelo, Kailua, Keanae, Wailua, Nahiku, Honomaele, Kaeleku, Hana, Hamoa, Mokae, Kakio, Puuiki, Koali, Kipahulu, Mokulau, Kaupo, and Nuu",
+        "islands": [
+          "Maui",
+          "Molokai",
+          "Lanai",
+          "Kahoolawe",
+          "Puukii",
+          "Alau",
+          "Molokini"
+        ],
+        "areas": [
+          "a portion of Kahului",
+          "Paia",
+          "Kuau",
+          "Haiku",
+          "Peahi",
+          "Huelo",
+          "Kailua",
+          "Keanae",
+          "Wailua",
+          "Nahiku",
+          "Honomaele",
+          "Kaeleku",
+          "Hana",
+          "Hamoa",
+          "Mokae",
+          "Kakio",
+          "Puuiki",
+          "Koali",
+          "Kipahulu",
+          "Mokulau",
+          "Kaupo",
+          "Nuu"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 885,
+        "page_label": "D-011"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 14,
+      "reapportionment": {
+        "permanent_resident_population": 27290,
+        "statewide_target": 26432,
+        "statewide_deviation": 858,
+        "statewide_deviation_pct": 3.25,
+        "island_unit": "Maui",
+        "island_unit_target": 27423,
+        "island_unit_deviation_pct": -0.48,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 5 - Maui Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 14th Representative District comprises Mokeehia Island and the portion of the island of Maui including Kahakuloa, a portion of Waiehu, a portion of Maalaea, Mopua, Olowalu, Wainee, Lahaina, Puunoa, Kelawea, Lahainaluna, Kaanapali, Mahinahina Camp, Kahana, and Honokahua",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "Kahakuloa",
+          "a portion of Waiehu",
+          "a portion of Maalaea",
+          "Mopua",
+          "Olowalu",
+          "Wainee",
+          "Lahaina",
+          "Puunoa",
+          "Kelawea",
+          "Lahainaluna",
+          "Kaanapali",
+          "Mahinahina Camp",
+          "Kahana",
+          "Honokahua"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 886,
+        "page_label": "D-012"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 15,
+      "reapportionment": {
+        "permanent_resident_population": 24261,
+        "statewide_target": 26432,
+        "statewide_deviation": -2171,
+        "statewide_deviation_pct": -8.21,
+        "island_unit": "Kauai",
+        "island_unit_target": 24335,
+        "island_unit_deviation_pct": -0.3,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 7 - Kauai Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 26,
+            "page_label": "18"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 15th Representative District comprises the portion of the island of Kauai including Haena, Haleomaha, Wainiha, Hanalei, Princeville, Kalihiwai, Kilauea, Anahola, Kealia, Kapaa, Waipouli, Papaloa, a portion of Wailua, Kawaihau, and Kapahi",
+        "islands": [
+          "Kauai"
+        ],
+        "areas": [
+          "Haena",
+          "Haleomaha",
+          "Wainiha",
+          "Hanalei",
+          "Princeville",
+          "Kalihiwai",
+          "Kilauea",
+          "Anahola",
+          "Kealia",
+          "Kapaa",
+          "Waipouli",
+          "Papaloa",
+          "a portion of Wailua",
+          "Kawaihau",
+          "Kapahi"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 886,
+        "page_label": "D-012"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 16,
+      "reapportionment": {
+        "permanent_resident_population": 24401,
+        "statewide_target": 26432,
+        "statewide_deviation": -2031,
+        "statewide_deviation_pct": -7.68,
+        "island_unit": "Kauai",
+        "island_unit_target": 24335,
+        "island_unit_deviation_pct": 0.27,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 7 - Kauai Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 26,
+            "page_label": "18"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 16th Representative District comprises the portion of the island of Kauai including a portion of Wailua, Hanamaulu, Kapaia, Lihue, Puhi, and a portion of Omao",
+        "islands": [
+          "Kauai"
+        ],
+        "areas": [
+          "a portion of Wailua",
+          "Hanamaulu",
+          "Kapaia",
+          "Lihue",
+          "Puhi",
+          "a portion of Omao"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 887,
+        "page_label": "D-013"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 17,
+      "reapportionment": {
+        "permanent_resident_population": 24342,
+        "statewide_target": 26432,
+        "statewide_deviation": -2090,
+        "statewide_deviation_pct": -7.91,
+        "island_unit": "Kauai",
+        "island_unit_target": 24335,
+        "island_unit_deviation_pct": 0.03,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 7 - Kauai Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 26,
+            "page_label": "18"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 17th Representative District comprises the islands of Niihau, Lehua, and Kaula, and portion of the island of Kauai including a portion of Omao, Koloa, Poipu, Lawai, Kalaheo, Eleele, Hanapepe, Hanapepe Heights, Kapaka, Makaweli, Kaawanui Village, Pakala Village, Kapalawai, Waimea, Nonopahu Village, Kekaha, Pokii, Kaunalewa and Mana",
+        "islands": [
+          "Kauai",
+          "Niihau",
+          "Lehua",
+          "Kaula"
+        ],
+        "areas": [
+          "a portion of Omao",
+          "Koloa",
+          "Poipu",
+          "Lawai",
+          "Kalaheo",
+          "Eleele",
+          "Hanapepe",
+          "Hanapepe Heights",
+          "Kapaka",
+          "Makaweli",
+          "Kaawanui Village",
+          "Pakala Village",
+          "Kapalawai",
+          "Waimea",
+          "Nonopahu Village",
+          "Kekaha",
+          "Pokii",
+          "Kaunalewa",
+          "Mana"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 888,
+        "page_label": "D-014"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 18,
+      "reapportionment": {
+        "permanent_resident_population": 26914,
+        "statewide_target": 26432,
+        "statewide_deviation": 482,
+        "statewide_deviation_pct": 1.82,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.5,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 23,
+            "page_label": "15"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 18th Representative District comprises Koko Isle and the portion of the island of Oahu including Portlock, and a portion of Hawaii Kai",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Portlock",
+          "a portion of Hawaii Kai"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 889,
+        "page_label": "D-015"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 19,
+      "reapportionment": {
+        "permanent_resident_population": 26514,
+        "statewide_target": 26432,
+        "statewide_deviation": 82,
+        "statewide_deviation_pct": 0.31,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -0.99,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 23,
+            "page_label": "15"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 19th Representative District comprises the portion of the island of Oahu including a portion of Hawaii Kai, Niu Valley, Wailupe, a portion of Kahala, and a portion of Waialae",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Hawaii Kai",
+          "Niu Valley",
+          "Wailupe",
+          "a portion of Kahala",
+          "a portion of Waialae"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 889,
+        "page_label": "D-015"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 20,
+      "reapportionment": {
+        "permanent_resident_population": 26561,
+        "statewide_target": 26432,
+        "statewide_deviation": 129,
+        "statewide_deviation_pct": 0.49,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -0.82,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 23,
+            "page_label": "15"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 20th Representative District comprises the portion of the island of Oahu including Kahala and Kaalawai, a portion of Waialae, a portion of Kaimuki, and a portion of Kapahulu",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Kahala",
+          "Kaalawai",
+          "a portion of Waialae",
+          "a portion of Kaimuki",
+          "a portion of Kapahulu"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 890,
+        "page_label": "D-016"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 21,
+      "reapportionment": {
+        "permanent_resident_population": 26608,
+        "statewide_target": 26432,
+        "statewide_deviation": 176,
+        "statewide_deviation_pct": 0.67,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -0.64,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 23,
+            "page_label": "15"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 21st Representative District comprises the portion of the island of Oahu including Wilhelmina Rise, Maunalani Heights, a portion of Kaimuki, and St. Louis Heights",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Wilhelmina Rise",
+          "Maunalani Heights",
+          "a portion of Kaimuki",
+          "St. Louis Heights"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 890,
+        "page_label": "D-016"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 22,
+      "reapportionment": {
+        "permanent_resident_population": 26451,
+        "statewide_target": 26432,
+        "statewide_deviation": 19,
+        "statewide_deviation_pct": 0.07,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -1.23,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 23,
+            "page_label": "15"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 22nd Representative District comprises the portion of the island of Oahu including Manoa",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Manoa"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 891,
+        "page_label": "D-017"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 23,
+      "reapportionment": {
+        "permanent_resident_population": 26428,
+        "statewide_target": 26432,
+        "statewide_deviation": -4,
+        "statewide_deviation_pct": -0.02,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -1.31,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 23rd Representative District comprises the portion of the island of Oahu including Moiliili- McCully",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Moiliili- McCully"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 891,
+        "page_label": "D-017"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 24,
+      "reapportionment": {
+        "permanent_resident_population": 26986,
+        "statewide_target": 26432,
+        "statewide_deviation": 554,
+        "statewide_deviation_pct": 2.1,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.77,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 24th Representative District comprises the portion of the island of Oahu including Waikiki",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Waikiki"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 892,
+        "page_label": "D-018"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 25,
+      "reapportionment": {
+        "permanent_resident_population": 26933,
+        "statewide_target": 26432,
+        "statewide_deviation": 501,
+        "statewide_deviation_pct": 1.9,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.57,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 26,
+            "page_label": "18"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 25th Representative District comprises the portion of the island of Oahu including Ala Moana and Kakaako",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Ala Moana",
+          "Kakaako"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 892,
+        "page_label": "D-018"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 26,
+      "reapportionment": {
+        "permanent_resident_population": 27193,
+        "statewide_target": 26432,
+        "statewide_deviation": 761,
+        "statewide_deviation_pct": 2.88,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.54,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 26th Representative District comprises the portion of the island of Oahu including Makiki and Punchbowl",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Makiki",
+          "Punchbowl"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 893,
+        "page_label": "D-019"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 27,
+      "reapportionment": {
+        "permanent_resident_population": 27183,
+        "statewide_target": 26432,
+        "statewide_deviation": 751,
+        "statewide_deviation_pct": 2.84,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.5,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 27th Representative District comprises the portion of the island of Oahu including Pacific Heights, Nuuanu, and a portion of Makiki Heights",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Pacific Heights",
+          "Nuuanu",
+          "a portion of Makiki Heights"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 893,
+        "page_label": "D-019"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 28,
+      "reapportionment": {
+        "permanent_resident_population": 26970,
+        "statewide_target": 26432,
+        "statewide_deviation": 538,
+        "statewide_deviation_pct": 2.04,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.71,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 28th Representative District comprises Sand Island and the portion of the island of Oahu including Chinatown",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Chinatown"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 894,
+        "page_label": "D-020"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 29,
+      "reapportionment": {
+        "permanent_resident_population": 27076,
+        "statewide_target": 26432,
+        "statewide_deviation": 644,
+        "statewide_deviation_pct": 2.44,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.11,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 29th Representative District comprises the portion of the island of Oahu including Kamehameha Heights and a portion of Kalihi",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Kamehameha Heights",
+          "a portion of Kalihi"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 894,
+        "page_label": "D-020"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 30,
+      "reapportionment": {
+        "permanent_resident_population": 26996,
+        "statewide_target": 26432,
+        "statewide_deviation": 564,
+        "statewide_deviation_pct": 2.13,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.81,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 30th Representative District comprises Mokauea Island, Kahaaulana Island, and the portion of the island of Oahu including a portion of Kalihi, Kalihi Kai, Keehi Lagoon, Hickam Air Force Base, and Hickam Village",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Kalihi",
+          "Kalihi Kai",
+          "Keehi Lagoon",
+          "Hickam Air Force Base",
+          "Hickam Village"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 895,
+        "page_label": "D-021"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 31,
+      "reapportionment": {
+        "permanent_resident_population": 26911,
+        "statewide_target": 26432,
+        "statewide_deviation": 479,
+        "statewide_deviation_pct": 1.81,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.49,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 31st Representative District comprises Ford Island and the portion of the island of Oahu including Fort Shafter Flats, Salt Lake, and Pearl Harbor",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Fort Shafter Flats",
+          "Salt Lake",
+          "Pearl Harbor"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 895,
+        "page_label": "D-021"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 32,
+      "reapportionment": {
+        "permanent_resident_population": 26566,
+        "statewide_target": 26432,
+        "statewide_deviation": 134,
+        "statewide_deviation_pct": 0.51,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -0.8,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 32nd Representative District comprises the portion of the island of Oahu including a portion of Fort Shafter, Moanalua, Aliamanu, Foster Village, a portion of Aiea, and a portion of Halawa",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Fort Shafter",
+          "Moanalua",
+          "Aliamanu",
+          "Foster Village",
+          "a portion of Aiea",
+          "a portion of Halawa"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 896,
+        "page_label": "D-022"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 33,
+      "reapportionment": {
+        "permanent_resident_population": 27152,
+        "statewide_target": 26432,
+        "statewide_deviation": 720,
+        "statewide_deviation_pct": 2.72,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.39,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 33rd Representative District comprises the portion of the island of Oahu including a portion of Halawa, a portion of Aiea, and Waimalu",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Halawa",
+          "a portion of Aiea",
+          "Waimalu"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 897,
+        "page_label": "D-023"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 34,
+      "reapportionment": {
+        "permanent_resident_population": 26872,
+        "statewide_target": 26432,
+        "statewide_deviation": 440,
+        "statewide_deviation_pct": 1.66,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.34,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 34th Representative District comprises the portion of the island of Oahu including Waiau, a portion of Pearl City, and Pacific Palisades",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Waiau",
+          "a portion of Pearl City",
+          "Pacific Palisades"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 897,
+        "page_label": "D-023"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 35,
+      "reapportionment": {
+        "permanent_resident_population": 27092,
+        "statewide_target": 26432,
+        "statewide_deviation": 660,
+        "statewide_deviation_pct": 2.5,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.17,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 35th Representative District comprises the portion of the island of Oahu including a portion of Pearl City, a portion of Waipahu, and Crestview",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Pearl City",
+          "a portion of Waipahu",
+          "Crestview"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 898,
+        "page_label": "D-024"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 36,
+      "reapportionment": {
+        "permanent_resident_population": 26910,
+        "statewide_target": 26432,
+        "statewide_deviation": 478,
+        "statewide_deviation_pct": 1.81,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.49,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 36th Representative District comprises the portion of the island of Oahu including a portion of Waipahu",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Waipahu"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 899,
+        "page_label": "D-025"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 37,
+      "reapportionment": {
+        "permanent_resident_population": 26809,
+        "statewide_target": 26432,
+        "statewide_deviation": 377,
+        "statewide_deviation_pct": 1.43,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.11,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 37th Representative District comprises the portion of the island of Oahu including a portion of Waipio and a portion of Mililani",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Waipio",
+          "a portion of Mililani"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 899,
+        "page_label": "D-025"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 38,
+      "reapportionment": {
+        "permanent_resident_population": 26955,
+        "statewide_target": 26432,
+        "statewide_deviation": 523,
+        "statewide_deviation_pct": 1.98,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.65,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 38th Representative District comprises the portion of the island of Oahu including a portion of Mililani, and a portion of Waipio Acres",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Mililani",
+          "a portion of Waipio Acres"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 900,
+        "page_label": "D-026"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 39,
+      "reapportionment": {
+        "permanent_resident_population": 27111,
+        "statewide_target": 26432,
+        "statewide_deviation": 679,
+        "statewide_deviation_pct": 2.57,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.24,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 39th Representative District comprises Laulaunui Island and the portion of the island of Oahu including Royal Kunia, a portion of Waipahu, Honouliuli, and a portion of Lower Village",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Royal Kunia",
+          "a portion of Waipahu",
+          "Honouliuli",
+          "a portion of Lower Village"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 901,
+        "page_label": "D-027"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 40,
+      "reapportionment": {
+        "permanent_resident_population": 26968,
+        "statewide_target": 26432,
+        "statewide_deviation": 536,
+        "statewide_deviation_pct": 2.03,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.7,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 40th Representative District comprises the portion of the island of Oahu including a portion of Lower Village, Iroquois Point, and a portion of Ewa Beach",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Lower Village",
+          "Iroquois Point",
+          "a portion of Ewa Beach"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 902,
+        "page_label": "D-028"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 41,
+      "reapportionment": {
+        "permanent_resident_population": 26925,
+        "statewide_target": 26432,
+        "statewide_deviation": 493,
+        "statewide_deviation_pct": 1.87,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.54,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 41st Representative District comprises the portion of the island of Oahu including a portion of Ewa Beach, and Barbers Point",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Ewa Beach",
+          "Barbers Point"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 902,
+        "page_label": "D-028"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 42,
+      "reapportionment": {
+        "permanent_resident_population": 26477,
+        "statewide_target": 26432,
+        "statewide_deviation": 45,
+        "statewide_deviation_pct": 0.17,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -1.13,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 42nd Representative District comprises the portion of the island of Oahu including a portion of Varona Village, a portion of Ewa, a portion of Kapolei, and Fernandez Village",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Varona Village",
+          "a portion of Ewa",
+          "a portion of Kapolei",
+          "Fernandez Village"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 903,
+        "page_label": "D-029"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 43,
+      "reapportionment": {
+        "permanent_resident_population": 26307,
+        "statewide_target": 26432,
+        "statewide_deviation": -125,
+        "statewide_deviation_pct": -0.47,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -1.77,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 43rd Representative District comprises the portion of the island of Oahu including a portion of Kapolei, a portion of Akupu, and Makakilo",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Kapolei",
+          "a portion of Akupu",
+          "Makakilo"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 903,
+        "page_label": "D-029"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 44,
+      "reapportionment": {
+        "permanent_resident_population": 27177,
+        "statewide_target": 26432,
+        "statewide_deviation": 745,
+        "statewide_deviation_pct": 2.82,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.48,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 44th Representative District comprises the portion of the island of Oahu including Honokai Hale, Nanakuli, and Maili",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Honokai Hale",
+          "Nanakuli",
+          "Maili"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 904,
+        "page_label": "D-030"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 45,
+      "reapportionment": {
+        "permanent_resident_population": 27095,
+        "statewide_target": 26432,
+        "statewide_deviation": 663,
+        "statewide_deviation_pct": 2.51,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 1.18,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 45th Representative District comprises the portion of the island of Oahu including Waianae and Makaha",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Waianae",
+          "Makaha"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 904,
+        "page_label": "D-030"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 46,
+      "reapportionment": {
+        "permanent_resident_population": 26984,
+        "statewide_target": 26432,
+        "statewide_deviation": 552,
+        "statewide_deviation_pct": 2.09,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": 0.76,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 46th Representative District comprises the portion of the island of Oahu including a portion of Waipio Acres, Wahiawa, Whitmore Village, a portion of Waialua, and Mokuleia",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Waipio Acres",
+          "Wahiawa",
+          "Whitmore Village",
+          "a portion of Waialua",
+          "Mokuleia"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 905,
+        "page_label": "D-031"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 47,
+      "reapportionment": {
+        "permanent_resident_population": 26656,
+        "statewide_target": 26432,
+        "statewide_deviation": 224,
+        "statewide_deviation_pct": 0.85,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -0.46,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 47th Representative District comprises Mokuaula Island and the portion of the island of Oahu including a portion of Waialua, Haleiwa, Kawailoa Beach, Waimea, Sunset Beach, Waialee, Kawela Bay, Kahuku, Laie, Hauula, Punaluu, and Kahana",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Waialua",
+          "Haleiwa",
+          "Kawailoa Beach",
+          "Waimea",
+          "Sunset Beach",
+          "Waialee",
+          "Kawela Bay",
+          "Kahuku",
+          "Laie",
+          "Hauula",
+          "Punaluu",
+          "Kahana"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 906,
+        "page_label": "D-032"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 48,
+      "reapportionment": {
+        "permanent_resident_population": 26108,
+        "statewide_target": 26432,
+        "statewide_deviation": -324,
+        "statewide_deviation_pct": -1.23,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -2.51,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 48th Representative District comprises Mokolii Island, Ahu O Laka Island, Kapapa Island, Moku O Loe Island, and the portion of the island of Oahu including Kaaawa, Kahaluu, Ahuimanu, and a portion of Heeia and Kaneohe",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Kaaawa",
+          "Kahaluu",
+          "Ahuimanu",
+          "a portion of Heeia",
+          "Kaneohe"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 906,
+        "page_label": "D-032"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 49,
+      "reapportionment": {
+        "permanent_resident_population": 26356,
+        "statewide_target": 26432,
+        "statewide_deviation": -76,
+        "statewide_deviation_pct": -0.29,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -1.58,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 49th Representative District comprises the portion of the island of Oahu including a portion of Kaneohe, Puohala Village, and Maunawili",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Kaneohe",
+          "Puohala Village",
+          "Maunawili"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 907,
+        "page_label": "D-033"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 50,
+      "reapportionment": {
+        "permanent_resident_population": 26160,
+        "statewide_target": 26432,
+        "statewide_deviation": -272,
+        "statewide_deviation_pct": -1.03,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -2.32,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 50th Representative District comprises Moku Manu Island, Popoia Island, and the portion of the island of Oahu including a portion of Kailua",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Kailua"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 908,
+        "page_label": "D-034"
+      }
+    },
+    {
+      "chamber": "house",
+      "district": 51,
+      "reapportionment": {
+        "permanent_resident_population": 26117,
+        "statewide_target": 26432,
+        "statewide_deviation": -315,
+        "statewide_deviation_pct": -1.19,
+        "island_unit": "Oahu",
+        "island_unit_target": 26780,
+        "island_unit_deviation_pct": -2.48,
+        "sources": [
+          {
+            "table": "Table 9 - House Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 1 - Oahu Basic Island Units Targets and Deviations (House Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 51st Representative District includes the Northwestern Hawaiian Islands (Nihoa, Necker, 12 islands at French Frigate Shoals, 2 islands at Gardner Pinnacles, Laysan, Lisianski, 8 islands at Pearl and Hermes Atoll, 3 islands at Kure Atoll), the islands of Moku Nui, Moku Iki, Manana, Kaohikaipu, and comprises the portion of the island of Oahu including a portion of Kailua, Lanikai, Keolu Hills, and Waimanalo",
+        "islands": [
+          "Oahu",
+          "Moku Nui",
+          "Moku Iki",
+          "Manana",
+          "Kaohikaipu"
+        ],
+        "areas": [
+          "a portion of Kailua",
+          "Lanikai",
+          "Keolu Hills",
+          "Waimanalo"
+        ],
+        "representative_districts_listed": null,
+        "pdf_page": 908,
+        "page_label": "D-034"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 1,
+      "reapportionment": {
+        "permanent_resident_population": 50019,
+        "statewide_target": 53922,
+        "statewide_deviation": -3903,
+        "statewide_deviation_pct": -7.24,
+        "island_unit": "Hawaii",
+        "island_unit_target": 49998,
+        "island_unit_deviation_pct": 0.04,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 4 - Hawaii Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 1st Senatorial District comprises the portion of the island of Hawaii including a portion of Pepeekeo, Papaikou, Hilo, Keaukaha, Kaumana; and includes the 1st, 2nd, 3rd, and 5th Representative Districts",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "a portion of Pepeekeo",
+          "Papaikou",
+          "Hilo",
+          "Keaukaha",
+          "Kaumana"
+        ],
+        "representative_districts_listed": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "pdf_page": 909,
+        "page_label": "D-035"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 2,
+      "reapportionment": {
+        "permanent_resident_population": 50284,
+        "statewide_target": 53922,
+        "statewide_deviation": -3638,
+        "statewide_deviation_pct": -6.75,
+        "island_unit": "Hawaii",
+        "island_unit_target": 49998,
+        "island_unit_deviation_pct": 0.57,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 4 - Hawaii Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 2nd Senatorial District comprises the portion of the island of Hawaii including Keaau, Hawaiian Paradise Park, Orchidlands Estates, Ainaloa, Hawaiian Beaches, Koae, Kapoho, Nanawale Estates, Pahoa, Pualaa, Pohoiki, Leilani Estates, Kaueleau, Opihikao, Kehena, Kaimu, Kalapana, Kapaahu, portion of Volcano, Fern Forest, Glenwood, Mountain View, Hawaiian Acres, and Kurtistown; and includes the 3rd, 4th, and 5th Representative Districts",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Keaau",
+          "Hawaiian Paradise Park",
+          "Orchidlands Estates",
+          "Ainaloa",
+          "Hawaiian Beaches",
+          "Koae",
+          "Kapoho",
+          "Nanawale Estates",
+          "Pahoa",
+          "Pualaa",
+          "Pohoiki",
+          "Leilani Estates",
+          "Kaueleau",
+          "Opihikao",
+          "Kehena",
+          "Kaimu",
+          "Kalapana",
+          "Kapaahu",
+          "portion of Volcano",
+          "Fern Forest",
+          "Glenwood",
+          "Mountain View",
+          "Hawaiian Acres",
+          "Kurtistown"
+        ],
+        "representative_districts_listed": [
+          3,
+          4,
+          5
+        ],
+        "pdf_page": 910,
+        "page_label": "D-036"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 3,
+      "reapportionment": {
+        "permanent_resident_population": 49887,
+        "statewide_target": 53922,
+        "statewide_deviation": -4035,
+        "statewide_deviation_pct": -7.48,
+        "island_unit": "Hawaii",
+        "island_unit_target": 49998,
+        "island_unit_deviation_pct": -0.22,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 4 - Hawaii Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 3rd Senatorial District comprises the portion of the island of Hawaii including portion of Volcano, Pahala, Punaluu, Honuapo, Naalehu, Waiohinu, Kipuka Nahuaopala, Hawaiian Ocean View, Milolii, Hoopuloa, Hookena, Honaunau, Keei, Napoopoo, Kaawaloa, Pawaina, Captain Cook, Kealakekua, Waihou, Kainaliu, Honalo, Keauhou, Holualoa, Kailua-Kona, and Honokohau; and includes the 5th, 6th, and 7th Representative Districts",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "portion of Volcano",
+          "Pahala",
+          "Punaluu",
+          "Honuapo",
+          "Naalehu",
+          "Waiohinu",
+          "Kipuka Nahuaopala",
+          "Hawaiian Ocean View",
+          "Milolii",
+          "Hoopuloa",
+          "Hookena",
+          "Honaunau",
+          "Keei",
+          "Napoopoo",
+          "Kaawaloa",
+          "Pawaina",
+          "Captain Cook",
+          "Kealakekua",
+          "Waihou",
+          "Kainaliu",
+          "Honalo",
+          "Keauhou",
+          "Holualoa",
+          "Kailua-Kona",
+          "Honokohau"
+        ],
+        "representative_districts_listed": [
+          5,
+          6,
+          7
+        ],
+        "pdf_page": 911,
+        "page_label": "D-037"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 4,
+      "reapportionment": {
+        "permanent_resident_population": 49800,
+        "statewide_target": 53922,
+        "statewide_deviation": -4122,
+        "statewide_deviation_pct": -7.64,
+        "island_unit": "Hawaii",
+        "island_unit_target": 49998,
+        "island_unit_deviation_pct": -0.4,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 4 - Hawaii Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 4th Senatorial District comprises the portion of the island of Hawaii including Kalaoa, Mahaiula, Makalawena, Kaupulehu, Kukio, Kiholo, Keawaiki, Weliweli, Puuanahulu, Waikii, Anaehoomalu, Lahuipuaa, Waikoloa, Puako, Waimea, Waiaka, Waikui, Kawaihae, Mahukona, Hikapoloa, Hawi, Kapaau, Halaula, Akona, Kukuihaele, Kapulena, Makahalau, Palihooukapapa, Honokaa, Paauhau, Hanaipoe, Paauilo, Halepiula, Keanakolu, Ookala, Laupahoephoe, Papaaloa, Welokai, Ninole, Hopuwai, Hakalau, Honomu, and portion of Pepeekeo Mill; and D-037 2021 Reapportionment Plans Metes and Bounds Page 38 of 54 includes the 1st, 5th, 7th, and 8th Representative Districts",
+        "islands": [
+          "Hawaii"
+        ],
+        "areas": [
+          "Kalaoa",
+          "Mahaiula",
+          "Makalawena",
+          "Kaupulehu",
+          "Kukio",
+          "Kiholo",
+          "Keawaiki",
+          "Weliweli",
+          "Puuanahulu",
+          "Waikii",
+          "Anaehoomalu",
+          "Lahuipuaa",
+          "Waikoloa",
+          "Puako",
+          "Waimea",
+          "Waiaka",
+          "Waikui",
+          "Kawaihae",
+          "Mahukona",
+          "Hikapoloa",
+          "Hawi",
+          "Kapaau",
+          "Halaula",
+          "Akona",
+          "Kukuihaele",
+          "Kapulena",
+          "Makahalau",
+          "Palihooukapapa",
+          "Honokaa",
+          "Paauhau",
+          "Hanaipoe",
+          "Paauilo",
+          "Halepiula",
+          "Keanakolu",
+          "Ookala",
+          "Laupahoephoe",
+          "Papaaloa",
+          "Welokai",
+          "Ninole",
+          "Hopuwai",
+          "Hakalau",
+          "Honomu",
+          "portion of Pepeekeo Mill"
+        ],
+        "representative_districts_listed": [
+          1,
+          5,
+          7,
+          8
+        ],
+        "pdf_page": 911,
+        "page_label": "D-037"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 5,
+      "reapportionment": {
+        "permanent_resident_population": 55121,
+        "statewide_target": 53922,
+        "statewide_deviation": 1199,
+        "statewide_deviation_pct": 2.22,
+        "island_unit": "Maui",
+        "island_unit_target": 54846,
+        "island_unit_deviation_pct": 0.5,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 6 - Maui Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 5th Senatorial District comprises the Mokeehia Island, portion of the island of Maui including Kahakuloa, Waiehu, Paukukalo, Kahului, Puunene, a portion of Waikapu, Wailuku Heights, and Wailuku; and includes the 9th, 10th, and 14th Representative Districts",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "Kahakuloa",
+          "Waiehu",
+          "Paukukalo",
+          "Kahului",
+          "Puunene",
+          "a portion of Waikapu",
+          "Wailuku Heights",
+          "Wailuku"
+        ],
+        "representative_districts_listed": [
+          9,
+          10,
+          14
+        ],
+        "pdf_page": 912,
+        "page_label": "D-038"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 6,
+      "reapportionment": {
+        "permanent_resident_population": 54788,
+        "statewide_target": 53922,
+        "statewide_deviation": 866,
+        "statewide_deviation_pct": 1.61,
+        "island_unit": "Maui",
+        "island_unit_target": 54846,
+        "island_unit_deviation_pct": -0.11,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 6 - Maui Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 6th Senatorial District comprises the portion of the island of Maui including a portion of Waikapu, a portion of Keoneoio, Kanahena, Makena, Wailea, Keawakapu, Kihei, Maalaea, Hyashi Village, Mopua, Olowalu, Wainee, Lahaina, Puunoa, Kelawea, Lahainaluna, Kaanapali, Mahinahina Camp, Kahana, and Honokohau; and includes the 9th, 10th, 11th, 12th, and 14th Representative Districts",
+        "islands": [
+          "Maui"
+        ],
+        "areas": [
+          "a portion of Waikapu",
+          "a portion of Keoneoio",
+          "Kanahena",
+          "Makena",
+          "Wailea",
+          "Keawakapu",
+          "Kihei",
+          "Maalaea",
+          "Hyashi Village",
+          "Mopua",
+          "Olowalu",
+          "Wainee",
+          "Lahaina",
+          "Puunoa",
+          "Kelawea",
+          "Lahainaluna",
+          "Kaanapali",
+          "Mahinahina Camp",
+          "Kahana",
+          "Honokohau"
+        ],
+        "representative_districts_listed": [
+          9,
+          10,
+          11,
+          12,
+          14
+        ],
+        "pdf_page": 913,
+        "page_label": "D-039"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 7,
+      "reapportionment": {
+        "permanent_resident_population": 54630,
+        "statewide_target": 53922,
+        "statewide_deviation": 708,
+        "statewide_deviation_pct": 1.31,
+        "island_unit": "Maui",
+        "island_unit_target": 54846,
+        "island_unit_deviation_pct": -0.39,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 6 - Maui Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 7th Senatorial District comprises the islands of Molokai, Lanai, Kahoolawe, Papanui O Kane, Puukii, Alau, Molokini, and portion of the island of Maui including a portion of Kahului, Paia, Kuau, Haiku, Peahi, Huelo, Kailua, Keanae, Wailua, Nahiku, Honomaele, Kaeleku, Hana, Hamoa, Mokae, Kakio, Puuiki, Koali, Kipahulu, Mokulau, Kaupo, Nuu, Ulupalakua, Keokea, Waiakoa, Pulehu, Pukalani, Makawao, Haliimaile, and a portion of Keahua; and includes the 12th and 13th Representative Districts",
+        "islands": [
+          "Maui",
+          "Molokai",
+          "Lanai",
+          "Kahoolawe",
+          "Puukii",
+          "Alau",
+          "Molokini"
+        ],
+        "areas": [
+          "a portion of Kahului",
+          "Paia",
+          "Kuau",
+          "Haiku",
+          "Peahi",
+          "Huelo",
+          "Kailua",
+          "Keanae",
+          "Wailua",
+          "Nahiku",
+          "Honomaele",
+          "Kaeleku",
+          "Hana",
+          "Hamoa",
+          "Mokae",
+          "Kakio",
+          "Puuiki",
+          "Koali",
+          "Kipahulu",
+          "Mokulau",
+          "Kaupo",
+          "Nuu",
+          "Ulupalakua",
+          "Keokea",
+          "Waiakoa",
+          "Pulehu",
+          "Pukalani",
+          "Makawao",
+          "Haliimaile",
+          "a portion of Keahua"
+        ],
+        "representative_districts_listed": [
+          12,
+          13
+        ],
+        "pdf_page": 914,
+        "page_label": "D-040"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 8,
+      "reapportionment": {
+        "permanent_resident_population": 73004,
+        "statewide_target": 53922,
+        "statewide_deviation": 19082,
+        "statewide_deviation_pct": 35.39,
+        "island_unit": "Kauai",
+        "island_unit_target": 73004,
+        "island_unit_deviation_pct": 0.0,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 8 - Kauai Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 26,
+            "page_label": "18"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 8th Senatorial District comprises the islands of Kauai, Niihau, Lehua, and Kaula; and includes the 15th, 16th, and 17th Representative Districts",
+        "islands": [
+          "Kauai",
+          "Niihau",
+          "Lehua",
+          "Kaula"
+        ],
+        "areas": null,
+        "representative_districts_listed": [
+          15,
+          16,
+          17
+        ],
+        "pdf_page": 914,
+        "page_label": "D-040"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 9,
+      "reapportionment": {
+        "permanent_resident_population": 52970,
+        "statewide_target": 53922,
+        "statewide_deviation": -952,
+        "statewide_deviation_pct": -1.77,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -1.1,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 9th Senatorial District comprises the portion of the island of Oahu including a portion of Hawaii Kai, Niu Valley, Wailupe, Waialae, Kahala, Kaalawai, a portion of Kapahulu, and a portion of Kaimuki and includes the 18th, 19th, and 20th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Hawaii Kai",
+          "Niu Valley",
+          "Wailupe",
+          "Waialae",
+          "Kahala",
+          "Kaalawai",
+          "a portion of Kapahulu",
+          "a portion of Kaimuki"
+        ],
+        "representative_districts_listed": [
+          18,
+          19,
+          20
+        ],
+        "pdf_page": 914,
+        "page_label": "D-040"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 10,
+      "reapportionment": {
+        "permanent_resident_population": 53615,
+        "statewide_target": 53922,
+        "statewide_deviation": -307,
+        "statewide_deviation_pct": -0.57,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 0.1,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 10th Senatorial District comprises the portion of the island of Oahu including Maunalani Heights, Wilhelmina Rise, a portion of Kaimuki, a portion of Kapahulu, and St. Louis Heights; and includes the 19th, 20th, 21st, 22nd, 23rd, and 24th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Maunalani Heights",
+          "Wilhelmina Rise",
+          "a portion of Kaimuki",
+          "a portion of Kapahulu",
+          "St. Louis Heights"
+        ],
+        "representative_districts_listed": [
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "pdf_page": 915,
+        "page_label": "D-041"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 11,
+      "reapportionment": {
+        "permanent_resident_population": 53613,
+        "statewide_target": 53922,
+        "statewide_deviation": -309,
+        "statewide_deviation_pct": -0.57,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 0.1,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 11th Senatorial District comprises the portion of the island of Oahu including Manoa and a portion of Makiki Heights; and includes the 22nd, 23rd, 25th, 26th, and 27th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Manoa",
+          "a portion of Makiki Heights"
+        ],
+        "representative_districts_listed": [
+          22,
+          23,
+          25,
+          26,
+          27
+        ],
+        "pdf_page": 916,
+        "page_label": "D-042"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 12,
+      "reapportionment": {
+        "permanent_resident_population": 53818,
+        "statewide_target": 53922,
+        "statewide_deviation": -104,
+        "statewide_deviation_pct": -0.19,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 0.48,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 27,
+            "page_label": "19"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 12th Senatorial District comprises the portion of the island of Oahu including Waikiki, Ala Moana, and Kakaako; and includes the 23rd, 24th, and 25th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Waikiki",
+          "Ala Moana",
+          "Kakaako"
+        ],
+        "representative_districts_listed": [
+          23,
+          24,
+          25
+        ],
+        "pdf_page": 916,
+        "page_label": "D-042"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 13,
+      "reapportionment": {
+        "permanent_resident_population": 54558,
+        "statewide_target": 53922,
+        "statewide_deviation": 636,
+        "statewide_deviation_pct": 1.18,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 1.86,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 13th Senatorial District comprises the portion of the island of Oahu including Pacific Heights, Chinatown, and a portion of Iwilei; and includes the 25th, 26th, 27th, and 28th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Pacific Heights",
+          "Chinatown",
+          "a portion of Iwilei"
+        ],
+        "representative_districts_listed": [
+          25,
+          26,
+          27,
+          28
+        ],
+        "pdf_page": 917,
+        "page_label": "D-043"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 14,
+      "reapportionment": {
+        "permanent_resident_population": 54862,
+        "statewide_target": 53922,
+        "statewide_deviation": 940,
+        "statewide_deviation_pct": 1.74,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 2.43,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 14th Senatorial District comprises the portion of the island of Oahu including Kalihi, a portion of Fort Shafter, and Moanalua; and includes the 27th, 28th, 29th, 30th, and 32nd Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Kalihi",
+          "a portion of Fort Shafter",
+          "Moanalua"
+        ],
+        "representative_districts_listed": [
+          27,
+          28,
+          29,
+          30,
+          32
+        ],
+        "pdf_page": 917,
+        "page_label": "D-043"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 15,
+      "reapportionment": {
+        "permanent_resident_population": 54757,
+        "statewide_target": 53922,
+        "statewide_deviation": 835,
+        "statewide_deviation_pct": 1.55,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 2.23,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 15th Senatorial District comprises Sand Island, Mokauea Island, Kahakaaulana Island, Ford Island, and the portion of the island of Oahu including Keehi Lagoon, Kalihi Kai, Salt Lake, Aliamanu, Foster Village, Joint Base Pearl Harbor-Hickam, a portion of Pearl City, and a portion of Waipahu; and includes the 28th, 30th, 31st, 32nd, 34th, 35th, 36th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Keehi Lagoon",
+          "Kalihi Kai",
+          "Salt Lake",
+          "Aliamanu",
+          "Foster Village",
+          "Joint Base Pearl Harbor-Hickam",
+          "a portion of Pearl City",
+          "a portion of Waipahu"
+        ],
+        "representative_districts_listed": [
+          28,
+          30,
+          31,
+          32,
+          34,
+          35,
+          36
+        ],
+        "pdf_page": 918,
+        "page_label": "D-044"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 16,
+      "reapportionment": {
+        "permanent_resident_population": 54371,
+        "statewide_target": 53922,
+        "statewide_deviation": 449,
+        "statewide_deviation_pct": 0.83,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 1.51,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 16th Senatorial District comprises the portion of the island of Oahu including Halawa Heights, Aiea, Waimalu, Kalauao, Waiau, Pacific Palisasdes, and a portion of Pearl City; and includes the 32nd, 33rd, and 34th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Halawa Heights",
+          "Aiea",
+          "Waimalu",
+          "Kalauao",
+          "Waiau",
+          "Pacific Palisasdes",
+          "a portion of Pearl City"
+        ],
+        "representative_districts_listed": [
+          32,
+          33,
+          34
+        ],
+        "pdf_page": 919,
+        "page_label": "D-045"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 17,
+      "reapportionment": {
+        "permanent_resident_population": 52349,
+        "statewide_target": 53922,
+        "statewide_deviation": -1573,
+        "statewide_deviation_pct": -2.92,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.26,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 17th Senatorial District comprises the portion of the island of Oahu including a portion of Mililani, a portion of Waipio Acres, Wahiawa, and Whitmore Village; and includes the 37th, 38th, and 46th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Mililani",
+          "a portion of Waipio Acres",
+          "Wahiawa",
+          "Whitmore Village"
+        ],
+        "representative_districts_listed": [
+          37,
+          38,
+          46
+        ],
+        "pdf_page": 919,
+        "page_label": "D-045"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 18,
+      "reapportionment": {
+        "permanent_resident_population": 52289,
+        "statewide_target": 53922,
+        "statewide_deviation": -1633,
+        "statewide_deviation_pct": -3.03,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.37,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 18th Senatorial District comprises the portion of the island of Oahu including Waipio, Crestview, Royal Kunia, and a portion of Mililani, a portion of Waipahu, and a portion of Akupu; and includes the 35th, 36th, 37th, 38th, 39th, and 46th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Waipio",
+          "Crestview",
+          "Royal Kunia",
+          "a portion of Mililani",
+          "a portion of Waipahu",
+          "a portion of Akupu"
+        ],
+        "representative_districts_listed": [
+          35,
+          36,
+          37,
+          38,
+          39,
+          46
+        ],
+        "pdf_page": 920,
+        "page_label": "D-046"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 19,
+      "reapportionment": {
+        "permanent_resident_population": 54675,
+        "statewide_target": 53922,
+        "statewide_deviation": 753,
+        "statewide_deviation_pct": 1.4,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 2.08,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 24,
+            "page_label": "16"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 19th Senatorial District comprises Laulaunui Island and the portion of the island of Oahu including a portion of Pearl City, a portion of Waipahu, Honouliuli, and a portion of Fernandez Village; and includes the 34th, 35th, 36th, 39th, and 42nd Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Pearl City",
+          "a portion of Waipahu",
+          "Honouliuli",
+          "a portion of Fernandez Village"
+        ],
+        "representative_districts_listed": [
+          34,
+          35,
+          36,
+          39,
+          42
+        ],
+        "pdf_page": 920,
+        "page_label": "D-046"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 20,
+      "reapportionment": {
+        "permanent_resident_population": 54408,
+        "statewide_target": 53922,
+        "statewide_deviation": 486,
+        "statewide_deviation_pct": 0.9,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 1.58,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 20th Senatorial District comprises the portion of the island of Oahu including Iroquois Point, Ewa Beach, and a portion of Ewa; and includes the 39th, 40th, 41st, and 42nd Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Iroquois Point",
+          "Ewa Beach",
+          "a portion of Ewa"
+        ],
+        "representative_districts_listed": [
+          39,
+          40,
+          41,
+          42
+        ],
+        "pdf_page": 921,
+        "page_label": "D-047"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 21,
+      "reapportionment": {
+        "permanent_resident_population": 54721,
+        "statewide_target": 53922,
+        "statewide_deviation": 799,
+        "statewide_deviation_pct": 1.48,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": 2.17,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 21st Senatorial District comprises the portion of the island of Oahu including a portion of Fernandez Village, a portion of Ewa, Kapolei, Makakilo, and Kalaeloa; and includes the 41st, 42nd, 43rd, and 44th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "a portion of Fernandez Village",
+          "a portion of Ewa",
+          "Kapolei",
+          "Makakilo",
+          "Kalaeloa"
+        ],
+        "representative_districts_listed": [
+          41,
+          42,
+          43,
+          44
+        ],
+        "pdf_page": 922,
+        "page_label": "D-048"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 22,
+      "reapportionment": {
+        "permanent_resident_population": 52438,
+        "statewide_target": 53922,
+        "statewide_deviation": -1484,
+        "statewide_deviation_pct": -2.75,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.09,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 22nd Senatorial District comprises the portion of the island of Oahu including Honokai Hale, Nanakuli, Maili, Waianae, and Makaha; and includes the 41st, 44th, and 45th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Honokai Hale",
+          "Nanakuli",
+          "Maili",
+          "Waianae",
+          "Makaha"
+        ],
+        "representative_districts_listed": [
+          41,
+          44,
+          45
+        ],
+        "pdf_page": 922,
+        "page_label": "D-048"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 23,
+      "reapportionment": {
+        "permanent_resident_population": 52473,
+        "statewide_target": 53922,
+        "statewide_deviation": -1449,
+        "statewide_deviation_pct": -2.69,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.03,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 23rd Senatorial District comprises Mokuaula Island, Mokolii Island, Ahu O Laka Island, and Kapapa Island, and the portion of the island of Oahu including Mokuleia, Waialua, Ranch Camp, Haleiwa, Kawailoa Beach, Waimea, Sunset Beach, Waialee, Kawela Bay, Kahuku, Laie, Hauula, Punaluu, Kaaawa, Kahaluu, and Ahuimanu, a portion of Kaneohe, a portion of Waipio Acres, and a portion of Kunia; and includes 46th, 47th, 48th, and 49th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Mokuleia",
+          "Waialua",
+          "Ranch Camp",
+          "Haleiwa",
+          "Kawailoa Beach",
+          "Waimea",
+          "Sunset Beach",
+          "Waialee",
+          "Kawela Bay",
+          "Kahuku",
+          "Laie",
+          "Hauula",
+          "Punaluu",
+          "Kaaawa",
+          "Kahaluu",
+          "Ahuimanu",
+          "a portion of Kaneohe",
+          "a portion of Waipio Acres",
+          "a portion of Kunia"
+        ],
+        "representative_districts_listed": [
+          46,
+          47,
+          48,
+          49
+        ],
+        "pdf_page": 923,
+        "page_label": "D-049"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 24,
+      "reapportionment": {
+        "permanent_resident_population": 52220,
+        "statewide_target": 53922,
+        "statewide_deviation": -1702,
+        "statewide_deviation_pct": -3.16,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.5,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 24th Senatorial District includes Moku Manu Island and Moku O Loe Island, and comprises the portion of the island of Oahu including Kaneohe, Puohala Village, and a portion of Kailua; and includes 48th, 49th, and 50th Representative Districts",
+        "islands": [
+          "Oahu"
+        ],
+        "areas": [
+          "Kaneohe",
+          "Puohala Village",
+          "a portion of Kailua"
+        ],
+        "representative_districts_listed": [
+          48,
+          49,
+          50
+        ],
+        "pdf_page": 924,
+        "page_label": "D-050"
+      }
+    },
+    {
+      "chamber": "senate",
+      "district": 25,
+      "reapportionment": {
+        "permanent_resident_population": 52384,
+        "statewide_target": 53922,
+        "statewide_deviation": -1538,
+        "statewide_deviation_pct": -2.85,
+        "island_unit": "Oahu",
+        "island_unit_target": 53560,
+        "island_unit_deviation_pct": -2.2,
+        "sources": [
+          {
+            "table": "Table 10 - Senate Statewide Targets and Deviations",
+            "pdf_page": 28,
+            "page_label": "20"
+          },
+          {
+            "table": "Table 2 - Oahu Basic Island Units Targets and Deviations (Senate Districts)",
+            "pdf_page": 25,
+            "page_label": "17"
+          }
+        ]
+      },
+      "boundary_description": {
+        "description": "The 25th Senatorial District includes the islands of includes the Northwestern Hawaiian Islands (Nihoa, Necker, 12 islands at French Frigate Shoals, 2 islands at Gardner Pinnacles, Laysan, Lisianski, 8 islands at Pearl and Hermes Atoll, 3 islands at Kure Atoll), Popoia, Moku Nui, Moku Iki, Manana, Kaohikaipu, and Koko Isle, and comprises the portion of the island of Oahu including a portion of Kailua, Lanikai, Keolu Hills, Waimanalo, and a portion of Hawaii Kai; and includes the 18th, 49th, 50th, and 51st Representative Districts",
+        "islands": [
+          "Oahu",
+          "Necker",
+          "Laysan",
+          "Lisianski",
+          "Hermes Atoll",
+          "Popoia",
+          "Moku Nui",
+          "Moku Iki",
+          "Manana",
+          "Kaohikaipu",
+          "Koko Isle"
+        ],
+        "areas": [
+          "a portion of Kailua",
+          "Lanikai",
+          "Keolu Hills",
+          "Waimanalo",
+          "a portion of Hawaii Kai"
+        ],
+        "representative_districts_listed": [
+          18,
+          49,
+          50,
+          51
+        ],
+        "pdf_page": 925,
+        "page_label": "D-051"
+      }
+    }
+  ],
+  "verification": {
+    "checks": [
+      "island-unit table population equals statewide table population for each district",
+      "population minus target equals the stated deviation in both tables",
+      "district populations sum to the stated permanent resident total for each chamber",
+      "census population minus non-permanent residents extracted equals the adjusted total"
+    ],
+    "unverified": []
+  }
+}

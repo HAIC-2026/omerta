@@ -31,6 +31,30 @@ Each district record has `chamber`, `district`, `geoid`, `name`, and `metrics`. 
 
 Metrics: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden rate (30%+ of income on rent), veterans (count and rate), and limited-English household rate.
 
+### District context from the 2021 Reapportionment Commission
+
+`scripts/build_district_context.py` builds `data/district_context.json` from the State of Hawaiʻi [2021 Reapportionment Commission Final Report and Reapportionment Plan](https://elections.hawaii.gov/wp-content/uploads/2021-Reapportionment-Commission-Final-Report-952-pages-February-25-2022.pdf), published by the Office of Elections. For each district it records:
+
+- the areas and communities the district covers, verbatim from Appendix D (District Boundary Descriptions), with the page number;
+- the permanent-resident population the Commission used to draw it, from Tables 1–10, with page numbers;
+- the report's own statement that non-permanent military and student residents were removed from the U.S. Census population to form that base.
+
+Every figure is parsed from the PDF and cross-checked:
+
+- each district's population matches between the island-unit and statewide tables;
+- each table's deviations add up;
+- each chamber's districts sum to the stated total;
+- the census total minus the people removed equals the adjusted total.
+
+Anything that fails a check is left out.
+
+```
+python scripts/build_district_context.py            # downloads the ~400 MB report
+python scripts/build_district_context.py --pdf PATH  # or use a local copy
+```
+
+`get_district_profile` returns this as `district_context`. It also includes a side-by-side of the ACS total population and the reapportionment population. The difference is computed by the tool, not the model.
+
 ## Chat agent
 
 `agent/chat.py` is a Claude agent (model set by `MODEL` at the top of the file) that answers questions using only the tools in `agent/tools.py`. Add `ANTHROPIC_API_KEY` to `.env`, then:

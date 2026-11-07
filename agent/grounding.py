@@ -140,6 +140,7 @@ def stated_flagged_values(text: str, outputs: Iterable[dict]) -> list[dict]:
             entry = found.setdefault(key, {
                 "chamber": chamber, "district": district, "label": m.get("label"),
                 "value": m["value"], "moe": m.get("moe"), "unit": m.get("unit"),
+                "value_display": m.get("value_display"), "moe_display": m.get("moe_display"),
                 "caveat": m.get("caveat"), "citation": m.get("citation"), "matched_text": [],
             })
             for h in hits:

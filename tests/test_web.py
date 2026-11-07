@@ -79,12 +79,18 @@ def test_chat_returns_answer_tool_results_and_citations(client):
     assert len(body["tool_results"]) == 1
     tr = body["tool_results"][0]
     assert tr["tool"] == "get_district_profile" and tr["output"] == out
-    assert tr["source_urls"] and all(u.startswith("https://api.census.gov/") for u in tr["source_urls"])
+    assert any(u.startswith("https://api.census.gov/") for u in tr["source_urls"])
+    assert all(u.startswith(webapp.SOURCE_URL_PREFIXES) for u in tr["source_urls"])
     assert pop["citation"] in body["citations"]
-    # Every table is cited once; the profile's combined "Tables ..." line is dropped as redundant.
+    # Every ACS table is cited once; the profile's combined "Tables ..." line is dropped as redundant.
     tables = {v["table_id"] for v in out["metrics"].values()}
-    assert len(body["citations"]) == len(tables)
+    acs_cites = [c for c in body["citations"] if c.startswith("U.S. Census Bureau")]
+    assert len(acs_cites) == len(tables)
     assert out["citation"] not in body["citations"]
+    # Reapportionment report citations come through too, with the report PDF link.
+    if "district_context" in out:
+        assert any("Reapportionment Commission" in c for c in body["citations"])
+        assert any(u.startswith("https://elections.hawaii.gov/") for u in tr["source_urls"])
 
     # Only the flagged value the answer states is reported, with its caveat and matched text.
     lr = body["low_reliability"]
