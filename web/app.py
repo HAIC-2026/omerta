@@ -32,6 +32,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 from agent import tools
+from agent.chat import ServiceNotConfigured
 from agent.grounding import stated_flagged_values
 
 log = logging.getLogger("web")
@@ -173,6 +174,14 @@ app = FastAPI(title="Hawaiʻi District Profiles", docs_url=None, redoc_url=None,
 app.state.limiter = default_limiter()
 app.state.slots = threading.BoundedSemaphore(MAX_CONCURRENT)
 
+# Cross-origin access is off unless ALLOWED_ORIGINS lists origins (comma-separated),
+# e.g. ALLOWED_ORIGINS=https://haic.example.org
+ALLOWED_ORIGINS = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+if ALLOWED_ORIGINS:
+    from fastapi.middleware.cors import CORSMiddleware
+    app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS, allow_methods=["GET", "POST"],
+                       allow_headers=["Content-Type"], allow_credentials=False, max_age=600)
+
 CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
        "connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; "
        "form-action 'self'")
@@ -188,8 +197,15 @@ async def security_headers(request: Request, call_next):
     return response
 
 
-def error(status: int, code: str, message: str, headers: dict | None = None) -> JSONResponse:
-    return JSONResponse({"error": message, "code": code}, status_code=status, headers=headers)
+ALTERNATIVES = [{"label": "District map", "url": "/map"}, {"label": "About this tool", "url": "/about"}]
+
+
+def error(status: int, code: str, message: str, headers: dict | None = None,
+          alternatives: bool = False) -> JSONResponse:
+    body: dict[str, Any] = {"error": message, "code": code}
+    if alternatives:
+        body["alternatives"] = ALTERNATIVES
+    return JSONResponse(body, status_code=status, headers=headers)
 
 
 @app.exception_handler(RequestValidationError)
@@ -277,7 +293,74 @@ def map_data(chamber: str = "house", metric: str = "poverty_rate"):
 
 @app.get("/healthz")
 def healthz():
+    """Liveness: the process is up."""
     return {"ok": True}
+
+
+_deep_cache: dict[str, Any] = {}
+
+
+def _check_model_api() -> str:
+    """Cheap upstream check (models.retrieve uses no tokens). Cached for 60 s. Never returns
+    upstream error text."""
+    now = time.monotonic()
+    if _deep_cache.get("at") and now - _deep_cache["at"] < 60:
+        return _deep_cache["status"]
+    from agent.chat import MODEL, make_client
+    try:
+        make_client().with_options(timeout=10, max_retries=0).models.retrieve(MODEL)
+        status = "ok"
+    except ServiceNotConfigured:
+        status = "not_configured"
+    except (anthropic.AuthenticationError, anthropic.PermissionDeniedError):
+        status = "auth_error"
+    except (anthropic.APIConnectionError, anthropic.APITimeoutError):
+        status = "unreachable"
+    except anthropic.APIError:
+        status = "error"
+    _deep_cache.update(at=now, status=status)
+    return status
+
+
+@app.get("/readyz")
+def readyz(deep: int = 0):
+    """Readiness: data files loaded, chat configured. ?deep=1 also checks the AI service
+    (no tokens used). Data features stay up even when the AI service is down."""
+    from agent.chat import EFFORT, MODEL
+    checks: dict[str, Any] = {}
+    try:
+        data = tools.load_data()
+        checks["acs_districts"] = len(data["districts"])
+    except Exception:
+        checks["acs_districts"] = 0
+    ctx = tools.load_context()
+    checks["district_context"] = len(ctx["districts"]) if ctx else 0
+    try:
+        from agent.program_tools import load_programs
+        pr = load_programs()
+        checks["programs"] = len(pr["programs"])
+        checks["programs_verified"] = pr["metadata"].get("date_verified")
+    except Exception:
+        checks["programs"] = 0
+    checks["map_shapes"] = _shapes() is not None
+    checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
+    if deep:
+        checks["ai_service"] = _check_model_api()
+    data_ok = checks["acs_districts"] > 0
+    chat_ok = checks["chat_configured"] and checks.get("ai_service", "ok") == "ok"
+    body = {"ready": data_ok, "chat_available": chat_ok, "checks": checks,
+            "config": {"model": MODEL, "effort": EFFORT, "rate_limit_per_minute": RATE_PER_IP_PER_MINUTE,
+                       "rate_limit_per_day": RATE_PER_IP_PER_DAY, "rate_limit_global_per_minute":
+                       RATE_GLOBAL_PER_MINUTE, "max_concurrent": MAX_CONCURRENT,
+                       "allowed_origins": ALLOWED_ORIGINS}}
+    return JSONResponse(body, status_code=200 if data_ok else 503)
+
+
+@app.get("/about", include_in_schema=False)
+def about():
+    from fastapi.responses import HTMLResponse
+    from web.about_page import render as render_about
+    return HTMLResponse(render_about(), headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/api/meta")
@@ -370,18 +453,12 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
     try:
         agent.messages = [{"role": m.role, "content": m.content} for m in body.messages[:-1]]
         result = agent.ask(body.messages[-1].content)
-    except anthropic.RateLimitError:
-        return error(503, "upstream_busy", "The AI service is busy. Please try again in a minute.",
-                     headers={"Retry-After": "30"})
-    except (anthropic.APIConnectionError, anthropic.APITimeoutError):
-        return error(502, "upstream_unreachable", "Couldn't reach the AI service. Please try again.")
-    except anthropic.APIStatusError as exc:
-        log.warning("Anthropic API error %s (request id %s)", exc.status_code,
-                    getattr(exc, "request_id", None))
-        return error(502, "upstream_error", "The AI service returned an error. Please try again.")
+    except anthropic.APIError as exc:
+        return upstream_error(exc)
     except Exception:
         log.exception("chat failed")
-        return error(500, "internal_error", "Something went wrong on our side. Please try again.")
+        return error(500, "internal_error", "Something went wrong on our side. Please try again.",
+                     alternatives=True)
     finally:
         slots.release()
 
@@ -401,8 +478,45 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
     }
 
 
-@app.exception_handler(RuntimeError)
-async def not_configured(_request: Request, exc: RuntimeError):
-    # make_client() raises RuntimeError when ANTHROPIC_API_KEY is missing.
+DATA_STILL_WORKS = " The district map and district profiles don't use the AI service and still work."
+
+
+def upstream_error(exc: Exception) -> JSONResponse:
+    """Map an Anthropic API failure to a clear, generic message. Never echoes upstream detail."""
+    status = getattr(exc, "status_code", None)
+    rid = getattr(exc, "request_id", None)
+    log.warning("Anthropic API failure: %s status=%s request_id=%s", type(exc).__name__, status, rid)
+    msg = str(getattr(exc, "message", "") or "").lower()
+    if isinstance(exc, (anthropic.APIConnectionError, anthropic.APITimeoutError)):
+        return error(502, "upstream_unreachable",
+                     "Couldn't reach the AI service. Please try again in a moment." + DATA_STILL_WORKS,
+                     alternatives=True)
+    if isinstance(exc, anthropic.RateLimitError):
+        return error(503, "upstream_busy", "The AI service is handling too many requests. Please try again "
+                     "in a minute." + DATA_STILL_WORKS, headers={"Retry-After": "30"}, alternatives=True)
+    if status == 400 and ("credit" in msg or "billing" in msg or "balance" in msg):
+        return error(503, "upstream_unavailable", "The AI service is temporarily unavailable for this demo "
+                     "(its usage limit has been reached)." + DATA_STILL_WORKS, alternatives=True)
+    if isinstance(exc, (anthropic.AuthenticationError, anthropic.PermissionDeniedError)):
+        return error(503, "upstream_unavailable", "The AI service isn't available on this server right now."
+                     + DATA_STILL_WORKS, alternatives=True)
+    if status in (500, 502, 503, 504, 529) or isinstance(exc, anthropic.InternalServerError):
+        return error(503, "upstream_busy", "The AI service is temporarily overloaded or down. Please try "
+                     "again in a few minutes." + DATA_STILL_WORKS, headers={"Retry-After": "60"},
+                     alternatives=True)
+    return error(502, "upstream_error", "The AI service returned an error. Please try again."
+                 + DATA_STILL_WORKS, alternatives=True)
+
+
+@app.exception_handler(ServiceNotConfigured)
+async def not_configured(_request: Request, exc: ServiceNotConfigured):
     log.error("Service not configured: %s", exc)
-    return error(503, "not_configured", "The chat service isn't configured on this server.")
+    return error(503, "not_configured", "The chat service isn't configured on this server."
+                 + DATA_STILL_WORKS, alternatives=True)
+
+
+@app.exception_handler(Exception)
+async def unhandled(_request: Request, exc: Exception):
+    # Last resort: log server-side, never send a stack trace to the browser.
+    log.exception("unhandled error")
+    return error(500, "internal_error", "Something went wrong on our side. Please try again.")

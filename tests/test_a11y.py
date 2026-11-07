@@ -319,6 +319,22 @@ def test_map_phone_width(browser, base_url):
     assert run_axe(page, "district map (phone 375px)") == []
 
 
+def test_axe_about(browser, base_url):
+    page = browser.new_context(viewport={"width": 1280, "height": 900}).new_page()
+    page.goto(base_url + "/about")
+    assert run_axe(page, "about page") == []
+    page2 = browser.new_context(viewport={"width": 375, "height": 740}).new_page()
+    page2.goto(base_url + "/about")
+    assert no_horizontal_scroll(page2)
+
+
+def test_error_offers_working_alternatives(browser, base_url):
+    page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    ask(page, "trigger an error")
+    page.wait_for_selector("#error-area .error-box a[href='/map']")
+    assert run_axe(page, "AI service error with alternatives") == []
+
+
 def test_axe_detects_planted_violations(browser, base_url):
     """Control: prove axe is actually running under our CSP by planting two violations."""
     page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})

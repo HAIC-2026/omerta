@@ -25,19 +25,28 @@ from dotenv import load_dotenv
 from agent import program_tools, tools
 
 # ---------------------------------------------------------------------------
-# Config: swap the model here.
+# Config: defaults here, overridable with environment variables (or .env).
 # ---------------------------------------------------------------------------
 
-MODEL = "claude-sonnet-5-5"
-EFFORT = "medium"  # low | medium | high | xhigh | max
-MAX_TOKENS = 8000  # per response; includes thinking
-MAX_TOOL_CALLS = 10  # per user question
-# On a safety-classifier decline, the API re-runs the request on a fallback model
-# chosen by refusal category. Set to False to disable.
-USE_SERVER_FALLBACK = True
-FALLBACK_BETA = "server-side-fallback-2026-07-01"
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(REPO_ROOT / ".env")
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, default))
+    except ValueError:
+        return default
+
+
+MODEL = os.getenv("CHAT_MODEL", "claude-sonnet-5-5")
+EFFORT = os.getenv("CHAT_EFFORT", "medium")  # low | medium | high | xhigh | max
+MAX_TOKENS = _env_int("CHAT_MAX_TOKENS", 8000)  # per response; includes thinking
+MAX_TOOL_CALLS = _env_int("CHAT_MAX_TOOL_CALLS", 10)  # per user question
+# On a safety-classifier decline, the API re-runs the request on a fallback model
+# chosen by refusal category. Set CHAT_SERVER_FALLBACK=0 to disable.
+USE_SERVER_FALLBACK = os.getenv("CHAT_SERVER_FALLBACK", "1") != "0"
+FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
 SYSTEM_PROMPT = """\
 You answer questions from Hawaiʻi state legislators and their staff about the socio-economic \
@@ -338,10 +347,14 @@ class TurnResult:
     hit_tool_limit: bool = False
 
 
+class ServiceNotConfigured(RuntimeError):
+    """The Anthropic API key is missing."""
+
+
 def make_client() -> anthropic.Anthropic:
     load_dotenv(REPO_ROOT / ".env")
     if not os.getenv("ANTHROPIC_API_KEY"):
-        raise RuntimeError("ANTHROPIC_API_KEY not set (add it to .env at the repo root).")
+        raise ServiceNotConfigured("ANTHROPIC_API_KEY not set (add it to .env at the repo root).")
     return anthropic.Anthropic()  # reads the key from the environment
 
 

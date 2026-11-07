@@ -1,92 +1,160 @@
-# omerta
+# Hawaiʻi District Profiles
 
-## Data layer: ACS district profiles
+An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan social and economic profiles of all 51 State House and 25 State Senate districts. Built for HAIC 2026.
 
-`scripts/pull_acs.py` pulls 2023 ACS 5-year estimates for all 51 Hawaii State House and 25 State Senate districts (2022 boundaries) from the Census API and writes `data/districts.json`.
+- **Chat:** ask in plain language. Every figure comes from a data tool and is cited (source, table, year, boundary vintage), with caveats for low-reliability estimates.
+- **District map:** shade districts by any measure, with a sortable table alternative. Select a district to ask about it.
+- **One-page profiles:** a print-ready page for any district, built straight from the data with no AI involved.
+- **Assistance programs:** official facts about SNAP, Med-QUEST, WIC and others, framed as "may qualify, confirm with the agency".
+- **About:** `/about` explains the sources, the grounding guarantee and the limitations.
 
-### Run it
+## Architecture
 
-1. Get a free key at https://api.census.gov/data/key_signup.html and add it to `.env` in the repo root:
-   ```
-   CENSUS_API_KEY=your_key_here
-   ```
-2. Install dependencies and run:
-   ```
-   python -m venv .venv
-   .venv\Scripts\activate        # macOS/Linux: source .venv/bin/activate
-   pip install -r requirements.txt
-   python scripts/pull_acs.py
-   ```
+```mermaid
+flowchart LR
+  subgraph Sources["Official sources (fetched by build scripts)"]
+    ACS["Census API<br/>ACS 2023 5-year"]
+    RC["2021 Reapportionment<br/>Commission final report (PDF)"]
+    AG["Agency web pages<br/>(DHS, DOH, HPHA, DOE, ...)"]
+    CB["Census 2022 cartographic<br/>boundary files"]
+  end
+  subgraph Build["scripts/ (verify, then write)"]
+    P1["pull_acs.py<br/>checks variable IDs, computes MOEs"]
+    P2["build_district_context.py<br/>parses + cross-checks tables"]
+    P3["verify_programs.py<br/>re-checks every quote"]
+    P4["build_map.py<br/>simplifies shapes"]
+  end
+  subgraph Data["data/"]
+    D1[districts.json]
+    D2[district_context.json]
+    D3[programs.json]
+    D4[district_shapes.json]
+  end
+  subgraph Tools["agent/ tools (pure functions, no model)"]
+    T1["get_district_profile · compare_districts<br/>rank_districts · statewide_context"]
+    T2["find_programs · district_program_context"]
+  end
+  LLM["Claude (agent/chat.py)<br/>narrates tool output only"]
+  WEB["FastAPI web/app.py<br/>/chat · /map · /district/…/profile · /about · /readyz"]
+  UI["Browser UI<br/>plain HTML/CSS/JS, WCAG 2.1 AA"]
 
-The script checks every variable ID (estimate and MOE) against the dataset's `variables.json` before it requests any data, and stops if one is missing. It should report 76 records.
-
-### What's in `data/districts.json`
-
-Each district record has `chamber`, `district`, `geoid`, `name`, and `metrics`. Every metric includes:
-
-- `value` and `moe` (90% margin of error)
-- `table_id`, `variable_ids`, `variable_labels`, `computation`
-- `dataset` ("ACS 2023 5-year"), `boundary_vintage` ("2022 districts"), `source_url` (API query, no key)
-- `low_reliability`: true when MOE / estimate > 30%
-
-Metrics: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden rate (30%+ of income on rent), veterans (count and rate), and limited-English household rate.
-
-### District context from the 2021 Reapportionment Commission
-
-`scripts/build_district_context.py` builds `data/district_context.json` from the State of Hawaiʻi [2021 Reapportionment Commission Final Report and Reapportionment Plan](https://elections.hawaii.gov/wp-content/uploads/2021-Reapportionment-Commission-Final-Report-952-pages-February-25-2022.pdf), published by the Office of Elections. For each district it records:
-
-- the areas and communities the district covers, verbatim from Appendix D (District Boundary Descriptions), with the page number;
-- the permanent-resident population the Commission used to draw it, from Tables 1–10, with page numbers;
-- the report's own statement that non-permanent military and student residents were removed from the U.S. Census population to form that base.
-
-Every figure is parsed from the PDF and cross-checked:
-
-- each district's population matches between the island-unit and statewide tables;
-- each table's deviations add up;
-- each chamber's districts sum to the stated total;
-- the census total minus the people removed equals the adjusted total.
-
-Anything that fails a check is left out.
-
-```
-python scripts/build_district_context.py            # downloads the ~400 MB report
-python scripts/build_district_context.py --pdf PATH  # or use a local copy
+  ACS --> P1 --> D1
+  RC --> P2 --> D2
+  AG --> P3 --> D3
+  CB --> P4 --> D4
+  D1 & D2 --> T1
+  D3 & D1 --> T2
+  T1 & T2 <--> LLM
+  LLM --> WEB
+  T1 --> WEB
+  D4 --> WEB
+  WEB <--> UI
 ```
 
-`get_district_profile` returns this as `district_context`. It also includes a side-by-side of the ACS total population and the reapportionment population. The difference is computed by the tool, not the model.
+The model never reads the data files directly. It calls the tools, and the tools return values with their citations. The map and the one-page profiles bypass the model entirely.
 
-### Assistance programs
+## How grounding works
 
-`data/programs.json` describes Hawaiʻi assistance programs: SNAP, Med-QUEST, WIC, H-HEAP (Hawaiʻi's LIHEAP), TANF/TAONF, the HPHA Housing Choice Voucher (Section 8) program, school meals, Kūpuna Care, veterans' services, and the Child Care Subsidy.
+1. **Facts are built and verified before the model sees them.**
+   - `pull_acs.py` confirms every Census variable ID against `variables.json`, fetches estimates with margins of error, and flags values where MOE / estimate > 30%.
+   - `build_district_context.py` cross-checks every reapportionment figure in the PDF (island tables against statewide tables, sums against the stated totals) and leaves out anything that fails.
+   - `verify_programs.py` re-fetches each agency page and confirms every quoted fact word for word.
+2. **Tools return values, never prose.** Every value carries a citation and ready-formatted display strings, plus a caveat if it's low reliability. Any number a comparison needs is computed by the tool, so the model never does arithmetic: the ACS-vs-reapportionment population gap, confidence ranges, medians of districts.
+3. **The system prompt forbids anything else.** The model may state only numbers from this turn's tool results. It must cite every figure, carry every caveat, never call someone eligible for a program, and say so when the data can't answer a question.
+4. **Answers are checked automatically** ([agent/grounding.py](agent/grounding.py)):
+   - every number in an answer must match a number in that turn's tool results (rounding to the stated precision is allowed);
+   - every low-reliability value stated must have its caveat next to it;
+   - every program named must come from a tool result;
+   - no sentence may state eligibility as fact.
 
-- **Sourcing:** every fact carries a verbatim quote from an official agency page. Income figures appear only where the agency publishes them.
-- **Verification:** `python scripts/verify_programs.py` re-fetches each page and checks every quote word for word. It stamps `date_verified` only if every quote passes.
-- **Tools:** `find_programs(need, household)` and `district_program_context(chamber, district)` describe programs as "may qualify, confirm with the agency". They never decide eligibility.
+   The live guardrail suite runs real questions through the model and fails on any violation. It caught the model computing a confidence range itself, which led to the tools providing `range_display`.
+5. **The web layer reuses the same checks.** It marks the low-reliability values an answer states, so the UI can flag them visibly.
 
-## Chat agent
-
-`agent/chat.py` is a Claude agent (model set by `MODEL` at the top of the file) that answers questions using only the tools in `agent/tools.py`. Add `ANTHROPIC_API_KEY` to `.env`, then:
+## Run it
 
 ```
-python -m agent.chat
+python -m venv .venv
+.venv\Scripts\activate                 # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium  # only for the browser accessibility tests
 ```
 
-## Web app
+Create `.env` in the repo root:
+
+```
+CENSUS_API_KEY=...       # only needed to rebuild data/districts.json
+ANTHROPIC_API_KEY=...    # needed for chat
+```
+
+Start the web app:
 
 ```
 uvicorn web.app:app --reload
 ```
 
-Then open http://127.0.0.1:8000. The FastAPI backend ([web/app.py](web/app.py)) keeps the Anthropic key on the server and exposes one `POST /chat` endpoint, which returns the answer, its citations, any low-reliability values it states, and the tool results used. Requests are rate-limited per IP (default 6 per minute and 150 per day) and globally (30 per minute), with at most 4 running at once. Override these with `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_DAY`, `RATE_LIMIT_GLOBAL_PER_MINUTE` and `CHAT_MAX_CONCURRENT`. Behind a reverse proxy, set `TRUST_PROXY=1` so limits apply per client rather than per proxy.
+Then open http://127.0.0.1:8000. You can also chat in a terminal with `python -m agent.chat`.
 
-The frontend ([web/static/](web/static/)) is plain HTML, CSS and JS with no build step, built to meet WCAG 2.1 AA.
+The data files are committed. To rebuild them from the sources:
+
+```
+python scripts/pull_acs.py
+python scripts/build_district_context.py   # downloads the ~400 MB report, or pass --pdf PATH
+python scripts/verify_programs.py          # re-verifies program quotes and stamps date_verified
+python scripts/build_map.py
+```
+
+## Configuration
+
+All settings are environment variables (or `.env`). The defaults suit a small demo.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `CHAT_MODEL` | `claude-sonnet-5-5` | Claude model for chat |
+| `CHAT_EFFORT` | `medium` | Reasoning effort |
+| `CHAT_MAX_TOKENS` | `8000` | Max tokens per model response |
+| `CHAT_MAX_TOOL_CALLS` | `10` | Tool calls allowed per question |
+| `CHAT_SERVER_FALLBACK` | `1` | Retry on a fallback model if a safety filter declines (`0` to disable) |
+| `RATE_LIMIT_PER_MINUTE` | `6` | Questions per IP per minute |
+| `RATE_LIMIT_PER_DAY` | `150` | Questions per IP per day |
+| `RATE_LIMIT_GLOBAL_PER_MINUTE` | `30` | Questions per minute across all users |
+| `CHAT_MAX_CONCURRENT` | `4` | Questions processed at once |
+| `ALLOWED_ORIGINS` | *(none)* | Comma-separated origins allowed cross-origin access (CORS is off by default) |
+| `TRUST_PROXY` | `0` | Set `1` behind a reverse proxy so rate limits apply per client |
+
+If several judges share one venue's wifi, they share one IP address, so raise `RATE_LIMIT_PER_MINUTE` for the demo.
+
+## Operations
+
+- `GET /healthz`: liveness.
+- `GET /readyz`: data loaded (district, context, program and map counts; program verification date) and whether chat is configured. `?deep=1` also checks that the AI service is reachable; this uses no tokens.
+- **AI service down or out of credits:** the user sees a clear message ("temporarily unavailable…", "overloaded…") with links to the map and the about page, which still work. Upstream error text, keys and stack traces never reach the browser; details go to the server log with the request ID.
+- **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts. Model output is rendered with DOM APIs, never `innerHTML`.
+
+## Data
+
+| File | Source | Notes |
+|---|---|---|
+| `data/districts.json` | U.S. Census Bureau ACS 2023 5-year, 2022 district boundaries | 12 measures per district: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden, veterans (count and rate), Armed Forces (count and rate), limited-English households. Each has its MOE, table, variable IDs and source URL. |
+| `data/district_context.json` | 2021 Reapportionment Commission Final Report and Plan (Office of Elections) | Areas covered (Appendix D) and permanent-resident population (Tables 1–10), with page citations. |
+| `data/programs.json` | Official agency pages | 10 programs, every fact with a verbatim quote and verification date. |
+| `data/district_shapes.json` | Census 2022 cartographic boundary files (from TIGER/Line) | Simplified to 73 KB. The Northwestern Hawaiian Islands are not drawn at map scale. |
+
+Rates are computed from counts. Their MOEs use the Census Bureau's approximation formulas: the square root of summed squared MOEs for sums and differences, and the proportion formula for rates (falling back to the ratio formula when the proportion formula's radicand is negative).
 
 ## Tests
 
-`python -m pytest -m "not live"` runs every test that doesn't call the API. That includes endpoint tests with a mocked agent and the browser accessibility checks, which need `python -m playwright install chromium` once.
+```
+python -m pytest -m "not live"     # everything that doesn't call the AI service
+python -m pytest -m live -s        # live guardrail suite (uses the API and costs tokens)
+```
 
-`python -m pytest` runs everything. The live guardrail tests in `tests/test_chat_guardrails.py` call the API and are skipped when `ANTHROPIC_API_KEY` isn't set. Run only those with `python -m pytest -m live -s` to see token usage.
+| Suite | What it checks |
+|---|---|
+| `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
+| `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
+| `test_web.py`, `test_hardening.py` | `/chat` with a mocked agent, validation, rate limiting, key never exposed, AI-service failures, readiness, CORS, config, `/about` |
+| `test_profile_page.py`, `test_map.py` | One-page profile built only from tool data; map data matches the tools |
+| `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
+| `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-## Notes on the data
-
-Rates are computed from counts. Their MOEs use the Census Bureau's approximation formulas: sqrt of summed squared MOEs for sums and differences, and the proportion formula for rates (falling back to the ratio formula when the proportion formula's radicand is negative).
+Latest offline run: 208 passed, with zero axe violations across 14 page states. Reports are in [reports/](reports/): `a11y_report.json` and `guardrail_report.json`.

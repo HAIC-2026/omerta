@@ -375,9 +375,18 @@
     errorArea.hidden = true;
   }
 
-  function showError(message, retry) {
+  function showError(message, retry, alternatives) {
     clearError();
     var box = el("div", { class: "error-box" }, [el("p", { text: message })]);
+    if (alternatives && alternatives.length) {
+      var p = el("p");
+      alternatives.forEach(function (a, i) {
+        if (i) p.appendChild(document.createTextNode(" · "));
+        // Only same-site paths are rendered as links.
+        if (/^\/[a-z]*$/.test(a.url)) p.appendChild(el("a", { href: a.url, text: a.label }));
+      });
+      box.appendChild(p);
+    }
     if (retry) {
       var btn = el("button", { type: "button", class: "btn", text: "Try again" });
       btn.addEventListener("click", function () { clearError(); retry(); });
@@ -425,7 +434,7 @@
       setBusy(false);
       if (!r.ok) {
         var msg = (r.data && r.data.error) || ("The request failed (status " + r.status + ").");
-        showError(msg, function () { send(question, userNode); });
+        showError(msg, function () { send(question, userNode); }, r.data && r.data.alternatives);
         setStatus("Error: " + msg);
         return;
       }
@@ -549,6 +558,18 @@
     });
 
     loadMeta();
+
+    // Tell people up front if chat can't work on this server (data pages still do).
+    fetch("/readyz").then(function (r) { return r.json(); }).then(function (s) {
+      if (s && s.checks && s.checks.chat_configured === false) {
+        var n = $("service-note");
+        n.textContent = "";
+        n.appendChild(document.createTextNode("Chat isn't available on this server right now. The "));
+        n.appendChild(el("a", { href: "/map", text: "district map" }));
+        n.appendChild(document.createTextNode(" and district profiles still work."));
+        n.hidden = false;
+      }
+    }).catch(function () {});
 
     // A question handed over from the district map (/?ask=...). Plain text only.
     var params = new URLSearchParams(window.location.search);

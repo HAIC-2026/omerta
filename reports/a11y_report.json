@@ -79,6 +79,18 @@
       "axe_version": "4.12.1",
       "wcag": [],
       "best_practice": []
+    },
+    {
+      "state": "about page",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "AI service error with alternatives",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
     }
   ]
 }

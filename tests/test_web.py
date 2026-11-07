@@ -196,7 +196,7 @@ def _api_status_error(cls, status):
 
 @pytest.mark.parametrize("exc,status,code", [
     (lambda: _api_status_error(anthropic.RateLimitError, 429), 503, "upstream_busy"),
-    (lambda: _api_status_error(anthropic.InternalServerError, 500), 502, "upstream_error"),
+    (lambda: _api_status_error(anthropic.InternalServerError, 500), 503, "upstream_busy"),
     (lambda: anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com")), 502, "upstream_unreachable"),
     (lambda: ValueError(f"boom {FAKE_KEY}"), 500, "internal_error"),
 ])

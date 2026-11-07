@@ -259,6 +259,16 @@ mark.lowrel .lowrel-icon { font-weight: 700; color: var(--warn-text); margin-lef
 .lowrel-panel li + li { margin-top: 0.4rem; }
 .lowrel-panel strong { color: var(--text); }
 
+.service-note {
+  padding: 0.75rem 1rem; margin: 0 0 1rem;
+  background: var(--warn-bg); border-left: 4px solid var(--warn-border); color: var(--warn-text);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.about section { margin-bottom: 1.5rem; }
+.about h2 { font-size: 1.2rem; margin: 1.25rem 0 0.5rem; }
+.about li { margin-bottom: 0.4rem; }
+.about p, .about ul { max-width: 48rem; }
+
 /* District profile export links */
 .exports { margin-top: 0.75rem; }
 .exports p { margin: 0 0 0.4rem; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
