@@ -118,6 +118,14 @@ def _caveat(m: dict) -> str | None:
             "and avoid drawing firm conclusions from small differences.")
 
 
+def _bounds(value, moe) -> dict:
+    """Confidence interval value ± MOE, so the narrating model never computes it.
+    All metrics here are non-negative, so the lower bound is floored at 0 (Census guidance)."""
+    if value is None or moe is None:
+        return {"lower_bound": None, "upper_bound": None}
+    return {"lower_bound": round(max(value - moe, 0), 2), "upper_bound": round(value + moe, 2)}
+
+
 def _metric_view(m: dict) -> dict:
     """Public shape of one metric value."""
     out = {
@@ -126,6 +134,10 @@ def _metric_view(m: dict) -> dict:
         "value": m["value"],
         "moe": m["moe"],
         "moe_to_estimate": m.get("moe_to_estimate"),
+        "moe_percent_of_estimate": (round(m["moe_to_estimate"] * 100, 1)
+                                    if isinstance(m.get("moe_to_estimate"), (int, float)) else None),
+        "moe_confidence_level": load_data()["metadata"].get("moe_confidence_level"),
+        **_bounds(m["value"], m["moe"]),
         "low_reliability": m["low_reliability"],
         "table_id": m["table_id"],
         "dataset": m["dataset"],

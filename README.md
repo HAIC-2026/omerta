@@ -31,4 +31,16 @@ Each district record has `chamber`, `district`, `geoid`, `name`, and `metrics`. 
 
 Metrics: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden rate (30%+ of income on rent), veterans (count and rate), and limited-English household rate.
 
+## Chat agent
+
+`agent/chat.py` is a Claude agent (model set by `MODEL` at the top of the file) that answers questions using only the tools in `agent/tools.py`. Add `ANTHROPIC_API_KEY` to `.env`, then:
+
+```
+python -m agent.chat
+```
+
+Tests: `python -m pytest` runs everything. The live guardrail tests in `tests/test_chat_guardrails.py` call the API and are skipped when `ANTHROPIC_API_KEY` isn't set. Run only those with `python -m pytest -m live -s` to see token usage.
+
+## Notes on the data
+
 Rates are computed from counts. Their MOEs use the Census Bureau's approximation formulas: sqrt of summed squared MOEs for sums and differences, and the proportion formula for rates (falling back to the ratio formula when the proportion formula's radicand is negative).
