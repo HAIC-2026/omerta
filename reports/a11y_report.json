@@ -61,6 +61,24 @@
       "axe_version": "4.12.1",
       "wcag": [],
       "best_practice": []
+    },
+    {
+      "state": "district map",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "district map (Senate, Oʻahu zoom)",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
+    },
+    {
+      "state": "district map (phone 375px)",
+      "axe_version": "4.12.1",
+      "wcag": [],
+      "best_practice": []
     }
   ]
 }

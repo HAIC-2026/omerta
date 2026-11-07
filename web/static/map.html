@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>District Map · Hawaiʻi District Profiles</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/map.css">
+  <script src="/static/map.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#map-table-heading">Skip to the data table</a>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Hawaiʻi District Map</h1>
+      <p class="tagline">Shade State House or Senate districts by a Census measure. Select a district to ask about it. <a href="/">Back to the chat</a></p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <form id="map-controls" class="map-controls" novalidate>
+      <div class="field">
+        <label for="map-chamber">Chamber</label>
+        <select id="map-chamber">
+          <option value="house">State House</option>
+          <option value="senate">State Senate</option>
+        </select>
+      </div>
+      <div class="field field-wide">
+        <label for="map-metric">Measure</label>
+        <select id="map-metric"></select>
+      </div>
+      <div class="field">
+        <label for="map-island">Zoom to</label>
+        <select id="map-island">
+          <option value="all">All main islands</option>
+          <option value="oahu">Oʻahu</option>
+          <option value="hawaii">Hawaiʻi Island</option>
+          <option value="maui">Maui County</option>
+          <option value="kauai">Kauaʻi County</option>
+        </select>
+      </div>
+    </form>
+
+    <p id="map-status" class="status" role="status" aria-live="polite"></p>
+
+    <figure class="map-figure">
+      <figcaption id="map-caption" class="map-caption"></figcaption>
+      <div class="map-wrap">
+        <svg id="map-svg" role="group" aria-labelledby="map-caption" aria-describedby="map-help" focusable="false">
+          <defs>
+            <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <line id="hatch-line" x1="0" y1="0" x2="0" y2="6" class="hatch-line"></line>
+            </pattern>
+            <pattern id="hatch-legend" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="5" class="hatch-line"></line>
+            </pattern>
+          </defs>
+          <g id="map-districts"></g>
+          <g id="map-hatches" aria-hidden="true"></g>
+          <path id="map-highlight" aria-hidden="true" d=""></path>
+        </svg>
+        <div id="map-tip" class="map-tip" hidden></div>
+      </div>
+      <p id="map-help" class="hint">Use Tab to move between districts and Enter to ask about one. The same data is in the table below.</p>
+      <div id="map-legend" class="map-legend" aria-label="Legend"></div>
+      <p id="map-notes" class="hint"></p>
+    </figure>
+
+    <section class="map-table-section" aria-labelledby="map-table-heading">
+      <h2 id="map-table-heading" class="small-heading" tabindex="-1">Data table</h2>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable district data table">
+        <table id="map-table" class="map-table">
+          <caption id="map-table-caption" class="visually-hidden"></caption>
+          <thead>
+            <tr>
+              <th scope="col" aria-sort="ascending"><button type="button" data-sort="district">District</button></th>
+              <th scope="col" aria-sort="none"><button type="button" data-sort="value">Estimate</button></th>
+              <th scope="col">Margin of error</th>
+              <th scope="col">Reliability</th>
+              <th scope="col">Ask</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="map-source" class="hint"></p>
+    </section>
+  </main>
+</body>
+</html>

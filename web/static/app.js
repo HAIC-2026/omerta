@@ -549,6 +549,14 @@
     });
 
     loadMeta();
+
+    // A question handed over from the district map (/?ask=...). Plain text only.
+    var params = new URLSearchParams(window.location.search);
+    var handed = params.get("ask");
+    if (handed) {
+      window.history.replaceState(null, "", window.location.pathname);
+      ask(handed.slice(0, 2000));
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

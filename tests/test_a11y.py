@@ -260,6 +260,65 @@ def test_export_link_on_profile_answer(browser, base_url):
     assert re.fullmatch(r"/district/house/\d+/profile\?download=1", href)
 
 
+def _map_page(browser, base_url, **ctx):
+    page = browser.new_context(**ctx).new_page()
+    page.goto(base_url + "/map")
+    page.wait_for_selector("#map-districts path.district")
+    return page
+
+
+def test_axe_map(browser, base_url):
+    page = _map_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    assert page.locator("#map-districts path.district").count() == 51
+    assert page.locator("#map-table tbody tr").count() == 51
+    assert run_axe(page, "district map") == []
+    page.select_option("#map-island", "oahu")
+    page.select_option("#map-chamber", "senate")
+    page.wait_for_function("() => document.querySelectorAll('#map-districts path.district').length === 25")
+    assert run_axe(page, "district map (Senate, Oʻahu zoom)") == []
+
+
+def test_map_low_reliability_is_hatched_not_color_only(browser, base_url):
+    page = _map_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    page.select_option("#map-metric", "limited_english_household_rate")
+    page.wait_for_function("() => document.querySelectorAll('#map-hatches path').length > 0")
+    flagged = page.locator("#map-table tbody tr.flag").count()
+    assert page.locator("#map-hatches path").count() == flagged
+    label = page.get_attribute("#map-districts path.district", "aria-label")
+    assert "District" in label and ("%" in label or "no estimate" in label)
+    assert "Hatched: low reliability" in page.inner_text("#map-legend")
+
+
+def test_map_keyboard_asks_about_district(browser, base_url):
+    page = _map_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    page.focus("#map-districts path.district[data-district='46']")
+    assert not page.is_hidden("#map-tip") and "District 46" in page.inner_text("#map-tip")
+    ring = page.evaluate("() => getComputedStyle(document.activeElement).strokeWidth")
+    assert float(ring.replace("px", "")) >= 3
+    page.keyboard.press("Enter")
+    page.wait_for_selector("article.msg-agent")  # chat page received the question and answered (mock)
+    assert "State House District 46" in page.inner_text("article.msg-user")
+    assert "ask=" not in page.url
+
+
+def test_map_table_sorts(browser, base_url):
+    page = _map_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    page.click("#map-table th button[data-sort='value']")
+    assert page.get_attribute("#map-table th:nth-child(2)", "aria-sort") == "ascending"
+    vals = page.eval_on_selector_all("#map-table tbody tr td:nth-child(2)",
+                                     "els => els.map(e => parseFloat(e.textContent.replace(/[$,%]/g, '')))")
+    vals = [v for v in vals if v == v]
+    assert vals == sorted(vals)
+    page.click("#map-table th button[data-sort='value']")
+    assert page.get_attribute("#map-table th:nth-child(2)", "aria-sort") == "descending"
+
+
+def test_map_phone_width(browser, base_url):
+    page = _map_page(browser, base_url, viewport={"width": 375, "height": 740}, is_mobile=True)
+    assert no_horizontal_scroll(page)
+    assert run_axe(page, "district map (phone 375px)") == []
+
+
 def test_axe_detects_planted_violations(browser, base_url):
     """Control: prove axe is actually running under our CSP by planting two violations."""
     page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})

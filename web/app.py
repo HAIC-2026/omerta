@@ -220,6 +220,61 @@ def district_profile(chamber: str, district: str, download: int = 0):
     return HTMLResponse(html, status_code=status, headers=headers)
 
 
+SHAPES_PATH = Path(__file__).resolve().parent.parent / "data" / "district_shapes.json"
+ISLAND_GROUPS = {"Oahu": "oahu", "Hawaii": "hawaii", "Maui": "maui", "Molokai": "maui", "Lanai": "maui",
+                 "Kahoolawe": "maui", "Kauai": "kauai", "Niihau": "kauai"}
+
+
+def _shapes() -> dict | None:
+    if not hasattr(_shapes, "cache"):
+        _shapes.cache = (__import__("json").loads(SHAPES_PATH.read_text(encoding="utf-8"))
+                         if SHAPES_PATH.exists() else None)
+    return _shapes.cache
+
+
+@app.get("/map", include_in_schema=False)
+def map_page():
+    return FileResponse(STATIC_DIR / "map.html", headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/api/map")
+def map_data(chamber: str = "house", metric: str = "poverty_rate"):
+    """District shapes joined with one metric's tool values (value, MOE, reliability)."""
+    shapes = _shapes()
+    if shapes is None:
+        return error(503, "map_unavailable", "Map boundaries haven't been built on this server.")
+    ch, err = tools._check_chamber(chamber)
+    if err:
+        return error(422, "invalid_request", err["error"])
+    m, err = tools._check_metric(metric)
+    if err:
+        return error(422, "invalid_request", err["error"])
+    data = tools.load_data()
+    ctx = tools.load_context()
+    rows = []
+    for d in tools._districts_in(ch):
+        mv = tools._metric_view(data["index"][(ch, d)]["metrics"][m])
+        geo = shapes["chambers"][ch].get(str(d))
+        isl = None
+        if ctx and (ch, d) in ctx["index"]:
+            isls = ctx["index"][(ch, d)].get("boundary_description", {}).get("islands") or []
+            isl = next((ISLAND_GROUPS[i] for i in isls if i in ISLAND_GROUPS), None)
+        rows.append({
+            "district": d, "path": geo["d"] if geo else None, "bbox": geo["bbox"] if geo else None,
+            "island_group": isl, "value": mv["value"], "value_display": mv["value_display"],
+            "moe_display": mv["moe_display"], "low_reliability": mv["low_reliability"],
+            "moe_percent_of_estimate": mv["moe_percent_of_estimate"], "caveat": mv.get("caveat"),
+        })
+    first = data["index"][(ch, tools._districts_in(ch)[0])]["metrics"][m]
+    return {
+        "chamber": ch, "metric": m, "label": first["label"], "unit": first["unit"],
+        "view_box": shapes["view_box"], "districts": rows,
+        "citation": tools._citation([first["table_id"]]),
+        "boundaries": shapes["source"], "not_drawn": shapes["not_drawn"],
+        "low_reliability_rule": data["metadata"].get("low_reliability_rule"),
+    }
+
+
 @app.get("/healthz")
 def healthz():
     return {"ok": True}
