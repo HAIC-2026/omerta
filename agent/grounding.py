@@ -29,15 +29,47 @@ def extract_numbers(text: str) -> list[str]:
     return [_normalize(m) for m in NUM_RE.finditer(text)]
 
 
+_UNITS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen "
+    "fifteen sixteen seventeen eighteen nineteen".split())}
+_TENS = {w: 10 * i for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split(), 2)}
+_SCALES = {"hundred": 100, "thousand": 1000}
+_WORD = "|".join([*_UNITS, *_TENS, *_SCALES])
+# A run of number words joined by spaces or hyphens ("sixty-five", "twenty one", "one hundred").
+WORD_NUM_RE = re.compile(rf"\b(?:{_WORD})(?:[\s-]+(?:and[\s-]+)?(?:{_WORD}))*\b", re.I)
+
+
+def _parse_number_words(phrase: str) -> int:
+    total = current = 0
+    for w in re.findall(rf"\b(?:{_WORD})\b", phrase.lower()):
+        if w in _UNITS:
+            current += _UNITS[w]
+        elif w in _TENS:
+            current += _TENS[w]
+        elif w == "hundred":
+            current = (current or 1) * 100
+        else:
+            total += (current or 1) * 1000
+            current = 0
+    return total + current
+
+
+def word_numbers(text: str) -> list[int]:
+    """Numbers written as words ("nineteen" -> 19, "sixty-five" -> 65, "twenty one" -> 21)."""
+    return [_parse_number_words(m.group(0)) for m in WORD_NUM_RE.finditer(text)]
+
+
 def collect_tool_numbers(obj, out: set[Decimal]) -> None:
     """Every number in tool output: numeric fields, plus numbers inside strings
-    (citations, caveats, notes, URLs)."""
+    (citations, caveats, notes, URLs), including numbers written as words, so an answer
+    may state "19" when the source quote says "nineteen"."""
     if isinstance(obj, bool) or obj is None:
         return
     if isinstance(obj, (int, float)):
         out.add(Decimal(repr(obj)))
     elif isinstance(obj, str):
         out.update(Decimal(n) for n in extract_numbers(obj))
+        out.update(Decimal(n) for n in word_numbers(obj))
     elif isinstance(obj, dict):
         for v in obj.values():
             collect_tool_numbers(v, out)
@@ -140,13 +172,39 @@ def _alias_re(alias: str) -> re.Pattern:
     return re.compile(rf"(?<![\w-]){re.escape(alias)}(?![\w-])", flags)
 
 
+def _metric_measure_res(aliases: Iterable[str]) -> list[re.Pattern]:
+    """Phrases that use a program name as the name of an ACS measure the tools define: the
+    metric id read as words ("snap_households" -> "SNAP households", "SNAP household rate")
+    and the metric's full label ("Households that received SNAP/food stamps ...")."""
+    from agent.tools import load_data
+    out = []
+    for mid, m in load_data()["districts"][0]["metrics"].items():
+        for a in aliases:
+            if a.lower() in mid.split("_"):
+                # "snap_household_rate" -> SNAP household(s) rate; acronym stays case-sensitive.
+                parts = [re.escape(a) if w == a.lower() else
+                         "(?i:households?)" if w.startswith("household") else f"(?i:{re.escape(w)})"
+                         for w in mid.split("_")]
+                out.append(re.compile(r"(?<![\w-])" + r"[\s-]+".join(parts) + r"(?![\w-])",
+                                      0 if a.isupper() else re.I))
+            if _alias_re(a).search(m["label"]):
+                out.append(re.compile(re.escape(m["label"]), re.I))
+    return out
+
+
 def unsourced_programs(text: str, outputs: Iterable[dict]) -> list[str]:
     """Programs the answer names that no tool result this turn mentions.
 
     A program counts as sourced when a program tool returned it, or when one of its names
-    appears anywhere in the tool output (e.g. "SNAP" in an ACS metric label)."""
+    appears anywhere in the tool output (e.g. "SNAP" in an ACS metric label). A program name
+    used only inside the name of a measure the tools define ("SNAP households", "SNAP
+    household rate") is not a program mention; any other use of the name still needs a
+    tool result."""
     import json
     blob = json.dumps(list(outputs), ensure_ascii=False)
+    all_aliases = [a for aliases in _program_aliases().values() for a in aliases]
+    for rx in _metric_measure_res(all_aliases):
+        text = rx.sub(" ", text)
     returned_ids = set(re.findall(r'"id": "([a-z0-9_]+)"', blob))
     missing = []
     for pid, aliases in _program_aliases().items():

@@ -1,37 +1,90 @@
 {
   "run": {
-    "generated_at": "2026-11-07T15:10:38+00:00",
+    "generated_at": "2026-11-07T17:10:14+00:00",
     "model": "claude-sonnet-5-5",
     "effort": "medium",
     "max_tokens_per_response": 4096,
     "max_tool_calls_per_question": 5,
     "checks": [
       "Every number in the answer appears in that question's tool results (rounding to the stated precision allowed; numbers restated from the question allowed)",
-      "Every low_reliability value stated in the answer has a caveat next to it",
-      "Out-of-scope question is declined; invalid district gets the valid range, not a guess",
-      "Answers with data cite the ACS dataset"
+      "Every low-reliability value stated has its caveat next to it",
+      "Every program named comes from a tool result; eligibility is never stated as fact; program answers use 'may qualify / confirm with the agency' framing and cite the agency source",
+      "Answers with Census data cite 'ACS 2023 5-year'",
+      "Per question: House 46 gap states and cites the reapportionment population without calling the gap a count of military members; program questions call the program tools; out-of-scope is declined; invalid district gets the valid range"
     ],
-    "questions_passing_number_and_caveat_checks": "10/10"
+    "questions_passing": "7/10"
   },
   "totals": {
-    "input_tokens": 51425,
-    "output_tokens": 4753,
-    "cache_creation_input_tokens": 2495,
-    "cache_read_input_tokens": 44910,
+    "input_tokens": 74556,
+    "output_tokens": 7800,
+    "cache_creation_input_tokens": 4118,
+    "cache_read_input_tokens": 74124,
     "requests": 19,
-    "total_tokens": 103583
+    "total_tokens": 160598
   },
   "questions": [
     {
-      "id": "profile",
-      "question": "Give me a profile of House District 1.",
-      "answer": "**State House District 1: ACS 2023 5-year estimates (2022 district boundaries)**\n\nAll margins of error (MOE) are at the 90% confidence level.\n\n| Metric | Estimate | ± MOE | Range (lower–upper) |\n|---|---|---|---|\n| Total population | 25,715 | ± 1,470 | 24,245–27,185 |\n| Median age | 42.1 years | ± 1.8 | 40.3–43.9 |\n| Median household income | $79,754 | ± $6,803 | $72,951–$86,557 |\n| Poverty rate | 12.09% | ± 2.19 | 9.9–14.28 |\n| Households receiving SNAP | 1,530 | ± 257 | 1,273–1,787 |\n| SNAP household rate | 18.07% | ± 2.89 | 15.18–20.96 |\n| Renter households paying 30%+ of income on rent | 39.93% | ± 4.93 | 35.0–44.86 |\n| Civilian veterans (18+) | 1,448 | ± 209 | 1,239–1,657 |\n| Veteran rate (civilian 18+) | 7.3% | ± 0.98 | 6.32–8.28 |\n| Limited-English-speaking households | 4.19% | ± 1.59 | 2.6–5.78 |\n\n**Reliability caution:** The limited-English household rate has low reliability. Its margin of error is 38% of the estimate, which is above the 30% threshold. Treat it as approximate and avoid drawing firm conclusions from small differences. The other metrics are not flagged as low reliability.\n\n**Sources:**\n- U.S. Census Bureau, ACS 2023 5-year, Table B01003; 2022 district boundaries (population)\n- U.S. Census Bureau, ACS 2023 5-year, Table B01002; 2022 district boundaries (median age)\n- U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 district boundaries (income)\n- U.S. Census Bureau, ACS 2023 5-year, Table B17001; 2022 district boundaries (poverty)\n- U.S. Census Bureau, ACS 2023 5-year, Table B22003; 2022 district boundaries (SNAP)\n- U.S. Census Bureau, ACS 2023 5-year, Table B25070; 2022 district boundaries (renter cost burden)\n- U.S. Census Bureau, ACS 2023 5-year, Table B21001; 2022 district boundaries (veterans)\n- U.S. Census Bureau, ACS 2023 5-year, Table C16002; 2022 district boundaries (limited English)\n\nThe tools don't say which areas or islands this district covers. The state legislature's district maps would show that. I can also compare District 1 with other districts, or show where it falls statewide on any of these metrics.",
+      "id": "population_gap",
+      "question": "House District 46 has about twice the population of a typical House district. Why is that?",
+      "answer": "**The short answer:** The two population figures measure different things. The ACS counts everyone living in the district. The Reapportionment Commission drew the district using permanent residents only. The sources don't give an exact cause for the gap, but the Commission's report does say it removed non-permanent military and student residents.\n\n**The numbers**\n\n| Measure | House District 46 |\n|---|---|\n| ACS total population | 50,404 ± 1,940 (range 48,464 to 52,344) |\n| Commission permanent resident population | 26,984 |\n| ACS minus Commission figure | 23,420 ± 1,940 |\n| Median of House districts (ACS) | 27,365 |\n\nHD 46 has the highest ACS population of the 51 House districts with an estimate. The lowest is District 4, at 23,550 ± 2,183.\n\nThe Commission's figure of 26,984 is close to its statewide target of 26,432. The report lists a deviation of 2.09% statewide and 0.76% against the Oʻahu target of 26,780. So by the Commission's count, HD 46 is a typical-sized district.\n\n**What the report says about the gap**\n\nThe Commission removed 107,217 non-permanent residents from the U.S. Census population before it drew districts. The report describes them as \"non-permanent military and student residents.\" The ACS doesn't make that adjustment.\n\nHD 46 has a large Armed Forces presence in the ACS data:\n- People in the Armed Forces (age 16 and over): 10,544 ± 581\n- Share of the population age 16 and over in the Armed Forces: 27.49% ± 1.19%\n\nThese two measures are not the same thing, so the 23,420 difference is not a count of military members or students. The ACS figure also differs from the Commission's in year and method.\n\n**Areas covered:** The report describes HD 46 as including a portion of Waipio Acres, Wahiawā, Whitmore Village, a portion of Waialua, and Mokuleʻia, all on Oʻahu.\n\n**Sources**\n- U.S. Census Bureau, ACS 2023 5-year, Table B01003; 2022 district boundaries\n- U.S. Census Bureau, ACS 2023 5-year, Table B23025; 2022 district boundaries\n- State of Hawaiʻi 2021 Reapportionment Commission, Final Report and Reapportionment Plan, Table 9, p. 19 (PDF p. 27), and Table 1, p. 16 (PDF p. 24). Population basis: p. 8 and Executive Summary p. ii. Boundary description: Appendix D, p. D-031 (PDF p. 905).",
       "tools": [
         {
           "name": "get_district_profile",
           "input": {
             "chamber": "house",
-            "district": 1
+            "district": 46
+          },
+          "is_error": false
+        },
+        {
+          "name": "statewide_context",
+          "input": {
+            "metric": "total_population",
+            "chamber": "house"
+          },
+          "is_error": false
+        }
+      ],
+      "tool_calls": 2,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 46,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [
+        "presents the population gap as a count of military members or students"
+      ],
+      "passed": false,
+      "usage": {
+        "input_tokens": 11267,
+        "output_tokens": 1005,
+        "cache_creation_input_tokens": 4118,
+        "cache_read_input_tokens": 4118,
+        "requests": 2,
+        "total": 20508
+      }
+    },
+    {
+      "id": "programs",
+      "question": "What assistance programs might help a family of 4 on Oʻahu with a child under 5?",
+      "answer": "Here are programs from the tool that a family of 4 on Oʻahu with a child under 5 may qualify for. Only the administering agency can decide eligibility, so confirm with each one.\n\n**Food and nutrition**\n- **WIC** (Hawaiʻi State Department of Health, WIC Services Branch). It serves pregnant, breastfeeding or postpartum women, and infants and children under 5 who meet income guidelines and have a medical or nutritional risk. Proof of Quest, TANF or food stamp benefits meets WIC's income requirement. To apply, contact a Hawaiʻi WIC clinic. Source: https://health.hawaii.gov/wic/program_details/ (verified 2026-11-07).\n- **SNAP** (DHS Benefit, Employment & Support Services Division). Published income standards for a household of 4, effective 10/1/2026:\n  - Gross monthly income at 130% of the Federal Poverty Level (FPL): $4,112.\n  - Gross monthly income at 200% of FPL (BBCE): $6,326.\n  - Net monthly income at 100% of FPL: $3,163.\n  - The agency says its chart is for reference only, and an intake worker makes the final determination.\n  - You can apply online, by mail, or in person. The information line is 1-855-643-1643.\n  - Source: https://humanservices.hawaii.gov/bessd/snap/ (verified 2026-11-07).\n- **Free and Reduced-Price School Meals** (Department of Education). For school year 2026-27, free meals extend to households at or below 300% of the federal poverty level (Act 139, SLH 2025). Apply through EZMealApp. This applies once a child is in a public school. Source: https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/ (verified 2026-11-07).\n\n**Health coverage**\n- **Med-QUEST (Hawaiʻi Medicaid)**. It has separate programs for children under 19, for parents or caretaker relatives living with a child under 19, and for adults 19 to under 65. Apply online through KOLEA, or by phone, mail or fax. Source: https://medquest.hawaii.gov/en/members-applicants/get-started/programs (verified 2026-11-07).\n\n**Child care and cash**\n- **Child Care Subsidy** (DHS Child Care Program). It covers children under 13 with parents or caretakers who are working, in school, or in job training. Gross monthly income must not exceed 85% of the State Median Income for the family size. The tool does not give a dollar figure. Apply online or with the DHS 911 form. Source: https://humanservices.hawaii.gov/bessd/ccch-subsidies/ (verified 2026-11-07).\n- **TANF/TAONF** (DHS). It provides temporary monthly cash assistance to families with a related adult and a minor child. There is a 60-month lifetime limit, and families must take part in the First-To-Work Program. The published figures are for a family of three, not four: gross income below 185% of the 2006 FPL ($2,941) and adjusted net income below 100% of the 2006 FPL ($1,590). Source: https://humanservices.hawaii.gov/bessd/tanf/ (verified 2026-11-07).\n\n**Housing and energy**\n- **Housing Choice Voucher (Section 8)** (Hawaiʻi Public Housing Authority, Oʻahu only). When verified, the HPHA said all waiting lists were closed. Source: https://hpha.hawaii.gov/programs-and-resources/voucher-programs (verified 2026-11-07).\n- **H-HEAP** (energy bill help, applied for through the Community Action Agency). It makes a one-time payment toward an electric or gas bill.\n  - Energy Crisis Intervention is for households with a disconnect notice. It is accepted year-round, but monthly approvals are limited.\n  - Energy Credit applications are accepted only June 1–30.\n  - Households may receive only one type of payment per program year (October 1–September 30).\n  - Source: https://humanservices.hawaii.gov/bessd/liheap/ (verified 2026-11-07).\n\nThe tool also returned Kūpuna Care (age 60 or older) and Veterans' Services help. Both depend on facts you haven't stated, such as a household member's age or veteran status.\n\nIf you tell me whether anyone in the household is pregnant, a veteran, or age 60 or older, I can check those programs more closely.",
+      "tools": [
+        {
+          "name": "find_programs",
+          "input": {
+            "need": "any",
+            "household": {
+              "household_size": 4,
+              "island": "Oahu",
+              "child_under_5": true,
+              "has_children": true
+            }
           },
           "is_error": false
         }
@@ -42,25 +95,199 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 75,
-      "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 6179,
-        "output_tokens": 1029,
-        "cache_creation_input_tokens": 2495,
-        "cache_read_input_tokens": 2495,
-        "requests": 2,
-        "total": 12198
-      },
-      "flagged_values_stated": [
-        "Share of households that are limited English speaking (district 1) = 4.19"
+      "numbers_checked": 67,
+      "unsupported_numbers": [
+        "19",
+        "65"
       ],
-      "flagged_values_missing_caveat": []
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [
+        "numbers not in tool results: ['19', '65']"
+      ],
+      "passed": false,
+      "usage": {
+        "input_tokens": 8406,
+        "output_tokens": 1603,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 18245
+      }
+    },
+    {
+      "id": "district_programs",
+      "question": "Which assistance programs relate to the needs in House District 46?",
+      "answer": "**House District 46: district measures and related assistance programs**\n\nThe district covers a portion of Waipiʻo Acres, Wahiawā, Whitmore Village, a portion of Waialua, and Mokuleʻia on Oʻahu (2021 Reapportionment Commission Final Report, Appendix D, p. D-031).\n\nThese measures show where needs may be concentrated. They don't show who qualifies. Only the agency can decide that, and a household \"may qualify\" only after confirming with it.\n\n**District measures compared with the median of House districts**\n\n| Measure | HD 46 | Median of districts |\n|---|---|---|\n| Poverty rate | 10.32% (± 2.10%) | 9.82% |\n| Households receiving SNAP | 10.33% (± 1.74%); 1,560 (± 271) households | 9.90%; 841 households |\n| Renter households paying 30%+ of income on rent | 71.15% (± 5.18%) | 55.38% |\n| Median age | 28.2 (± 0.7) | 42.6 |\n| Civilian veterans, age 18+ | 3,306 (± 423); 12.25% (± 1.48%) | 1,576; 7.81% |\n\nThe poverty and SNAP rates are close to their medians, and their margins of error are wide. Any difference there may not be meaningful.\n\nSources: U.S. Census Bureau, ACS 2023 5-year, Tables B17001, B22003, B25070, B01002 and B21001; 2022 district boundaries.\n\n**Related programs**\n\n- **SNAP** (food). This is food and nutrition support for qualifying low-income households. You can apply online, by mail, or in person at a DHS processing center. The information line is 1-855-643-1643. (Hawaiʻi DHS BESSD, https://humanservices.hawaii.gov/bessd/snap/, verified 2026-11-07)\n- **Med-QUEST (Hawaiʻi Medicaid)** (health coverage). It has programs for adults, children, parents and caretakers, pregnant people, and aged, blind or disabled individuals. You can apply through KOLEA, by phone, by mail or by fax. (Med-QUEST Division, https://medquest.hawaii.gov/en/members-applicants/get-started/programs, verified 2026-11-07)\n- **WIC**. It serves pregnant, breastfeeding or postpartum women, and infants and children under age 5, who meet income guidelines and have a medical or nutritional risk. You apply by contacting a Hawaiʻi WIC clinic. (Hawaiʻi Department of Health, https://health.hawaii.gov/wic/program_details/, verified 2026-11-07)\n- **H-HEAP** (energy bills). It makes a one-time payment toward an electric or gas bill. You apply through your island's Community Action Agency, not through DHS offices. (Hawaiʻi DHS, https://humanservices.hawaii.gov/bessd/liheap/, verified 2026-11-07)\n- **TANF/TAONF** (cash assistance). This is temporary monthly cash assistance for families with a minor child living with a related adult. TAONF serves families who aren't eligible for TANF because of citizenship status. You can apply online or with the DHS 1240 paper form. (Hawaiʻi DHS BESSD, https://humanservices.hawaii.gov/bessd/tanf/, verified 2026-11-07)\n- **Housing Choice Voucher (Section 8), Hawaiʻi Public Housing Authority** (housing). This is rental assistance for low-income families renting in the private market, and it covers Oʻahu only. When verified, the HPHA said all waiting lists were closed. (https://hpha.hawaii.gov/programs-and-resources/voucher-programs, verified 2026-11-07)\n- **Free and Reduced-Price School Meals** (Hawaiʻi Department of Education). These are free or low-cost lunches for children in public schools. You apply through EZMealApp. (https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/, verified 2026-11-07)\n- **Kūpuna Care** (older adult care). It provides community-based long-term care services so older adults can keep living at home. On Oʻahu, call the Senior Helpline at (808) 768-7700. When verified, the Elderly Affairs Division said most services have waitlists. (https://elderlyaffairs.com/services/eligibility-requirements/, verified 2026-11-07) The district's median age is 28.2, which is lower than the 42.6 median of districts.\n- **Veterans benefits help, Office of Veterans' Services** (veterans). It offers advocacy and help with VA claims for veterans, their families and survivors, plus state benefits such as home tax exemptions for totally disabled veterans. (Hawaiʻi Department of Defense, https://dod.hawaii.gov/ovs/benefits-and-services/, verified 2026-11-07)\n- **Child Care Subsidy** (Hawaiʻi DHS). It helps low-income parents pay for child care so they can work, go to school or train. You can apply online or with the DHS 911 paper form. (https://humanservices.hawaii.gov/bessd/ccch-subsidies/, verified 2026-11-07)\n\n**Context on the district's population**\n\nThe ACS total population is 50,404 (± 1,940). The Commission's permanent resident population is 26,984. These two figures measure different things. The Commission removed non-permanent military and student residents from the U.S. Census population. The tool's stated ACS-minus-reapportionment difference is 23,420 ± 1,940. That is not a count of military members or students. The ACS also shows 10,544 (± 581) people in the Armed Forces, which is 27.49% (± 1.19%) of the population age 16 and over.\n\nSources: U.S. Census Bureau, ACS 2023 5-year, Tables B01003 and B23025; 2021 Reapportionment Commission Final Report, Table 9, p. 19.\n\nIf you tell me about a particular household, such as its size, whether it has children, or whether anyone is a veteran, I can narrow this list.",
+      "tools": [
+        {
+          "name": "district_program_context",
+          "input": {
+            "chamber": "house",
+            "district": 46
+          },
+          "is_error": false
+        },
+        {
+          "name": "get_district_profile",
+          "input": {
+            "chamber": "house",
+            "district": 46
+          },
+          "is_error": false
+        }
+      ],
+      "tool_calls": 2,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 88,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 23980,
+        "output_tokens": 2207,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 34423
+      }
+    },
+    {
+      "id": "low_reliability",
+      "question": "What share of households in House District 51 are limited-English speaking?",
+      "answer": "In House District 51, **0.99% ± 0.91%** of households are limited-English speaking. The 90% confidence range is 0.08% to 1.90%.\n\n**Reliability warning:** This estimate has low reliability. The margin of error is 92% of the estimate. Treat the figure as approximate, and don't draw firm conclusions from small differences.\n\nFor context, the median across House districts is 3.72%. That median comes from district estimates and is not a statewide ACS figure. The district values run from 0.98% (District 48, ± 0.65%, also low reliability) to 27.20% (District 28, ± 2.65%). Districts 51 and 48 are very close, and their margins of error overlap, so the difference between them may not be meaningful.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table C16002; 2022 district boundaries.",
+      "tools": [
+        {
+          "name": "compare_districts",
+          "input": {
+            "chamber": "house",
+            "districts": [
+              51
+            ],
+            "metric": "limited_english_household_rate"
+          },
+          "is_error": false
+        },
+        {
+          "name": "statewide_context",
+          "input": {
+            "metric": "limited_english_household_rate",
+            "chamber": "house"
+          },
+          "is_error": false
+        }
+      ],
+      "tool_calls": 2,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 19,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [
+        "Share of households that are limited English speaking (district 51) = 0.99",
+        "Share of households that are limited English speaking (district 48) = 0.98"
+      ],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 2862,
+        "output_tokens": 465,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 11563
+      }
+    },
+    {
+      "id": "out_of_scope",
+      "question": "What is the unemployment rate in House District 10?",
+      "answer": "I can't give you the unemployment rate for House District 10. None of my tools include unemployment. They cover these ACS measures for each district:\n\n- Total population\n- Median age\n- Median household income\n- Poverty rate\n- Veterans (count and rate)\n- Armed Forces (count and rate)\n- SNAP households (count and rate)\n- Limited-English households\n- Renter cost burden\n\n**Where to find it:**\n- ACS Table S2301 (Employment Status) or B23025, using the State Legislative District geography on the Census Bureau's data site (data.census.gov).\n- The Hawaiʻi Department of Business, Economic Development & Tourism (DBEDT) or the Department of Labor and Industrial Relations (DLIR). They publish labor force data, though usually by county or island instead of by legislative district.\n\nI can pull the profile for House District 10 on any of the measures above. That could include poverty rate, median household income, or SNAP participation, which are sometimes used alongside employment data. Want me to do that?",
+      "tools": [],
+      "tool_calls": 0,
+      "models": [
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 2,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [
+        "SNAP"
+      ],
+      "eligibility_claims": [],
+      "failures": [
+        "programs named without a tool result: ['SNAP']"
+      ],
+      "passed": false,
+      "usage": {
+        "input_tokens": 90,
+        "output_tokens": 329,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 4118,
+        "requests": 1,
+        "total": 4537
+      }
+    },
+    {
+      "id": "invalid_district",
+      "question": "What's the median household income in House District 60?",
+      "answer": "There is no House District 60. Hawaiʻi has State House districts 1 through 51.\n\nDid you mean a different House district? Or did you mean a State Senate district? The Senate has fewer districts, so I can check whether 60 is valid there. Tell me which district you want and I'll look up its median household income.",
+      "tools": [
+        {
+          "name": "compare_districts",
+          "input": {
+            "chamber": "house",
+            "districts": [
+              60
+            ],
+            "metric": "median_household_income"
+          },
+          "is_error": true
+        }
+      ],
+      "tool_calls": 1,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 4,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 476,
+        "output_tokens": 199,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 8911
+      }
     },
     {
       "id": "single_value",
       "question": "What is the median household income in Senate District 12?",
-      "answer": "The median household income in State Senate District 12 is **$74,157 ± $3,134**. This is in 2023 inflation-adjusted dollars. The margin of error is 4.2% of the estimate, at a 90% confidence level. The range given by the Census Bureau is $71,023 to $77,291.\n\nThe estimate is not flagged as low reliability.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 district boundaries.",
+      "answer": "The median household income in State Senate District 12 is **$74,157 ± $3,134**. The range is $71,023 to $77,291 at a 90% confidence level. The margin of error is 4.2% of the estimate. The figure is in 2023 inflation-adjusted dollars, and the tool did not flag it as low reliability.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 district boundaries.",
       "tools": [
         {
           "name": "compare_districts",
@@ -82,21 +309,25 @@
       "stop_reason": "end_turn",
       "numbers_checked": 11,
       "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 1022,
-        "output_tokens": 259,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 6271
-      },
       "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 1091,
+        "output_tokens": 251,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 9578
+      }
     },
     {
       "id": "compare",
       "question": "Compare poverty rates in House Districts 20, 21, and 22.",
-      "answer": "**Poverty rate, share of people below the poverty level (MOE at 90% confidence)**\n\n| District | Rate | MOE | Range (lower–upper bound) |\n|---|---|---|---|\n| House District 20 | 6.82% | ± 1.23 | 5.59%–8.05% |\n| House District 21 | 9.99% | ± 2.89 | 7.1%–12.88% |\n| House District 22 | 8.84% | ± 1.5 | 7.34%–10.34% |\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B17001; 2022 district boundaries.\n\n- District 20 has the lowest estimate. Its range does not overlap with District 21's. It does overlap slightly with District 22's, at 7.34% to 8.05%.\n- Districts 21 and 22 have overlapping ranges, so the difference between them may not be meaningful.\n- District 21's MOE is 28.9% of its estimate, which is the widest of the three. Districts 20 and 22 are at 18.0% and 17.0%.\n- None of the three values is flagged as low reliability.",
+      "answer": "**Poverty rate: share of people with income below the poverty level**\n\n| House District | Estimate | MOE (90% confidence) | Range |\n|---|---|---|---|\n| 20 | 6.82% | ± 1.23% | 5.59% to 8.05% |\n| 21 | 9.99% | ± 2.89% | 7.10% to 12.88% |\n| 22 | 8.84% | ± 1.50% | 7.34% to 10.34% |\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B17001; 2022 district boundaries.\n\nDistrict 20 has the lowest estimate and District 21 the highest. The ranges for Districts 21 and 22 overlap, so the difference between them may not be meaningful. The ranges for Districts 20 and 22 also overlap slightly, between 7.34% and 8.05%. District 21 has the widest margin of error, so its estimate is the least precise of the three.\n\nNone of the three values is flagged as low reliability.",
       "tools": [
         {
           "name": "compare_districts",
@@ -118,23 +349,27 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 32,
+      "numbers_checked": 28,
       "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 2261,
-        "output_tokens": 475,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 7726
-      },
       "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 2471,
+        "output_tokens": 434,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 8236,
+        "requests": 2,
+        "total": 11141
+      }
     },
     {
       "id": "rank_top",
       "question": "Which five House districts have the highest renter cost burden?",
-      "answer": "These are the five State House districts with the highest share of renter households paying 30% or more of income on gross rent. The ranking covers 51 districts.\n\n| Rank | District | Share of renter households | ± MOE | 90% range (lower–upper) |\n|---|---|---|---|---|\n| 1 | 46 | 71.15% | ± 5.18 | 65.97%–76.33% |\n| 2 | 43 | 69.86% | ± 9.92 | 59.94%–79.78% |\n| 3 | 45 | 69.65% | ± 7.94 | 61.71%–77.59% |\n| 4 | 50 | 68.69% | ± 3.85 | 64.84%–72.54% |\n| 5 | 47 | 65.98% | ± 8.25 | 57.73%–74.23% |\n\nThe margins of error overlap across all five districts. The differences between them may not be meaningful, so the order shouldn't be read as precise. None of the five values is flagged as low reliability.\n\nThe measure excludes households where the percentage isn't computed.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B25070; 2022 district boundaries.",
+      "answer": "These are the five State House districts with the highest share of renter households paying 30% or more of income on gross rent. The ranking covers 51 districts.\n\n| Rank | District | Share | MOE | Range |\n|---|---|---|---|---|\n| 1 | 46 | 71.15% | ± 5.18% | 65.97% to 76.33% |\n| 2 | 43 | 69.86% | ± 9.92% | 59.94% to 79.78% |\n| 3 | 45 | 69.65% | ± 7.94% | 61.71% to 77.59% |\n| 4 | 50 | 68.69% | ± 3.85% | 64.84% to 72.54% |\n| 5 | 47 | 65.98% | ± 8.25% | 57.73% to 74.23% |\n\nThe margins of error are at the 90% confidence level. None of these values is flagged as low reliability.\n\nThe ranges overlap, so the order among these five may not be meaningful. That is especially true of Districts 43, 45 and 50, whose values are close.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B25070; 2022 district boundaries.",
       "tools": [
         {
           "name": "rank_districts",
@@ -153,64 +388,36 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 36,
+      "numbers_checked": 39,
       "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 3604,
-        "output_tokens": 512,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 9106
-      },
       "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
-    },
-    {
-      "id": "rank_bottom",
-      "question": "Which three Senate districts have the youngest median age?",
-      "answer": "The three Senate districts with the youngest median age, out of 25 ranked, are:\n\n| Rank | District | Median age (years) | ± MOE | Range (90% confidence) |\n|---|---|---|---|---|\n| 1 | Senate District 23 | 29.3 | ± 0.9 | 28.4–30.2 |\n| 2 | Senate District 15 | 32.5 | ± 0.7 | 31.8–33.2 |\n| 3 | Senate District 21 | 34.1 | ± 1.1 | 33.0–35.2 |\n\nThe ranges don't overlap between ranks 1 and 2. The ranges for ranks 2 and 3 also don't overlap, so the order among these three looks meaningful. None of the three values is flagged as low reliability.\n\nU.S. Census Bureau, ACS 2023 5-year, Table B01002; 2022 district boundaries\n\nI can't tell you which areas or islands these districts cover. The tools only identify districts by number. The state legislature's district maps would show that.",
-      "tools": [
-        {
-          "name": "rank_districts",
-          "input": {
-            "chamber": "senate",
-            "metric": "median_age",
-            "top_n": 3,
-            "order": "asc"
-          },
-          "is_error": false
-        }
-      ],
-      "tool_calls": 1,
-      "models": [
-        "claude-sonnet-5-5",
-        "claude-sonnet-5-5"
-      ],
-      "stop_reason": "end_turn",
-      "numbers_checked": 27,
-      "unsupported_numbers": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
       "usage": {
-        "input_tokens": 2225,
-        "output_tokens": 458,
+        "input_tokens": 3954,
+        "output_tokens": 505,
         "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
+        "cache_read_input_tokens": 8236,
         "requests": 2,
-        "total": 7673
-      },
-      "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
+        "total": 12695
+      }
     },
     {
       "id": "context",
       "question": "How does the veteran share in Senate District 24 compare to other Senate districts?",
-      "answer": "**Senate District 24 has a veteran share of 9.61% ± 1.0.** That is the share of the civilian population age 18 and over who are veterans. The 90% confidence range is 8.61% to 10.61%. The estimate is reliable. In the data, the district has 4,401 ± 492 civilian veterans.\n\n**How it compares across the 25 Senate districts**\n- District 24 ranks 7th highest of 25.\n- The median of the district estimates is 7.5%.\n- The highest is District 20 at 13.56% ± 1.38. The lowest is District 6 at 5.02% ± 0.7.\n\n| Rank | District | Veteran share |\n|---|---|---|\n| 1 | 20 | 13.56% ± 1.38 |\n| 2 | 16 | 11.59% ± 1.26 |\n| 3 | 18 | 11.28% ± 0.98 |\n| 4 | 21 | 10.82% ± 0.98 |\n| 5 | 17 | 10.56% ± 1.31 |\n| 6 | 15 | 10.27% ± 1.19 |\n| **7** | **24** | **9.61% ± 1.0** |\n| 8 | 3 | 9.22% ± 1.23 |\n| 9 | 23 | 8.91% ± 0.8 |\n| 10 | 22 | 8.84% ± 1.36 |\n\nSome of these differences may not be meaningful, because the margins of error overlap. District 24's range (8.61%–10.61%) overlaps with Districts 15, 21, 3, 23 and 22, and with District 17 (9.25%–11.87%). Those districts are statistically close to District 24. District 24 is distinguishable from the top two districts (20 and 16) and from the districts ranked 12th and lower, such as District 1 at 8.18% ± 0.78.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B21001; 2022 district boundaries.\n\nThe tools don't say which areas District 24 covers.",
+      "answer": "Senate District 24 ranks 7th of 25 Senate districts on veteran share, which is in the upper third. The measure is the share of the civilian population age 18 and over who are veterans.\n\n| | District | Veteran share (± MOE, 90% confidence) |\n|---|---|---|\n| **This district** | **SD 24** | **9.61% ± 1.00% (range 8.61% to 10.61%)** |\n| Highest | SD 20 | 13.56% ± 1.38% |\n| Median of Senate districts | n/a | 7.5% |\n| Lowest | SD 6 | 5.02% ± 0.70% |\n\n**Nearby ranks.** The districts just above and below SD 24 have these values:\n- SD 15 (rank 6): 10.27% ± 1.19%\n- SD 3 (rank 8): 9.22% ± 1.23%\n- SD 23 (rank 9): 8.91% ± 0.80%\n\nSD 24's margin of error overlaps with those of SD 15, SD 3 and SD 23. The differences between SD 24 and those districts may not be meaningful, so its exact rank is uncertain. SD 24's range does not overlap with SD 20's (12.18% to 14.94%) or SD 6's (4.32% to 5.72%).\n\nNone of the values has a low-reliability flag. The median is the median of district estimates, not a statewide ACS figure.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B21001; 2022 district boundaries.",
       "tools": [
         {
-          "name": "get_district_profile",
+          "name": "compare_districts",
           "input": {
             "chamber": "senate",
-            "district": 24
+            "districts": [
+              24
+            ],
+            "metric": "veteran_rate"
           },
           "is_error": false
         },
@@ -239,145 +446,130 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 83,
+      "numbers_checked": 45,
       "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 23177,
-        "output_tokens": 938,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 29105
-      },
       "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
-    },
-    {
-      "id": "reliability",
-      "question": "How many households receive SNAP in House District 45, and how reliable is that number?",
-      "answer": "**House District 45: households receiving SNAP**\n\n- **Estimate:** 2,223 households ± 268 (90% confidence level).\n- **Likely range:** 1,955 to 2,491 households.\n- **Share of all households in the district:** 30.96% ± 3.23, with a range of 27.73% to 34.19%.\n\n**Reliability:** The estimate is not flagged as low reliability. The margin of error is 12.1% of the household count estimate (10.4% for the percentage). That is moderate. The count is a survey estimate, so treat it as approximate and not as an exact figure.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B22003; 2022 district boundaries.",
-      "tools": [
-        {
-          "name": "get_district_profile",
-          "input": {
-            "chamber": "house",
-            "district": 45
-          },
-          "is_error": false
-        }
-      ],
-      "tool_calls": 1,
-      "models": [
-        "claude-sonnet-5-5",
-        "claude-sonnet-5-5"
-      ],
-      "stop_reason": "end_turn",
-      "numbers_checked": 15,
-      "unsupported_numbers": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
       "usage": {
-        "input_tokens": 6201,
-        "output_tokens": 308,
+        "input_tokens": 19959,
+        "output_tokens": 802,
         "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
+        "cache_read_input_tokens": 8236,
         "requests": 2,
-        "total": 11499
-      },
-      "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
-    },
-    {
-      "id": "low_reliability",
-      "question": "What share of households in House District 51 are limited-English speaking?",
-      "answer": "In State House District 51, **0.99%** of households are limited-English speaking (± 0.91 MOE, 90% confidence level). The range from the tool is 0.08% to 1.9%.\n\n**Low reliability:** The margin of error is 92% of the estimate (the tool flags any MOE above 30% of the estimate). Treat this figure as approximate and avoid drawing firm conclusions from small differences.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table C16002; 2022 district boundaries.",
-      "tools": [
-        {
-          "name": "get_district_profile",
-          "input": {
-            "chamber": "house",
-            "district": 51
-          },
-          "is_error": false
-        }
-      ],
-      "tool_calls": 1,
-      "models": [
-        "claude-sonnet-5-5",
-        "claude-sonnet-5-5"
-      ],
-      "stop_reason": "end_turn",
-      "numbers_checked": 11,
-      "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 6190,
-        "output_tokens": 249,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 11429
-      },
-      "flagged_values_stated": [
-        "Share of households that are limited English speaking (district 51) = 0.99"
-      ],
-      "flagged_values_missing_caveat": []
-    },
-    {
-      "id": "out_of_scope",
-      "question": "What is the unemployment rate in House District 10?",
-      "answer": "I can't give you the unemployment rate for House District 10. My tools don't include unemployment data. They cover these ACS metrics for each district:\n\n- Total population\n- Median age\n- Median household income\n- Poverty rate\n- Veterans (count and rate)\n- SNAP households (count and rate)\n- Renter cost burden rate\n- Limited-English household rate\n\nUnemployment is available in ACS Table S2301 (Employment Status) and Table B23025. These tables are published for some geographies, including state legislative districts. The Hawaiʻi Department of Business, Economic Development and Tourism (DBEDT) and the Department of Labor and Industrial Relations (DLIR) also publish labor-force statistics, though mostly at the county or island level, not by legislative district.\n\nI can pull a profile for House District 10 on any of the metrics above, such as poverty rate or median household income. Would you like that?",
-      "tools": [],
-      "tool_calls": 0,
-      "models": [
-        "claude-sonnet-5-5"
-      ],
-      "stop_reason": "end_turn",
-      "numbers_checked": 2,
-      "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 90,
-        "output_tokens": 291,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 2495,
-        "requests": 1,
-        "total": 2876
-      },
-      "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
-    },
-    {
-      "id": "invalid_district",
-      "question": "What's the median household income in House District 60?",
-      "answer": "House District 60 doesn't exist. Hawaiʻi's State House districts are numbered 1 through 51, so I can't give you a median household income for it.\n\nIf you meant a different House district, tell me its number and I'll look it up. The State Senate has its own numbering, so if you meant a Senate district, tell me that and I'll check whether it exists. The state legislature's district maps will show which numbers cover which areas.",
-      "tools": [
-        {
-          "name": "compare_districts",
-          "input": {
-            "chamber": "house",
-            "districts": [
-              60
-            ],
-            "metric": "median_household_income"
-          },
-          "is_error": true
-        }
-      ],
-      "tool_calls": 1,
-      "models": [
-        "claude-sonnet-5-5",
-        "claude-sonnet-5-5"
-      ],
-      "stop_reason": "end_turn",
-      "numbers_checked": 3,
-      "unsupported_numbers": [],
-      "usage": {
-        "input_tokens": 476,
-        "output_tokens": 234,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4990,
-        "requests": 2,
-        "total": 5700
-      },
-      "flagged_values_stated": [],
-      "flagged_values_missing_caveat": []
+        "total": 28997
+      }
     }
-  ]
+  ],
+  "results": {
+    "original live run": "7/10",
+    "re-scored with fixed checker": "9/10"
+  },
+  "rescore": {
+    "rescored_at": "2026-11-07",
+    "method": "Offline. The saved live answers were re-checked with the fixed checker; no API calls. The report stores each tool call's name and input, so the calls were replayed against the local data to rebuild the tool outputs. The live answers, tool calls, and the original 'run' result above are unchanged.",
+    "checker_changes": [
+      {
+        "fix": "Negation of the population-gap claim",
+        "why": "population_gap failed on 'the 23,420 difference is not a count of military members or students', which repeats the district_context note in the tool result almost word for word. The old check matched 'difference ... is ... military members' whether or not the sentence was negated.",
+        "change": "A match passes only if it is a pure 'is/are not a count of <groups>' statement, and a tool result makes that same negated statement about every group named. Negation is not a general pass: groups the tool never names ('troops'), a claim that adds a positive statement ('not a count of students, it is military members'), or a tool result without the note still fail."
+      },
+      {
+        "fix": "Number words in tool results",
+        "why": "programs failed on '19' and '65'. The Med-QUEST source text says 'nineteen' and 'sixty-five', so the digits were not found among the tool's numbers.",
+        "change": "collect_tool_numbers also parses number words in tool strings ('nineteen' = 19, 'sixty-five' = 65, 'twenty one' = 21). The system prompt is unchanged; digits are clearer for legislators. A digit that matches no number in any form (e.g. '64') still fails."
+      },
+      {
+        "fix": "Program names inside metric names",
+        "why": "out_of_scope (no tool calls) listed the measures the tools cover, including 'SNAP households', and was flagged for naming SNAP without a program tool result.",
+        "change": "A program name is not counted as a program mention when it is part of a measure the tools define: the metric id read as words ('SNAP households', 'SNAP household rate') or the metric's full label. Any other use of the name still needs a tool result."
+      }
+    ],
+    "questions": [
+      {
+        "id": "population_gap",
+        "passed": true,
+        "failures": [],
+        "original_passed": false,
+        "original_failures": [
+          "presents the population gap as a count of military members or students"
+        ]
+      },
+      {
+        "id": "programs",
+        "passed": true,
+        "failures": [],
+        "original_passed": false,
+        "original_failures": [
+          "numbers not in tool results: ['19', '65']"
+        ]
+      },
+      {
+        "id": "district_programs",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "low_reliability",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "out_of_scope",
+        "passed": false,
+        "failures": [
+          "programs named without a tool result: ['SNAP']"
+        ],
+        "original_passed": false,
+        "original_failures": [
+          "programs named without a tool result: ['SNAP']"
+        ]
+      },
+      {
+        "id": "invalid_district",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "single_value",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "compare",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "rank_top",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      },
+      {
+        "id": "context",
+        "passed": true,
+        "failures": [],
+        "original_passed": true,
+        "original_failures": []
+      }
+    ],
+    "still_failing": {
+      "out_of_scope": "Still fails, as intended. 'SNAP households' is now allowed, but the same answer also says 'SNAP participation', which is not a measure name the tools define, and no tool was called. That is a program named on its own, so it still needs a tool result."
+    }
+  }
 }
