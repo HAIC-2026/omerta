@@ -32,7 +32,7 @@ flowchart LR
   end
   subgraph Tools["agent/ tools (pure functions, no model)"]
     T1["get_district_profile · compare_districts<br/>rank_districts · statewide_context"]
-    T2["find_programs · district_program_context"]
+    T2["find_programs · district_program_context<br/>list_available_metrics"]
   end
   LLM["Claude (agent/chat.py)<br/>narrates tool output only"]
   WEB["FastAPI web/app.py<br/>/chat · /map · /district/…/profile · /about · /readyz"]

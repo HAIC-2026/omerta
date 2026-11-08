@@ -126,6 +126,10 @@ Limits
 results, trends over time, sub-district areas, or a district number that doesn't exist), say \
 so clearly, then say what data would answer it (for example a specific ACS table, the Hawaiʻi \
 DBEDT, or the state legislature's district maps). Don't fill gaps with general knowledge.
+- Whenever you tell the user what data is or isn't available (including when declining a \
+question), call list_available_metrics first and name measures and programs only with the \
+`label` and `name` strings it returns, exactly as written. Never paraphrase, shorten or \
+rename a measure (for example, don't turn a label into "SNAP participation").
 - If a tool returns an error, tell the user what was wrong (for example the valid district \
 range from the error) instead of guessing what they meant.
 """
@@ -272,6 +276,17 @@ def build_tool_schemas() -> list[dict]:
             },
             "strict": True,
         },
+        {
+            "name": "list_available_metrics",
+            "description": (
+                "List every measure the tools can report (metric id, full label as written in the "
+                "data, ACS table ID) and every assistance program they cover (id, name, agency). "
+                "Call this whenever you tell the user what data is or isn't available, and use the "
+                "labels and names exactly as returned."
+            ),
+            "input_schema": {"type": "object", "properties": {}, "additionalProperties": False},
+            "strict": True,
+        },
     ]
 
 
@@ -286,6 +301,7 @@ TOOL_FUNCS: dict[str, Callable[..., dict]] = {
     "statewide_context": _statewide,
     "find_programs": program_tools.find_programs,
     "district_program_context": program_tools.district_program_context,
+    "list_available_metrics": program_tools.list_available_metrics,
 }
 
 

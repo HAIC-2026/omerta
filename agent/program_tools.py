@@ -247,3 +247,26 @@ def district_program_context(chamber: str, district: int) -> dict:
         "citation": (f"{tools._citation(sorted(acs_tables))}; program information quoted from official "
                      f"agency web pages (verified {data['metadata'].get('date_verified')})"),
     }
+
+
+def list_available_metrics() -> dict:
+    """Every measure the tools can report (id, full label, ACS table) and every assistance
+    program they cover, so descriptions of what data is available come from the data files
+    rather than from the model's own wording."""
+    data = tools.load_data()
+    seen: dict[str, dict] = {}
+    for r in data["districts"]:
+        for mid, m in r["metrics"].items():
+            seen.setdefault(mid, {"id": mid, "label": m["label"], "table_id": m["table_id"]})
+    progs = load_programs()["programs"]
+    meta = data["metadata"]
+    return {
+        "metrics": [seen[k] for k in sorted(seen)],
+        "programs": [{"id": p["id"], "name": p["name"], "agency": p["agency"]} for p in progs],
+        "dataset": meta["dataset"],
+        "boundary_vintage": meta["boundary_vintage"],
+        "note": ("Use each metric's label and each program's name exactly as written here. Do not "
+                 "shorten or paraphrase them."),
+        "citation": (f"{tools._citation([m['table_id'] for m in seen.values()])}; program information "
+                     "quoted from official agency web pages"),
+    }

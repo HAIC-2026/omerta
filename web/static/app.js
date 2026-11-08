@@ -228,6 +228,8 @@
         return "Assistance programs" + (a.need && a.need !== "any" ? " for " + String(a.need).replace(/_/g, " ") : "");
       case "district_program_context":
         return "Programs and related measures: " + ch + " District " + a.district;
+      case "list_available_metrics":
+        return "Available measures and programs";
       default:
         return TOOL_LABELS[t.tool] || t.tool;
     }
