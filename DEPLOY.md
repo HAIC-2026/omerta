@@ -67,6 +67,7 @@ Then:
 | `TRUST_PROXY` | `1` (required on Heroku, so rate limits apply per visitor, not to Heroku's router) |
 | `RATE_LIMIT_PER_MINUTE` | `30` (everyone on a venue's wifi shares one IP) |
 | `RATE_LIMIT_PER_DAY` | `600` |
+| `RATE_LIMIT_GLOBAL_PER_DAY` | `500` (whole-site daily cap on questions; the cap on API spend) |
 | `RATE_LIMIT_GLOBAL_PER_MINUTE` | `60` |
 | `CHAT_MODEL` | `claude-sonnet-5-5` |
 
@@ -102,7 +103,7 @@ Then ask one question in the chat, for example the "Which district does Stanley 
 
 ## If something goes wrong
 
-- **Logs:** app → **More** † (top right) → **View logs**. Each error in the logs carries the same request ID the user saw.
+- **Logs:** app → **More** † (top right) → **View logs**. Each `/chat` request writes one JSON line (`"event":"chat"`) with its `request_id` (also sent as the `X-Request-ID` response header), status, latency, tool calls and token counts. Questions and answers are never logged.
 - **"Chat is temporarily unavailable":** the key is missing or wrong, or the Anthropic account is out of credit. Check `ANTHROPIC_API_KEY` under Settings → Config Vars, then check `/readyz?deep=1`.
 - **Everyone gets "Too many questions":** `TRUST_PROXY` isn't `1`, so all visitors look like one IP (the router's). Or raise `RATE_LIMIT_PER_MINUTE`.
 - **Build fails on Python:** `.python-version` must name a version Heroku supports. 3.12 is supported as of November 2026.

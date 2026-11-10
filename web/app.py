@@ -17,8 +17,11 @@ included in any response.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+import sys
+import uuid
 import threading
 import time
 from collections import defaultdict, deque
@@ -39,6 +42,16 @@ from web.sessions import SessionsFull, SessionStore
 
 log = logging.getLogger("web")
 
+# One JSON line per /chat request: latency, tool calls, tokens and outcome. Never the question,
+# the answer or tool inputs. Written to stdout so the host's log stream (Heroku logs) shows it.
+request_log = logging.getLogger("web.requests")
+if not request_log.handlers:
+    _h = logging.StreamHandler(sys.stdout)
+    _h.setFormatter(logging.Formatter("%(message)s"))
+    request_log.addHandler(_h)
+    request_log.setLevel(logging.INFO)
+    request_log.propagate = False
+
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 # ---------------------------------------------------------------------------
@@ -58,6 +71,7 @@ MAX_TOTAL_CHARS = _env_int("CHAT_MAX_TOTAL_CHARS", 20000)
 RATE_PER_IP_PER_MINUTE = _env_int("RATE_LIMIT_PER_MINUTE", 6)
 RATE_PER_IP_PER_DAY = _env_int("RATE_LIMIT_PER_DAY", 150)
 RATE_GLOBAL_PER_MINUTE = _env_int("RATE_LIMIT_GLOBAL_PER_MINUTE", 30)
+RATE_GLOBAL_PER_DAY = _env_int("RATE_LIMIT_GLOBAL_PER_DAY", 500)   # whole-site daily cap on questions
 MAX_CONCURRENT = _env_int("CHAT_MAX_CONCURRENT", 4)
 SESSION_TTL_MINUTES = _env_int("SESSION_TTL_MINUTES", 60)  # idle time before a conversation expires
 SESSION_MAX = _env_int("SESSION_MAX", 200)                # conversations held in memory at once
@@ -80,23 +94,29 @@ class RateLimiter:
         self._lock = threading.Lock()
 
     def check(self, ip: str) -> int:
+        return self.check_detail(ip)[0]
+
+    def check_detail(self, ip: str) -> tuple[int, list[tuple[str, int, int]]]:
+        """(seconds to wait, the rules that blocked). Allowed requests return (0, [])."""
         now = self.clock()
         with self._lock:
             wait = 0.0
-            keys = []
-            for scope, limit, window in self.rules:
+            keys, blocked = [], []
+            for rule in self.rules:
+                scope, limit, window = rule
                 key = (scope, window, ip if scope == "ip" else "*")
                 q = self._hits[key]
                 while q and q[0] <= now - window:
                     q.popleft()
                 if limit <= 0 or len(q) >= limit:
                     wait = max(wait, (q[0] + window - now) if q else window)
+                    blocked.append(rule)
                 keys.append(key)
             if wait > 0:
-                return max(1, int(wait + 0.999))
+                return max(1, int(wait + 0.999)), blocked
             for key in keys:
                 self._hits[key].append(now)
-            return 0
+            return 0, []
 
     def reset(self) -> None:
         with self._lock:
@@ -108,6 +128,7 @@ def default_limiter() -> RateLimiter:
         ("ip", RATE_PER_IP_PER_MINUTE, 60),
         ("ip", RATE_PER_IP_PER_DAY, 86400),
         ("global", RATE_GLOBAL_PER_MINUTE, 60),
+        ("global", RATE_GLOBAL_PER_DAY, 86400),
     ])
 
 
@@ -354,7 +375,7 @@ def readyz(deep: int = 0):
     body = {"ready": data_ok, "chat_available": chat_ok, "checks": checks,
             "config": {"model": MODEL, "effort": EFFORT, "rate_limit_per_minute": RATE_PER_IP_PER_MINUTE,
                        "rate_limit_per_day": RATE_PER_IP_PER_DAY, "rate_limit_global_per_minute":
-                       RATE_GLOBAL_PER_MINUTE, "max_concurrent": MAX_CONCURRENT,
+                       RATE_GLOBAL_PER_MINUTE, "rate_limit_global_per_day": RATE_GLOBAL_PER_DAY, "max_concurrent": MAX_CONCURRENT,
                        "allowed_origins": ALLOWED_ORIGINS}}
     return JSONResponse(body, status_code=200 if data_ok else 503)
 
@@ -444,7 +465,45 @@ def _source_urls(output: dict) -> list[str]:
 def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
     # Sync handler: FastAPI runs it in a worker thread, so the blocking agent call
     # doesn't stall the event loop.
-    wait = request.app.state.limiter.check(client_ip(request))
+    rec: dict[str, Any] = {"event": "chat", "request_id": uuid.uuid4().hex[:16]}
+    start = time.perf_counter()
+    response: Any = None
+    try:
+        response = _chat(body, request, agent, rec)
+        if isinstance(response, dict):
+            response = JSONResponse(response)
+        return response
+    finally:
+        rec["latency_ms"] = round((time.perf_counter() - start) * 1000)
+        if isinstance(response, JSONResponse):
+            rec["status"] = response.status_code
+            try:
+                rec["code"] = json.loads(response.body).get("code")
+            except Exception:
+                pass
+            response.headers["X-Request-ID"] = rec["request_id"]
+        else:
+            rec["status"] = 200 if response is not None else 500
+        log_request(rec)
+
+
+def log_request(rec: dict) -> None:
+    request_log.info(json.dumps(rec, separators=(",", ":"), sort_keys=True))
+
+
+def _usage_fields(usage) -> dict:
+    return {k: getattr(usage, k, 0) for k in (
+        "input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")} | {
+        "api_requests": getattr(usage, "requests", 0)}
+
+
+def _chat(body: ChatRequest, request: Request, agent, rec: dict):
+    wait, blocked = request.app.state.limiter.check_detail(client_ip(request))
+    if any(scope == "global" and window >= 86400 for scope, _, window in blocked):
+        return error(429, "daily_limit",
+                     "This demo has reached its limit of questions for today, so the AI chat is paused "
+                     "until the limit resets. The district map, one-page profiles and about page still "
+                     "work.", headers={"Retry-After": str(wait)}, alternatives=True)
     if wait:
         return error(429, "rate_limited",
                      f"Too many questions in a short time. Please wait {wait} seconds and try again.",
@@ -470,13 +529,25 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
         session.lock.release()
         return error(503, "busy", "The service is busy right now. Please try again in a moment.",
                      headers={"Retry-After": "5"})
+    rec["session_status"] = status
+    rec["session_turn"] = len(session.questions) + 1
     questions = session.questions + [body.question]
     prior = list(session.tool_outputs)
     try:
         agent.messages = list(session.messages)
         result = agent.ask(body.question)
         result, check, retried = verify_with_retry(agent, result, prior, questions)
+        rec.update({
+            "tool_calls": len(result.tool_calls),
+            "tools": [c.name for c in result.tool_calls],
+            "tool_errors": sum(1 for c in result.tool_calls if c.is_error),
+            "verified": check["verified"], "retried": retried,
+            "numbers_checked": check["numbers_checked"], "numbers_supported": check["numbers_supported"],
+            "stop_reason": result.stop_reason, "models": sorted(set(result.models)),
+            **_usage_fields(result.usage),
+        })
     except anthropic.APIError as exc:
+        rec["upstream_error"] = type(exc).__name__
         return upstream_error(exc)
     except Exception:
         log.exception("chat failed")

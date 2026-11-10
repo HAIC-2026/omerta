@@ -102,3 +102,25 @@ def test_readyz_reports_roster_and_proxy_mode():
     assert c["legislators_serving"] == 76
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", c["legislators_fetched"])
     assert c["trust_proxy"] in (True, False)
+
+
+@pytest.mark.parametrize("fname", ["requirements.txt", "requirements-dev.txt"])
+def test_every_requirement_is_pinned_exactly(fname):
+    lines = [ln.split("#")[0].strip() for ln in (ROOT / fname).read_text(encoding="utf-8").splitlines()]
+    reqs = [ln for ln in lines if ln and not ln.startswith("-r ")]
+    assert reqs
+    for ln in reqs:
+        assert re.match(r"^[A-Za-z0-9_.\-]+(\[[a-z,]+\])?==\d[\w.]*(\s*;.+)?$", ln), ln
+
+
+def test_pins_match_the_installed_test_environment():
+    """The versions pinned are the ones this test run is using (where installed here)."""
+    from importlib import metadata
+    for fname in ("requirements.txt", "requirements-dev.txt"):
+        for ln in (ROOT / fname).read_text(encoding="utf-8").splitlines():
+            ln = ln.split("#")[0].strip()
+            if not ln or ln.startswith("-r ") or ";" in ln:
+                continue
+            name, version = ln.split("==")
+            name = name.split("[")[0]
+            assert metadata.version(name) == version, f"{name}: pinned {version}, installed {metadata.version(name)}"

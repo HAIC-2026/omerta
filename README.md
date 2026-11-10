@@ -82,7 +82,7 @@ The model never reads the data files directly. It calls the tools, and the tools
 ```
 python -m venv .venv
 .venv\Scripts\activate                 # macOS/Linux: source .venv/bin/activate
-pip install -r requirements-dev.txt       # runtime + build scripts + tests (requirements.txt is runtime only)
+pip install -r requirements-dev.txt       # runtime + build scripts + tests, pinned (requirements.txt is runtime only)
 python -m playwright install chromium  # only for the browser accessibility tests
 ```
 
@@ -127,6 +127,7 @@ All settings are environment variables (or `.env` locally). On Heroku, set them 
 | `RATE_LIMIT_PER_MINUTE` | `6` | `30` | Questions per client IP per minute. Raise it for the demo: everyone on a venue's wifi shares one IP. |
 | `RATE_LIMIT_PER_DAY` | `150` | `600` | Questions per client IP per day (same shared-IP reason) |
 | `RATE_LIMIT_GLOBAL_PER_MINUTE` | `30` | `60` | Questions per minute across all users; this is the cap on API spend |
+| `RATE_LIMIT_GLOBAL_PER_DAY` | `500` | `500` | Questions per day across all users: a hard daily cap on API spend. When it's reached, chat says the demo has hit today's limit and points to the map, profiles and about page, which keep working. The 24-hour window slides; it doesn't reset at midnight. |
 | `CHAT_MAX_CONCURRENT` | `4` | `4` | Questions processed at once (more get "busy, try again") |
 | `CHAT_MAX_MESSAGES` | `20` | `20` | Questions plus answers per conversation (so 10 questions); then the user starts a new conversation |
 | `SESSION_TTL_MINUTES` | `60` | `60` | A conversation held on the server expires after this many minutes without a question |
@@ -149,6 +150,8 @@ Hosted on Heroku, one always-on **Basic** dyno. The GitHub Student Developer Pac
 - `GET /healthz`: liveness.
 - `GET /readyz`: data loaded (district, context, program and map counts; program verification date; serving legislators and roster date), proxy mode, and whether chat is configured. `?deep=1` also checks that the AI service is reachable; this uses no tokens.
 - **AI service down or out of credits:** the user sees a clear message ("temporarily unavailable…", "overloaded…") with links to the map and the about page, which still work. Upstream error text, keys and stack traces never reach the browser; details go to the server log with the request ID.
+- **Request log:** each `/chat` request writes one JSON line to stdout (`"event":"chat"`): request ID (also the `X-Request-ID` response header), status and error code, latency in ms, session status and turn, tool calls and their names, verification result, and token counts (input, output, cache read and write, API requests). It never logs the question, the answer or tool inputs.
+- **Daily cap:** `RATE_LIMIT_GLOBAL_PER_DAY` (default 500) stops chat for everyone once the day's questions are used, with a friendly message pointing to the map and profiles.
 - **Conversations are held on the server.** The browser sends only a random session ID and its new question; it never sends earlier answers, so a client can't plant text in the model's history. Each session keeps the full conversation (including tool calls and tool results) in memory for 60 minutes without activity (`SESSION_TTL_MINUTES`), up to `SESSION_MAX` sessions. Grounding checks use every tool result from the session, so a follow-up can restate an earlier figure. An unknown or expired session ID starts a new conversation, and the UI says so. A server restart ends all conversations.
 - **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts. Model output is rendered with DOM APIs, never `innerHTML`.
 
@@ -172,14 +175,14 @@ Rates are computed from counts. Their MOEs use the Census Bureau's approximation
 
 ```
 python -m pytest -m "not live"     # everything that doesn't call the AI service
-python -m pytest -m live -s        # live guardrail suite (uses the API and costs tokens)
+python -m pytest -m live -s        # live guardrail suite (uses the API and costs tokens); reports p50/p95 latency per question
 ```
 
 | Suite | What it checks |
 |---|---|
 | `test_legislators.py` | Roster only from capitol.hawaii.gov, no party, one serving member per district; every member found by name ignoring case/ʻokina/kahakō; shared names return candidates; no fuzzy matches; profile carries the legislator; name grounding check; the UI chip names a real legislator; the as-listed note travels with every legislator (tool results, /chat `roster_note`, one-pager, /about) and not-found says the roster may predate the election |
 | `test_verification.py` | The runtime check (counts, each failure type), the one-retry loop in `/chat` (verified, fixed on retry, still failing, retry API error), and that `Agent.revise` drops the rejected draft from the history |
-| `test_deploy.py` | Procfile binds `$PORT` on 0.0.0.0 with one worker; Python version pinned; runtime requirements only; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
+| `test_deploy.py` | Procfile binds `$PORT` on 0.0.0.0 with one worker; Python version pinned; runtime requirements only; every requirement pinned with `==` to the version the tests ran on; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
@@ -188,4 +191,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 391 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 400 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

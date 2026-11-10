@@ -360,3 +360,78 @@ def test_meta_matches_data(client):
     assert m["chambers"]["senate"] == tools._districts_in("senate")
     assert [x["key"] for x in m["metrics"]] == data["metrics"]
     assert m["dataset"] == data["metadata"]["dataset"]
+
+
+def test_global_daily_cap_has_a_friendly_message(client):
+    agent = use_agent(FakeAgent("ok"))
+    webapp.app.state.limiter = webapp.RateLimiter([("ip", 100, 60), ("global", 2, 86400)])
+    assert ask(client, "q1").status_code == 200
+    assert ask(client, "q2").status_code == 200
+    r = ask(client, "q3")
+    assert r.status_code == 429
+    body = r.json()
+    assert body["code"] == "daily_limit"
+    assert "limit of questions for today" in body["error"] and "map" in body["error"]
+    assert body["alternatives"] and int(r.headers["Retry-After"]) > 0
+    assert agent.asked == ["q1", "q2"]
+
+
+def test_default_limiter_includes_the_daily_cap():
+    assert ("global", webapp.RATE_GLOBAL_PER_DAY, 86400) in webapp.default_limiter().rules
+    assert webapp.RATE_GLOBAL_PER_DAY == int(os.getenv("RATE_LIMIT_GLOBAL_PER_DAY", 500))
+
+
+# ---------------------------------------------------------------- request logging
+
+@pytest.fixture
+def logged(monkeypatch):
+    import logging
+    lines: list[str] = []
+
+    class ListHandler(logging.Handler):
+        def emit(self, record):
+            lines.append(record.getMessage())
+    h = ListHandler()
+    webapp.request_log.addHandler(h)
+    yield lines
+    webapp.request_log.removeHandler(h)
+
+
+def test_each_chat_request_logs_latency_tools_and_tokens_without_content(client, logged):
+    import json
+    from agent.chat import Usage
+    call, out = _profile_call("house", 1)
+    pop = out["metrics"]["total_population"]["value_display"]
+    secret_q = "What is the population of House District 1, my private question?"
+    agent = FakeAgent(f"House District 1 has {pop} people.", [call])
+    usage = Usage(input_tokens=1200, output_tokens=300, cache_read_input_tokens=800, requests=2)
+    orig = agent.ask
+    agent.ask = lambda q: (lambda r: (setattr(r, "usage", usage), r)[1])(orig(q))
+    use_agent(agent)
+    r = ask(client, secret_q)
+    assert r.status_code == 200
+    rec = json.loads(logged[-1])
+    assert rec["event"] == "chat" and rec["status"] == 200
+    assert rec["request_id"] == r.headers["X-Request-ID"]
+    assert isinstance(rec["latency_ms"], int) and rec["latency_ms"] >= 0
+    assert rec["tool_calls"] == 1 and rec["tools"] == ["get_district_profile"]
+    assert rec["input_tokens"] == 1200 and rec["output_tokens"] == 300
+    assert rec["cache_read_input_tokens"] == 800 and rec["api_requests"] == 2
+    assert rec["verified"] is True and rec["session_status"] == "new"
+    # No message content: not the question, not the answer, not tool inputs.
+    assert "private question" not in logged[-1] and pop not in logged[-1]
+    assert '"district"' not in logged[-1] and "chamber" not in logged[-1]
+
+
+def test_failed_and_limited_requests_are_logged(client, logged):
+    import json
+    req = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    use_agent(FakeAgent("x", exc=anthropic.APIConnectionError(request=req)))
+    ask(client, "q")
+    rec = json.loads(logged[-1])
+    assert rec["status"] == 502 and rec["code"] == "upstream_unreachable"
+    assert rec["upstream_error"] == "APIConnectionError" and "latency_ms" in rec
+    webapp.app.state.limiter = webapp.RateLimiter([("ip", 0, 60)])
+    ask(client, "q")
+    rec = json.loads(logged[-1])
+    assert rec["status"] == 429 and rec["code"] == "rate_limited"

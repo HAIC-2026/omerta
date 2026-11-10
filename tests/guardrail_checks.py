@@ -255,3 +255,16 @@ def _rescore(report, qtext, model, dataset) -> list[dict]:
         out.append({"id": q["id"], "passed": not f["failures"], "failures": f["failures"],
                     "original_passed": q["passed"], "original_failures": q["failures"]})
     return out
+
+
+def latency_summary(latencies_ms: list[float]) -> dict:
+    """p50/p95 (nearest-rank), min, max and count of per-question latencies, in ms."""
+    import math
+    xs = sorted(latencies_ms)
+    if not xs:
+        return {"count": 0, "p50_ms": None, "p95_ms": None, "min_ms": None, "max_ms": None}
+
+    def pct(p):
+        return round(xs[max(1, math.ceil(p / 100 * len(xs))) - 1])
+    return {"count": len(xs), "p50_ms": pct(50), "p95_ms": pct(95),
+            "min_ms": round(xs[0]), "max_ms": round(xs[-1])}

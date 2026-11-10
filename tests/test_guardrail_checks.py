@@ -3,6 +3,8 @@ tool output. These make sure the one live run can't be wasted on a broken checke
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from agent import program_tools as pt
@@ -218,3 +220,20 @@ def test_rescore_of_saved_live_run_matches_report():
     # plain-language text shared with /chat (agent.grounding.check_answer_runtime).
     saved = report["rescore"]["questions"]
     assert [(x["id"], x["passed"], len(x["failures"])) for x in res] ==         [(q["id"], q["passed"], len(q["failures"])) for q in saved]
+
+
+def test_latency_summary_nearest_rank():
+    from tests.guardrail_checks import latency_summary
+    xs = list(range(1, 21))  # 1..20 ms
+    assert latency_summary(xs) == {"count": 20, "p50_ms": 10, "p95_ms": 19, "min_ms": 1, "max_ms": 20}
+    assert latency_summary([500])["p95_ms"] == 500
+    assert latency_summary([])["p50_ms"] is None
+    # 25 questions (the planned final suite): p95 is the 24th fastest.
+    xs = [100 * i for i in range(1, 26)]
+    s = latency_summary(list(reversed(xs)))
+    assert s["p50_ms"] == 1300 and s["p95_ms"] == 2400
+
+
+def test_live_report_format_includes_latency():
+    src = (Path(__file__).resolve().parent / "test_chat_guardrails.py").read_text(encoding="utf-8")
+    assert '"latency_ms": latency_ms' in src and '"latency_ms": latency' in src

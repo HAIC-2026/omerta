@@ -12,6 +12,7 @@ Set GUARDRAIL_REPORT=<path> to write a JSON report of answers, tool calls, check
 from __future__ import annotations
 
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,7 +20,8 @@ import pytest
 from dotenv import load_dotenv
 
 from agent import tools
-from tests.guardrail_checks import MAX_TOOL_CALLS, check_answer, dumps, questions, report_entry
+from tests.guardrail_checks import (MAX_TOOL_CALLS, check_answer, dumps, latency_summary, questions,
+                                    report_entry)
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -67,7 +69,8 @@ def token_report():
         ],
         "questions_passing": f"{passed}/{len(REPORT['questions'])}",
     }
-    totals = {**total.__dict__, "total_tokens": total.total}
+    latency = latency_summary([q["latency_ms"] for q in REPORT["questions"] if "latency_ms" in q])
+    totals = {**total.__dict__, "total_tokens": total.total, "latency_ms": latency}
     print("\n\n=== Guardrail results ===")
     for q in REPORT["questions"]:
         print(f"  {q['id']:<18} {'PASS' if q['passed'] else 'FAIL'}  tools={q['tool_calls']:<2} "
@@ -76,6 +79,8 @@ def token_report():
     print(f"  {run['questions_passing']} passed. TOTAL: {total.total:,} tokens over {total.requests} requests "
           f"(input {total.input_tokens:,}, output {total.output_tokens:,}, cache write "
           f"{total.cache_creation_input_tokens:,}, cache read {total.cache_read_input_tokens:,})")
+    print(f"  Latency per question: p50 {latency['p50_ms']} ms, p95 {latency['p95_ms']} ms "
+          f"(min {latency['min_ms']}, max {latency['max_ms']}, n={latency['count']})")
     path = os.getenv("GUARDRAIL_REPORT")
     if path:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -89,7 +94,9 @@ def test_guardrails(client, qid, question):
     from agent.chat import MODEL, Agent
 
     agent = Agent(client, max_tokens=TEST_MAX_TOKENS, max_tool_calls=MAX_TOOL_CALLS)
+    t0 = time.perf_counter()
     r = agent.ask(question)
+    latency_ms = round((time.perf_counter() - t0) * 1000)
     findings = check_answer(qid, question, r, MODEL)
-    REPORT["questions"].append(report_entry(qid, question, r, findings))
+    REPORT["questions"].append({**report_entry(qid, question, r, findings), "latency_ms": latency_ms})
     assert not findings["failures"], f"{findings['failures']}\n--- answer ---\n{r.text}"
