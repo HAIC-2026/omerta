@@ -381,13 +381,20 @@ class Usage:
     cache_creation_input_tokens: int = 0
     cache_read_input_tokens: int = 0
     requests: int = 0
+    # One entry per API call: {input, output, cache_read, cache_creation}. Shows whether each
+    # call read the conversation so far from cache.
+    per_call: list[dict] = field(default_factory=list)
 
     def add(self, u: Any) -> None:
+        call = {k: getattr(u, f, 0) or 0 for k, f in (
+            ("input", "input_tokens"), ("output", "output_tokens"),
+            ("cache_read", "cache_read_input_tokens"), ("cache_creation", "cache_creation_input_tokens"))}
         self.requests += 1
-        self.input_tokens += getattr(u, "input_tokens", 0) or 0
-        self.output_tokens += getattr(u, "output_tokens", 0) or 0
-        self.cache_creation_input_tokens += getattr(u, "cache_creation_input_tokens", 0) or 0
-        self.cache_read_input_tokens += getattr(u, "cache_read_input_tokens", 0) or 0
+        self.input_tokens += call["input"]
+        self.output_tokens += call["output"]
+        self.cache_creation_input_tokens += call["cache_creation"]
+        self.cache_read_input_tokens += call["cache_read"]
+        self.per_call.append(call)
 
     @property
     def total(self) -> int:
@@ -398,6 +405,33 @@ class Usage:
         for f in ("input_tokens", "output_tokens", "cache_creation_input_tokens",
                   "cache_read_input_tokens", "requests"):
             setattr(self, f, getattr(self, f) + getattr(other, f))
+        self.per_call = other.per_call + self.per_call if other is not self else self.per_call
+
+
+# Prompt caching. Two breakpoints per request (the API allows four):
+#   1. the system prompt (stable for every request), and
+#   2. the last content block of the last message, so each request writes the whole
+#      conversation so far and the next request (a tool round-trip or a follow-up
+#      question) reads it back from cache, including earlier tool results.
+# The marker is added to a copy of the messages at send time and never stored, so the
+# history keeps exactly one moving marker instead of accumulating one per turn.
+CACHE_CONTROL = {"type": "ephemeral"}
+
+
+def with_cache_breakpoint(messages: list[dict]) -> list[dict]:
+    """A shallow copy of `messages` whose last message's last content block carries
+    cache_control. Stored messages are not modified."""
+    if not messages:
+        return messages
+    last = messages[-1]
+    content = last.get("content")
+    if isinstance(content, str):
+        blocks = [{"type": "text", "text": content, "cache_control": CACHE_CONTROL}]
+    elif isinstance(content, list) and content and isinstance(content[-1], dict):
+        blocks = [*content[:-1], {**content[-1], "cache_control": CACHE_CONTROL}]
+    else:
+        return list(messages)  # nothing markable (the last message is always ours, so rare)
+    return [*messages[:-1], {**last, "content": blocks}]
 
 
 @dataclass
@@ -445,7 +479,7 @@ class Agent:
             tools=self.tools,
             tool_choice={"type": "auto"} if allow_tools else {"type": "none"},
             output_config={"effort": self.effort},
-            messages=self.messages,
+            messages=with_cache_breakpoint(self.messages),
         )
         if USE_SERVER_FALLBACK:
             return self.client.beta.messages.create(
@@ -481,7 +515,9 @@ class Agent:
         return result
 
     def _ask(self, question: str) -> TurnResult:
-        self.messages.append({"role": "user", "content": question})
+        # Stored as a text block, the same shape it is sent in, so earlier turns render
+        # byte-identically on every later request (prompt-cache prefix match).
+        self.messages.append({"role": "user", "content": [{"type": "text", "text": question}]})
         result = TurnResult(text="")
         calls_left = self.max_tool_calls
 

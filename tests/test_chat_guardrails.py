@@ -70,7 +70,8 @@ def token_report():
         "questions_passing": f"{passed}/{len(REPORT['questions'])}",
     }
     latency = latency_summary([q["latency_ms"] for q in REPORT["questions"] if "latency_ms" in q])
-    totals = {**total.__dict__, "total_tokens": total.total, "latency_ms": latency}
+    totals = {**{k: v for k, v in total.__dict__.items() if k != "per_call"},
+              "total_tokens": total.total, "latency_ms": latency}
     print("\n\n=== Guardrail results ===")
     for q in REPORT["questions"]:
         print(f"  {q['id']:<18} {'PASS' if q['passed'] else 'FAIL'}  tools={q['tool_calls']:<2} "

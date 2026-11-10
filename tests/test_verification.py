@@ -183,7 +183,7 @@ def test_revise_drops_the_rejected_answer_and_feedback():
     assert fc.seen[-1] == ["user", "assistant", "user"]
     # Kept history: question -> revised answer.
     assert [m["role"] for m in a.messages] == ["user", "assistant"]
-    assert a.messages[0]["content"] == "question?"
+    assert a.messages[0]["content"] == [{"type": "text", "text": "question?"}]
     assert a.messages[1]["content"][0].text == "fixed answer"
 
 
@@ -222,6 +222,6 @@ def test_server_keeps_tool_use_and_tool_result_blocks_between_turns(monkeypatch)
     assert [m["role"] for m in history] == ["user", "assistant", "user", "assistant", "user"]
     assert history[1]["content"][0].type == "tool_use"
     assert history[2]["content"][0]["type"] == "tool_result" and history[2]["content"][0]["tool_use_id"] == "tu_1"
-    assert history[4]["content"] == "Really?"
+    assert history[4]["content"][0]["text"] == "Really?"
     # Turn 2 made no tool call, but its number is verified against turn 1's tool output.
     assert second["verification"]["verified"] and second["tool_results"] == []

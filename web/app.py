@@ -492,9 +492,15 @@ def log_request(rec: dict) -> None:
 
 
 def _usage_fields(usage) -> dict:
-    return {k: getattr(usage, k, 0) for k in (
-        "input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")} | {
-        "api_requests": getattr(usage, "requests", 0)}
+    """Token counts for the log line, including prompt-cache reads and writes, totalled and
+    per API call (a healthy follow-up reads the earlier conversation from cache)."""
+    out = {k: getattr(usage, k, 0) for k in (
+        "input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")}
+    prompt = out["input_tokens"] + out["cache_read_input_tokens"] + out["cache_creation_input_tokens"]
+    out["cache_hit_ratio"] = round(out["cache_read_input_tokens"] / prompt, 3) if prompt else None
+    out["api_requests"] = getattr(usage, "requests", 0)
+    out["api_calls"] = list(getattr(usage, "per_call", []) or [])
+    return out
 
 
 def _chat(body: ChatRequest, request: Request, agent, rec: dict):
