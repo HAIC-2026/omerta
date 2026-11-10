@@ -6,8 +6,9 @@ Run locally:
 Endpoints:
     GET  /            chat UI (web/static/index.html)
     GET  /api/meta    chambers, valid district numbers and metrics (for the picker)
-    POST /chat        {"messages": [{"role": "user"|"assistant", "content": "..."}]}
-                      -> answer, citations, low-reliability values and tool results
+    POST /chat        {"session_id": "..." | null, "question": "..."}
+                      -> session_id, answer, verification, citations, low-reliability values
+                         and tool results. The conversation is held on the server.
     GET  /healthz     liveness
 
 The Anthropic API key stays on the server: it is read from .env by agent.chat and never
@@ -29,11 +30,12 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from agent import tools
 from agent.chat import ServiceNotConfigured
 from agent.grounding import check_answer_runtime, roster_note_for, stated_flagged_values
+from web.sessions import SessionsFull, SessionStore
 
 log = logging.getLogger("web")
 
@@ -50,13 +52,15 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
-MAX_MESSAGES = _env_int("CHAT_MAX_MESSAGES", 20)        # conversation length per request
+MAX_MESSAGES = _env_int("CHAT_MAX_MESSAGES", 20)        # questions + answers per conversation
 MAX_MESSAGE_CHARS = _env_int("CHAT_MAX_MESSAGE_CHARS", 2000)
 MAX_TOTAL_CHARS = _env_int("CHAT_MAX_TOTAL_CHARS", 20000)
 RATE_PER_IP_PER_MINUTE = _env_int("RATE_LIMIT_PER_MINUTE", 6)
 RATE_PER_IP_PER_DAY = _env_int("RATE_LIMIT_PER_DAY", 150)
 RATE_GLOBAL_PER_MINUTE = _env_int("RATE_LIMIT_GLOBAL_PER_MINUTE", 30)
 MAX_CONCURRENT = _env_int("CHAT_MAX_CONCURRENT", 4)
+SESSION_TTL_MINUTES = _env_int("SESSION_TTL_MINUTES", 60)  # idle time before a conversation expires
+SESSION_MAX = _env_int("SESSION_MAX", 200)                # conversations held in memory at once
 # Only trust X-Forwarded-For when running behind a proxy you control.
 TRUST_PROXY = os.getenv("TRUST_PROXY", "0") == "1"
 
@@ -143,33 +147,20 @@ def get_agent():
 # Request / response models
 # ---------------------------------------------------------------------------
 
-class Message(BaseModel):
-    role: Literal["user", "assistant"]
-    content: str = Field(min_length=1, max_length=MAX_MESSAGE_CHARS)
+class ChatRequest(BaseModel):
+    """The client sends only its session ID (if it has one) and the new question. Anything
+    else, such as a client-written conversation history, is rejected."""
+    model_config = ConfigDict(extra="forbid")
 
-    @field_validator("content")
+    session_id: str | None = Field(default=None, max_length=64)
+    question: str = Field(min_length=1, max_length=MAX_MESSAGE_CHARS)
+
+    @field_validator("question")
     @classmethod
     def not_blank(cls, v: str) -> str:
         if not v.strip():
-            raise ValueError("message is empty")
+            raise ValueError("question is empty")
         return v
-
-
-class ChatRequest(BaseModel):
-    messages: list[Message] = Field(min_length=1, max_length=MAX_MESSAGES)
-
-    @field_validator("messages")
-    @classmethod
-    def well_formed(cls, msgs: list[Message]) -> list[Message]:
-        for i, m in enumerate(msgs):
-            expected = "user" if i % 2 == 0 else "assistant"
-            if m.role != expected:
-                raise ValueError("messages must alternate user/assistant, starting and ending with user")
-        if msgs[-1].role != "user":
-            raise ValueError("the last message must be from the user")
-        if sum(len(m.content) for m in msgs) > MAX_TOTAL_CHARS:
-            raise ValueError("conversation is too long; start a new conversation")
-        return msgs
 
 
 # ---------------------------------------------------------------------------
@@ -179,6 +170,7 @@ class ChatRequest(BaseModel):
 app = FastAPI(title="Hawaiʻi District Profiles", docs_url=None, redoc_url=None, openapi_url=None)
 app.state.limiter = default_limiter()
 app.state.slots = threading.BoundedSemaphore(MAX_CONCURRENT)
+app.state.sessions = SessionStore(ttl_seconds=SESSION_TTL_MINUTES * 60, max_sessions=SESSION_MAX)
 
 # Cross-origin access is off unless ALLOWED_ORIGINS lists origins (comma-separated),
 # e.g. ALLOWED_ORIGINS=https://haic.example.org
@@ -457,33 +449,64 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
         return error(429, "rate_limited",
                      f"Too many questions in a short time. Please wait {wait} seconds and try again.",
                      headers={"Retry-After": str(wait)})
+    store: SessionStore = request.app.state.sessions
+    status = "continued"
+    session = store.get(body.session_id) if body.session_id else None
+    if session is None:
+        status = "expired" if body.session_id else "new"
+        try:
+            session = store.create()
+        except SessionsFull:
+            return error(503, "busy", "The service is busy right now. Please try again in a moment.",
+                         headers={"Retry-After": "5"})
+    if len(session.questions) >= MAX_MESSAGES // 2 or             session.total_question_chars + len(body.question) > MAX_TOTAL_CHARS:
+        return error(422, "conversation_full", "This conversation has reached its length limit. "
+                     "Start a new conversation to keep asking questions.")
+    if not session.lock.acquire(blocking=False):
+        return error(409, "conversation_busy", "Still answering your previous question. Please wait "
+                     "for it to finish.")
     slots: threading.BoundedSemaphore = request.app.state.slots
     if not slots.acquire(blocking=False):
+        session.lock.release()
         return error(503, "busy", "The service is busy right now. Please try again in a moment.",
                      headers={"Retry-After": "5"})
-    questions = [m.content for m in body.messages if m.role == "user"]
+    questions = session.questions + [body.question]
+    prior = list(session.tool_outputs)
     try:
-        agent.messages = [{"role": m.role, "content": m.content} for m in body.messages[:-1]]
-        result = agent.ask(body.messages[-1].content)
-        result, check, retried = verify_with_retry(agent, result, [], questions)
+        agent.messages = list(session.messages)
+        result = agent.ask(body.question)
+        result, check, retried = verify_with_retry(agent, result, prior, questions)
     except anthropic.APIError as exc:
         return upstream_error(exc)
     except Exception:
         log.exception("chat failed")
         return error(500, "internal_error", "Something went wrong on our side. Please try again.",
                      alternatives=True)
+    else:
+        # Commit the turn only once it has a final answer.
+        session.messages = list(agent.messages)
+        session.tool_outputs.extend(c.output for c in result.tool_calls)
+        session.questions.append(body.question)
     finally:
         slots.release()
+        session.lock.release()
+        if not session.questions:
+            store.discard(session.id)  # a brand-new conversation whose first question failed
+        else:
+            store.touch(session)
 
     outputs = [c.output for c in result.tool_calls]
+    all_outputs = session.tool_outputs
     return {
+        "session_id": session.id,
+        "session_status": status,
         "answer": result.text,
         "verification": verification_summary(check, retried),
         "citations": _citations(outputs),
-        "low_reliability": stated_flagged_values(result.text, outputs),
+        "low_reliability": stated_flagged_values(result.text, all_outputs),
         # Shown under any answer that names a legislator (or found no one), so the roster's
         # date travels with the name even if the model's wording drops it.
-        "roster_note": roster_note_for(result.text, outputs),
+        "roster_note": roster_note_for(result.text, all_outputs),
         "tool_results": [
             {"tool": c.name, "input": c.input, "is_error": c.is_error,
              "citations": _citations([c.output]), "source_urls": _source_urls(c.output),

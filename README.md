@@ -128,15 +128,17 @@ All settings are environment variables (or `.env` locally). On Heroku, set them 
 | `RATE_LIMIT_PER_DAY` | `150` | `600` | Questions per client IP per day (same shared-IP reason) |
 | `RATE_LIMIT_GLOBAL_PER_MINUTE` | `30` | `60` | Questions per minute across all users; this is the cap on API spend |
 | `CHAT_MAX_CONCURRENT` | `4` | `4` | Questions processed at once (more get "busy, try again") |
-| `CHAT_MAX_MESSAGES` | `20` | `20` | Messages of conversation history accepted per request |
+| `CHAT_MAX_MESSAGES` | `20` | `20` | Questions plus answers per conversation (so 10 questions); then the user starts a new conversation |
+| `SESSION_TTL_MINUTES` | `60` | `60` | A conversation held on the server expires after this many minutes without a question |
+| `SESSION_MAX` | `200` | `200` | Conversations held in memory at once; when full, the least recently used idle one is dropped |
 | `CHAT_MAX_MESSAGE_CHARS` | `2000` | `2000` | Max characters in one message |
-| `CHAT_MAX_TOTAL_CHARS` | `20000` | `20000` | Max characters across the conversation in one request |
+| `CHAT_MAX_TOTAL_CHARS` | `20000` | `20000` | Max characters across all questions in one conversation |
 | `ALLOWED_ORIGINS` | *(none)* | *(leave unset)* | Comma-separated origins allowed cross-origin access. The UI is served from the same origin, so it doesn't need this. |
 | `TRUST_PROXY` | `0` | `1` | Set `1` behind exactly one reverse proxy you trust (Heroku's router), so rate limits apply per client. The app then uses the last `X-Forwarded-For` entry, which the proxy adds; earlier entries can be forged. |
 | `PORT` | set by the host | *(set by Heroku)* | Port the web process binds to (`Procfile`). Locally, uvicorn defaults to 8000. |
 | `CENSUS_API_KEY` | *(none)* | *(not needed)* | Only for `scripts/pull_acs.py` when rebuilding data |
 
-Rate limits live in memory in one process, so the `Procfile` runs a single uvicorn worker. Don't scale to more than one dyno: each would keep its own limits.
+Rate limits and conversations live in memory in one process, so the `Procfile` runs a single uvicorn worker. Don't scale to more than one dyno: each would keep its own limits.
 
 ## Deploy
 
@@ -147,6 +149,7 @@ Hosted on Heroku, one always-on **Basic** dyno. The GitHub Student Developer Pac
 - `GET /healthz`: liveness.
 - `GET /readyz`: data loaded (district, context, program and map counts; program verification date; serving legislators and roster date), proxy mode, and whether chat is configured. `?deep=1` also checks that the AI service is reachable; this uses no tokens.
 - **AI service down or out of credits:** the user sees a clear message ("temporarily unavailable…", "overloaded…") with links to the map and the about page, which still work. Upstream error text, keys and stack traces never reach the browser; details go to the server log with the request ID.
+- **Conversations are held on the server.** The browser sends only a random session ID and its new question; it never sends earlier answers, so a client can't plant text in the model's history. Each session keeps the full conversation (including tool calls and tool results) in memory for 60 minutes without activity (`SESSION_TTL_MINUTES`), up to `SESSION_MAX` sessions. Grounding checks use every tool result from the session, so a follow-up can restate an earlier figure. An unknown or expired session ID starts a new conversation, and the UI says so. A server restart ends all conversations.
 - **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts. Model output is rendered with DOM APIs, never `innerHTML`.
 
 ## Data
@@ -180,9 +183,9 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
-| `test_web.py`, `test_hardening.py` | `/chat` with a mocked agent, validation, rate limiting, key never exposed, AI-service failures, readiness, CORS, config, `/about` |
+| `test_web.py`, `test_hardening.py` | `/chat` with a mocked agent; server-held sessions (history comes from the server, expiry, LRU cap, client-sent history rejected, failed turns not saved); validation, rate limiting, key never exposed, AI-service failures, readiness, CORS, config, `/about` |
 | `test_profile_page.py`, `test_map.py` | One-page profile built only from tool data; map data matches the tools |
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 383 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 391 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

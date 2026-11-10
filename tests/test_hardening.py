@@ -44,7 +44,7 @@ def client(monkeypatch):
 
 
 def ask(client):
-    return client.post("/chat", json={"messages": [{"role": "user", "content": "q"}]})
+    return client.post("/chat", json={"question": "q"})
 
 
 # ---------------------------------------------------------------- health

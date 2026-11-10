@@ -111,7 +111,7 @@ def client(monkeypatch):
 
 def chat(client, agent, q="How many people live in House District 1?"):
     webapp.app.dependency_overrides[webapp.get_agent] = lambda: agent
-    return client.post("/chat", json={"messages": [{"role": "user", "content": q}]}).json()
+    return client.post("/chat", json={"question": q}).json()
 
 
 def test_verified_answer_is_not_retried(client):
@@ -185,3 +185,43 @@ def test_revise_drops_the_rejected_answer_and_feedback():
     assert [m["role"] for m in a.messages] == ["user", "assistant"]
     assert a.messages[0]["content"] == "question?"
     assert a.messages[1]["content"][0].text == "fixed answer"
+
+
+def test_server_keeps_tool_use_and_tool_result_blocks_between_turns(monkeypatch):
+    """Real Agent, fake API: turn 2 is sent turn 1's full conversation from the server."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    pop = tools.get_district_profile("house", 1)["metrics"]["total_population"]["value_display"]
+    usage = SimpleNamespace(input_tokens=1, output_tokens=1, cache_creation_input_tokens=0,
+                            cache_read_input_tokens=0)
+    tool_use = SimpleNamespace(type="tool_use", id="tu_1", name="get_district_profile",
+                               input={"chamber": "house", "district": 1})
+    script = [
+        SimpleNamespace(content=[tool_use], stop_reason="tool_use", model="m", usage=usage),
+        SimpleNamespace(content=[SimpleNamespace(type="text", text=f"House District 1 has {pop} people.")],
+                        stop_reason="end_turn", model="m", usage=usage),
+        SimpleNamespace(content=[SimpleNamespace(type="text", text=f"Yes, {pop}.")],
+                        stop_reason="end_turn", model="m", usage=usage),
+    ]
+    sent = []
+
+    def create(**kw):
+        sent.append(list(kw["messages"]))
+        return script.pop(0)
+    fake = SimpleNamespace(messages=SimpleNamespace(create=create),
+                           beta=SimpleNamespace(messages=SimpleNamespace(create=create)))
+    webapp.app.dependency_overrides[webapp.get_agent] = lambda: Agent(fake)
+    webapp.app.state.limiter = webapp.default_limiter()
+    try:
+        c = TestClient(webapp.app)
+        first = c.post("/chat", json={"question": "Population of House District 1?"}).json()
+        assert first["verification"]["verified"]
+        second = c.post("/chat", json={"session_id": first["session_id"], "question": "Really?"}).json()
+    finally:
+        webapp.app.dependency_overrides.clear()
+    history = sent[-1]
+    assert [m["role"] for m in history] == ["user", "assistant", "user", "assistant", "user"]
+    assert history[1]["content"][0].type == "tool_use"
+    assert history[2]["content"][0]["type"] == "tool_result" and history[2]["content"][0]["tool_use_id"] == "tu_1"
+    assert history[4]["content"] == "Really?"
+    # Turn 2 made no tool call, but its number is verified against turn 1's tool output.
+    assert second["verification"]["verified"] and second["tool_results"] == []

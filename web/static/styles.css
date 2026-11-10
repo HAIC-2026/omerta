@@ -339,6 +339,8 @@ details.sources[open] summary { border-bottom: 1px solid var(--border); }
   padding: 0.5rem 0.75rem; background: var(--surface, transparent); }
 .verify-warn ul { margin: 0.3rem 0 0.3rem 1.1rem; padding: 0; }
 .verify-title { margin: 0; }
+.session-note { margin: 0.75rem 0; padding: 0.5rem 0.75rem; border: 1px dashed currentColor;
+  border-radius: 0.35rem; font-size: 0.92rem; }
 .roster-note { margin: 0.5rem 0; color: var(--muted); font-size: 0.9rem; }
 .input-row { display: flex; gap: 0.5rem; align-items: stretch; flex-wrap: wrap; }
 .input-row textarea { flex: 1 1 16rem; resize: vertical; min-height: 5rem; }

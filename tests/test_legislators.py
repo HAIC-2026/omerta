@@ -229,7 +229,7 @@ def _chat_with(answer, calls):
     webapp.app.state.limiter = webapp.default_limiter()
     webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent(answer, calls)
     try:
-        return TestClient(webapp.app).post("/chat", json={"messages": [{"role": "user", "content": "q"}]}).json()
+        return TestClient(webapp.app).post("/chat", json={"question": "q"}).json()
     finally:
         webapp.app.dependency_overrides.clear()
 

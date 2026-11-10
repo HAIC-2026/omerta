@@ -88,7 +88,7 @@ def test_forged_forwarded_for_cannot_dodge_the_limit(monkeypatch):
     webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent("ok")
     try:
         c = TestClient(webapp.app)
-        codes = [c.post("/chat", json={"messages": [{"role": "user", "content": "hi"}]},
+        codes = [c.post("/chat", json={"question": "hi"},
                         headers={"x-forwarded-for": f"9.9.9.{i}, 203.0.113.9"}).status_code
                  for i in range(3)]
     finally:

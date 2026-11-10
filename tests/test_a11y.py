@@ -205,6 +205,27 @@ def test_unverified_answer_shows_warning_in_text(browser, base_url):
     assert run_axe(page, "answer not verified") == []
 
 
+def test_page_sends_only_session_id_and_question_and_notes_expiry(browser, base_url):
+    import json as _json
+    from web.sessions import SessionStore
+    page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    bodies = []
+    page.on("request", lambda r: bodies.append(_json.loads(r.post_data)) if r.url.endswith("/chat") else None)
+    ask(page, "Profile a district")
+    page.wait_for_selector("article.msg-agent")
+    ask(page, "Profile a district again")
+    page.wait_for_function("() => document.querySelectorAll('article.msg-agent').length === 2")
+    assert set(bodies[0]) == {"session_id", "question"} and bodies[0]["session_id"] is None
+    assert bodies[1]["session_id"] and set(bodies[1]) == {"session_id", "question"}
+    assert page.locator(".session-note").count() == 0
+    webapp.app.state.sessions = SessionStore()  # as after an expiry or a server restart
+    ask(page, "Profile a district a third time")
+    page.wait_for_selector(".session-note")
+    assert "started a new conversation" in page.inner_text(".session-note")
+    page.wait_for_function("() => document.getElementById('status').textContent.includes('expired')")
+    assert run_axe(page, "conversation expired note") == []
+
+
 def test_axe_loading_state(browser, base_url):
     page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
     ask(page, "slow question")

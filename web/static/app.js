@@ -21,11 +21,9 @@
     armed_forces_rate: "share of people 16 and over in the Armed Forces"
   };
   var TOOL_LABELS = {};
-  var MAX_HISTORY_MESSAGES = 18;   // server allows 20 incl. the new question
-  var MAX_HISTORY_CHARS = 16000;   // server allows 20,000 total
   var REQUEST_TIMEOUT_MS = 120000;
 
-  var history = [];      // [{role, content}] of completed exchanges
+  var sessionId = null;  // the server holds the conversation; the page only keeps its ID
   var busy = false;
   var answerCount = 0;
   var meta = null;
@@ -329,6 +327,19 @@
     return box;
   }
 
+  var SESSION_EXPIRED_TEXT = "Your earlier conversation had expired (after an hour without " +
+    "questions, or a server restart), so this question started a new conversation. The answers " +
+    "above it are not part of the new one.";
+
+  // A visible note before the question that started the new conversation.
+  function addSessionNote(userNode) {
+    var note = el("p", { class: "session-note" }, [
+      el("strong", { text: "New conversation. " }), SESSION_EXPIRED_TEXT
+    ]);
+    if (userNode && userNode.parentNode === log) log.insertBefore(note, userNode);
+    else log.appendChild(note);
+  }
+
   function addUserMessage(text) {
     if (emptyState) { emptyState.remove(); emptyState = null; }
     var art = el("article", { class: "msg msg-user", "aria-label": "Your question" }, [
@@ -448,13 +459,6 @@
     sendBtn.textContent = on ? "Working…" : "Ask";
   }
 
-  function trimmedHistory() {
-    var h = history.slice(-MAX_HISTORY_MESSAGES);
-    var total = function () { return h.reduce(function (n, m) { return n + m.content.length; }, 0); };
-    while (h.length && total() > MAX_HISTORY_CHARS) h = h.slice(2);
-    return h;
-  }
-
   // ------------------------------------------------------------- network
   function send(question, userNode) {
     setBusy(true);
@@ -462,12 +466,11 @@
     showLoading();
     var ctrl = new AbortController();
     var timer = window.setTimeout(function () { ctrl.abort(); }, REQUEST_TIMEOUT_MS);
-    var messages = trimmedHistory().concat([{ role: "user", content: question }]);
 
     fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: messages }),
+      body: JSON.stringify({ session_id: sessionId, question: question }),
       signal: ctrl.signal
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) {
@@ -483,10 +486,12 @@
         setStatus("Error: " + msg);
         return;
       }
-      history.push({ role: "user", content: question });
-      history.push({ role: "assistant", content: r.data.answer || "" });
+      var restarted = sessionId && r.data.session_status === "expired";
+      sessionId = r.data.session_id || null;
+      if (restarted) addSessionNote(userNode);
       addAnswer(r.data);
-      setStatus("Answer received. " + verificationText(r.data.verification));
+      setStatus((restarted ? SESSION_EXPIRED_TEXT + " " : "") + "Answer received. " +
+        verificationText(r.data.verification));
     }).catch(function (err) {
       window.clearTimeout(timer);
       hideLoading();
@@ -591,7 +596,7 @@
 
     $("new-chat").addEventListener("click", function () {
       if (busy) { setStatus("Wait for the current answer before starting over."); return; }
-      history = []; answerCount = 0;
+      sessionId = null; answerCount = 0;
       log.textContent = "";
       emptyState = el("p", { class: "empty-state", id: "empty-state",
         text: "No questions yet. Pick an example, build a question above, or type your own below." });
