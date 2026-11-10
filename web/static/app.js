@@ -349,6 +349,9 @@
       body
     ]);
     if (data.low_reliability && data.low_reliability.length) art.appendChild(buildLowRelPanel(data.low_reliability));
+    if (data.roster_note) {
+      art.appendChild(el("p", { class: "roster-note", text: "Legislators: " + data.roster_note + "." }));
+    }
     if (data.hit_tool_limit) {
       art.appendChild(el("p", { class: "hint", text: "This answer reached the lookup limit for one question, so it may be incomplete. Try asking a narrower question." }));
     }

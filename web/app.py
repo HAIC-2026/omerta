@@ -33,7 +33,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from agent import tools
 from agent.chat import ServiceNotConfigured
-from agent.grounding import stated_flagged_values
+from agent.grounding import roster_note_for, stated_flagged_values
 
 log = logging.getLogger("web")
 
@@ -467,6 +467,9 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
         "answer": result.text,
         "citations": _citations(outputs),
         "low_reliability": stated_flagged_values(result.text, outputs),
+        # Shown under any answer that names a legislator (or found no one), so the roster's
+        # date travels with the name even if the model's wording drops it.
+        "roster_note": roster_note_for(result.text, outputs),
         "tool_results": [
             {"tool": c.name, "input": c.input, "is_error": c.is_error,
              "citations": _citations([c.output]), "source_urls": _source_urls(c.output),

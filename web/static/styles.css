@@ -333,6 +333,7 @@ details.sources[open] summary { border-bottom: 1px solid var(--border); }
 .chat-form { margin-top: 1rem; }
 .question-label { font-weight: 650; display: block; }
 .hint { margin: 0.1rem 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
+.roster-note { margin: 0.5rem 0; color: var(--muted); font-size: 0.9rem; }
 .input-row { display: flex; gap: 0.5rem; align-items: stretch; flex-wrap: wrap; }
 .input-row textarea { flex: 1 1 16rem; resize: vertical; min-height: 5rem; }
 .input-row .btn { flex: 0 0 auto; align-self: flex-end; }

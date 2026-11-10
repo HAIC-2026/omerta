@@ -186,3 +186,112 @@ def test_about_page_describes_the_roster():
         assert stmt in r.text
     assert "party affiliation is not" in r.text
     assert "doesn't know who represents" not in r.text
+
+
+# --- roster freshness note ----------------------------------------------------------
+
+NOTE = lt.as_listed_note()
+
+
+def test_as_listed_note_wording():
+    from datetime import date
+    d = date.fromisoformat(META["date_fetched"])
+    assert NOTE.startswith(f"as listed on capitol.hawaii.gov on {d:%B} {d.day}, {d.year}")
+    if META["election_status"] == "pre-election":
+        assert NOTE.endswith(", before the Nov 3, 2026 general election results took effect")
+
+
+def test_every_legislator_result_carries_the_note():
+    m = SERVING[0]
+    assert lt.find_district_by_legislator(m["name_first_last"])["as_listed_note"] == NOTE
+    assert lt.find_district_by_legislator("Lee")["as_listed_note"] == NOTE
+    assert get_district_profile(m["chamber"], m["district"])["legislator"]["as_listed_note"] == NOTE
+
+
+def test_not_found_says_the_roster_may_predate_the_election():
+    r = lt.find_district_by_legislator("Jane Madeup")
+    assert r["as_listed_note"] == NOTE and NOTE in r["error"]
+    if META["election_status"] == "pre-election":
+        assert r["roster_may_predate_election"] is True
+        assert "may predate the election" in r["error"]
+
+
+def test_prompt_requires_the_note_and_the_predate_message():
+    assert "include the tool's `as_listed_note` word for word" in SYSTEM_PROMPT
+    assert "don't just say \"not found\"" in SYSTEM_PROMPT
+    assert "may predate the election" in SYSTEM_PROMPT
+
+
+def _chat_with(answer, calls):
+    from fastapi.testclient import TestClient
+    from tests.test_web import FakeAgent
+    from web import app as webapp
+    webapp.app.state.limiter = webapp.default_limiter()
+    webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent(answer, calls)
+    try:
+        return TestClient(webapp.app).post("/chat", json={"messages": [{"role": "user", "content": "q"}]}).json()
+    finally:
+        webapp.app.dependency_overrides.clear()
+
+
+def test_chat_response_carries_note_when_a_legislator_is_named(monkeypatch):
+    from agent.chat import ToolCall
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    m = SERVING[0]
+    out = lt.find_district_by_legislator(m["name_first_last"])
+    call = ToolCall("find_district_by_legislator", {"name": m["name_first_last"]}, out, False)
+    assert _chat_with(f"{m['name_first_last']} represents District {m['district']}.", [call])["roster_note"] == NOTE
+    # Not named in the answer: no note.
+    assert _chat_with("I couldn't tell.", [call])["roster_note"] is None
+
+
+def test_chat_response_carries_note_when_no_one_is_found(monkeypatch):
+    from agent.chat import ToolCall
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    out = lt.find_district_by_legislator("Jane Madeup")
+    call = ToolCall("find_district_by_legislator", {"name": "Jane Madeup"}, out, True)
+    assert _chat_with("That name isn't in the roster.", [call])["roster_note"] == NOTE
+
+
+def test_profile_without_naming_the_legislator_has_no_note(monkeypatch):
+    from agent.chat import ToolCall
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    out = get_district_profile("house", 1)
+    call = ToolCall("get_district_profile", {"chamber": "house", "district": 1}, out, False)
+    assert _chat_with("House District 1 is on Hawaiʻi Island.", [call])["roster_note"] is None
+
+
+def test_ui_renders_the_roster_note():
+    js = (ROOT / "web" / "static" / "app.js").read_text(encoding="utf-8")
+    assert "data.roster_note" in js and "roster-note" in js
+
+
+def test_guardrail_fails_a_named_legislator_without_the_note():
+    from agent.chat import ToolCall, TurnResult
+    from tests.guardrail_checks import check_answer
+    m = SERVING[0]
+    out = lt.find_district_by_legislator(m["name_first_last"])
+    calls = [ToolCall("find_district_by_legislator", {"name": m["name_first_last"]}, out, False)]
+    chamber = "Senate" if m["chamber"] == "senate" else "House"
+    bare = f"{m['name_first_last']} represents {chamber} District {m['district']}. Source: {out['citation']}."
+    good = f"{m['name_first_last']} represents {chamber} District {m['district']}, {NOTE}. Source: {out['citation']}."
+    fails = lambda t: check_answer("legislator", "q", TurnResult(text=t, tool_calls=calls, stop_reason="end_turn",
+                                                                  models=["m"]), "m")["failures"]
+    assert any("roster note" in f for f in fails(bare))
+    assert fails(good) == []
+
+
+def test_one_pager_shows_the_serving_legislator_with_source_and_date():
+    from fastapi.testclient import TestClient
+    from web import app as webapp
+    for chamber, d in (("house", 28), ("senate", 18), ("senate", 9)):
+        r = TestClient(webapp.app).get(f"/district/{chamber}/{d}/profile")
+        assert r.status_code == 200
+        serving = [m for m in SERVING if m["chamber"] == chamber and m["district"] == d]
+        former = [m for m in ROSTER if m["chamber"] == chamber and m["district"] == d and not m["serving"]]
+        text = r.text.replace("&quot;", '"').replace("&#x27;", "'")
+        assert serving[0]["name_first_last"] in text
+        assert all(f["name_first_last"] not in text for f in former)
+        assert NOTE in text
+        assert serving[0]["profile_url"].replace("&", "&amp;") in r.text
+        assert "capitol.hawaii.gov" in text and META["date_fetched"] in text

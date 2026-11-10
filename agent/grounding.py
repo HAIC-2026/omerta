@@ -332,3 +332,53 @@ def unsourced_legislators(text: str, outputs: Iterable[dict]) -> list[str]:
             if name not in missing:
                 missing.append(name)
     return missing
+
+
+def legislators_stated(text: str, outputs: Iterable[dict]) -> list[str]:
+    """Legislators from this turn's tool results that the answer names: by full name, or by
+    surname (the surnames checked are only those of legislators the tools returned)."""
+    from agent.legislator_tools import normalize_name
+    text_norm = normalize_name(text)
+    found: list[str] = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("name_as_written"), str) and isinstance(o.get("name_first_last"), str):
+                last = normalize_name(o["name_as_written"].split(",")[0])
+                if last and re.search(rf"(?<![a-z0-9]){re.escape(last)}(?![a-z0-9])", text_norm) \
+                        and o["name_first_last"] not in found:
+                    found.append(o["name_first_last"])
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for out in outputs:
+        walk(out)
+    return found
+
+
+def roster_note_for(text: str, outputs: Iterable[dict]) -> str | None:
+    """The roster's as-listed note, when the answer names a legislator from the tools or a
+    legislator lookup found no one (so the reader knows how fresh the roster is)."""
+    outputs = list(outputs)
+    note = None
+    looked_up_missing = False
+
+    def walk(o):
+        nonlocal note, looked_up_missing
+        if isinstance(o, dict):
+            if isinstance(o.get("as_listed_note"), str):
+                note = note or o["as_listed_note"]
+                if "error" in o:
+                    looked_up_missing = True
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for out in outputs:
+        walk(out)
+    if note and (looked_up_missing or legislators_stated(text, outputs)):
+        return note
+    return None

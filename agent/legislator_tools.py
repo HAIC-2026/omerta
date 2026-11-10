@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
@@ -46,8 +47,29 @@ def _citation(meta: dict, source_url: str) -> str:
     return f"{PUBLISHER}, member listing ({source_url}), fetched {meta['date_fetched']}"
 
 
+def _date_words(iso: str) -> str:
+    d = date.fromisoformat(iso)
+    return f"{d:%B} {d.day}, {d.year}"
+
+
+def as_listed_note(meta: dict | None = None) -> str | None:
+    """The freshness phrase shown with every legislator name, e.g. "as listed on
+    capitol.hawaii.gov on November 10, 2026, before the Nov 3, 2026 general election results
+    took effect". The election clause is added only when the roster is marked pre-election."""
+    if meta is None:
+        roster = load_legislators()
+        if roster is None:
+            return None
+        meta = roster["metadata"]
+    note = f"as listed on capitol.hawaii.gov on {_date_words(meta['date_fetched'])}"
+    if meta.get("election_status") == "pre-election":
+        note += ", before the Nov 3, 2026 general election results took effect"
+    return note
+
+
 def _roster_context(meta: dict, chamber: str) -> dict:
     return {
+        "as_listed_note": as_listed_note(meta),
         "roster_date_fetched": meta["date_fetched"],
         "membership_as_stated_by_site": meta["membership_as_stated_by_site"][chamber],
         "election_status": meta.get("election_status"),
@@ -85,11 +107,15 @@ def find_district_by_legislator(name: str) -> dict:
     q = _tokens(name)
     hits = [m for m in roster["legislators"] if all(t in _tokens(m["name_as_written"]) for t in q)]
     if not hits:
+        predates = ("The roster may predate the election, so a newly elected legislator may not be "
+                    "listed yet. " if meta.get("election_status") == "pre-election" else "")
         return {
             "query": name,
-            "error": (f"No legislator in the roster matches {name!r}. Names are matched on whole words "
-                      "only (ignoring case, ʻokina and kahakō); misspellings and partial names are not "
-                      "guessed."),
+            "error": (f"No legislator in the roster matches {name!r}. The roster is "
+                      f"{as_listed_note(meta)}. {predates}Names are matched on whole words only "
+                      "(ignoring case, ʻokina and kahakō); misspellings and partial names are not guessed."),
+            "roster_may_predate_election": meta.get("election_status") == "pre-election",
+            "as_listed_note": as_listed_note(meta),
             "roster_date_fetched": meta["date_fetched"],
             "source_urls": meta["source_urls"],
         }
@@ -106,6 +132,7 @@ def find_district_by_legislator(name: str) -> dict:
             "message": (f"{len(hits)} legislators match {name!r}. Ask the user which one they mean; "
                         "do not pick one."),
             "candidates": [_view(m, meta) for m in hits],
+            "as_listed_note": as_listed_note(meta),
         }
     m = hits[0]
     out = {"query": name, "match": _view(m, meta), **_roster_context(meta, m["chamber"])}

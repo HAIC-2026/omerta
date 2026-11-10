@@ -88,6 +88,16 @@ def render(chamber: str, district: int) -> tuple[int, str]:
         ctx_html = ('<section aria-labelledby="ctx-h"><h2 id="ctx-h">District context</h2>'
                     + "".join(parts) + "</section>")
 
+    leg = p.get("legislator") or {}
+    leg_html = ""
+    if leg.get("serving"):
+        role = "Senator" if p["chamber"] == "senate" else "Representative"
+        names = ", ".join(e(x["name_first_last"]) for x in leg["serving"])
+        prof = leg["serving"][0]["profile_url"]
+        # One header line (the page must print on one sheet); the full citation is in Sources.
+        leg_html = (f"<p class=\"sub legislator\"><strong>{role}:</strong> {names}, "
+                    f"{e(leg['as_listed_note'])}.</p>")
+
     rule = meta.get("low_reliability_rule", "")
     caveat_html = ""
     if flagged:
@@ -104,11 +114,15 @@ def render(chamber: str, district: int) -> tuple[int, str]:
         citations.append(ctx["areas"]["citation"])
     if ctx.get("reapportionment_population"):
         citations.append(ctx["reapportionment_population"]["citation"])
+    if leg_html:
+        citations.append(leg["citation"])
     src_urls = []
     first = m[keys[0]]["source_url"]
     src_urls.append(("Census API query", first if isinstance(first, str) else first[0]))
     if ctx.get("source_url"):
         src_urls.append(("2021 Reapportionment Commission final report (PDF)", ctx["source_url"]))
+    if leg_html:
+        src_urls.append(("Legislator profile (capitol.hawaii.gov)", prof))
 
     generated = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
     body = f"""
@@ -116,6 +130,7 @@ def render(chamber: str, district: int) -> tuple[int, str]:
   <p class="kicker">District profile · nonpartisan Census data</p>
   <h1>{e(title)}</h1>
   <p class="sub">{e(p['name'])}. Data: {e(meta['dataset'])}, {e(meta['boundary_vintage'])}. Generated {e(generated)}.</p>
+  {leg_html}
   <p class="noprint"><button type="button" id="print-btn">Print or save as PDF</button> <a href="/">Back to the chat</a></p>
 </header>
 <main>

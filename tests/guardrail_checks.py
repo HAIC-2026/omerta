@@ -14,6 +14,7 @@ from agent.grounding import (
     extract_numbers,
     flagged_values_without_caveat,
     is_supported,
+    legislators_stated,
     unsourced_legislators,
     unsourced_programs,
 )
@@ -54,6 +55,7 @@ def questions() -> list[tuple[str, str]]:
         ("rank_top", "Which five House districts have the highest renter cost burden?"),
         ("context", "How does the veteran share in Senate District 24 compare to other Senate districts?"),
         ("legislator", f"Which district does {example_legislator()} represent?"),
+        ("legislator_not_found", "Which district does Jane Madeup represent?"),
     ]
 
 
@@ -139,6 +141,10 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
         failures.append(f"programs named without a tool result: {unsourced}")
     if claims:
         failures.append(f"eligibility stated as fact: {claims}")
+    named = legislators_stated(text, outputs)
+    note = next((n for n in _strings(outputs) if n.startswith('as listed on capitol.hawaii.gov')), None)
+    if named and note and note.lower() not in text.lower():
+        failures.append(f"legislator named without the roster note {note!r}: {named}")
     if unsourced_names:
         failures.append(f"legislators named without a tool result: {unsourced_names}")
 
@@ -173,8 +179,17 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
             failures.append("did not find the legislator with find_district_by_legislator")
         elif f"District {m['district']}" not in text:
             failures.append(f"district {m['district']} not stated")
-        elif c.output.get("roster_date_fetched") not in text:
-            failures.append("roster fetch date not stated")
+    if qid == "legislator_not_found":
+        c = _find_call(calls, "find_district_by_legislator")
+        if not c:
+            failures.append("did not look the name up with find_district_by_legislator")
+        elif "match" in c.output:
+            failures.append("a made-up name matched a legislator")
+        else:
+            if c.output.get("as_listed_note", "").lower() not in text.lower():
+                failures.append("not-found answer lacks the roster's as-listed note")
+            if not re.search(r"predate|may not (be listed|include)|not (be )?listed yet", text, re.I):
+                failures.append("not-found answer doesn't say the roster may predate the election")
     if qid == "programs" and not _find_call(calls, "find_programs"):
         failures.append("did not call find_programs")
     if qid == "district_programs" and not _find_call(calls, "district_program_context"):

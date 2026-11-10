@@ -13,7 +13,7 @@ def _e(x) -> str:
 
 def render() -> str:
     from agent.chat import MODEL
-    from agent.legislator_tools import load_legislators
+    from agent.legislator_tools import as_listed_note, load_legislators
     from agent.program_tools import load_programs
 
     meta = tools.load_data()["metadata"]
@@ -54,8 +54,9 @@ def render() -> str:
                        f"<a href=\"{_e(rm['source_urls'][1])}\">Senate</a>), fetched {_e(rm['date_fetched'])}. "
                        f"The site says: {_e(shown)}. Names are as written there; party affiliation is not "
                        "recorded. Members whose term the site says has ended are kept, marked as such.</li>")
-        roster_limit = (f"<li>The legislator roster is a snapshot from {_e(rm['date_fetched'])}. "
-                        f"{_e(rm.get('election_note'))} Confirm current membership on capitol.hawaii.gov.</li>")
+        roster_limit = (f"<li>Legislators are shown {_e(as_listed_note(rm))}. {_e(rm.get('election_note'))} "
+                        "If a name isn't found, the roster may predate the election. Confirm current "
+                        "membership on capitol.hawaii.gov.</li>")
     map_item = ""
     if shapes_src:
         map_item = (f"<li><strong>Map boundaries:</strong> {_e(shapes_src['name'])}, {_e(shapes_src['vintage'])}. "
