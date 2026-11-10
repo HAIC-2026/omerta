@@ -22,7 +22,7 @@ from typing import Any, Callable
 import anthropic
 from dotenv import load_dotenv
 
-from agent import program_tools, tools
+from agent import legislator_tools, program_tools, tools
 
 # ---------------------------------------------------------------------------
 # Config: defaults here, overridable with environment variables (or .env).
@@ -52,8 +52,9 @@ SYSTEM_PROMPT = """\
 You answer questions from Hawaiʻi state legislators and their staff about the socio-economic \
 profile of Hawaiʻi State House and State Senate districts. Your only data source is the set of \
 tools you have, which return U.S. Census Bureau American Community Survey (ACS) estimates, \
-district context from the State of Hawaiʻi 2021 Reapportionment Commission final report, and \
-assistance program facts quoted from official agency web pages.
+district context from the State of Hawaiʻi 2021 Reapportionment Commission final report, \
+assistance program facts quoted from official agency web pages, and the legislator roster from \
+the Hawaiʻi State Legislature website (capitol.hawaii.gov).
 
 Numbers
 - Every number you state must appear in a tool result from this conversation. This includes \
@@ -105,6 +106,22 @@ add context. Say the two figures measure different things (see the tool's `note`
 present the difference as a count of military members or students, and don't speculate \
 beyond what the report states.
 
+Legislators (find_district_by_legislator, get_district_profile → legislator)
+- Name a legislator only if this turn's tool results contain that name. Never name a \
+legislator from general knowledge, and don't guess who represents a district.
+- Write names as the tool gives them (`name_first_last` or `name_as_written`); don't add \
+or change spellings.
+- To find a legislator's district, call find_district_by_legislator. If it returns \
+`ambiguous`, list the candidates (name, chamber, district) and ask which one the user means; \
+don't choose. If it returns an error, say the name wasn't found in the roster; don't suggest \
+similar names.
+- Say the roster is from capitol.hawaii.gov as fetched on `roster_date_fetched`, and pass on \
+`membership_as_stated_by_site` and the `election_note` (the roster may not reflect the most \
+recent election). Cite the tool's `citation`.
+- If the site lists a member whose term ended (`term_ended`, or `serving` false), say so with \
+the site's status text; the serving member is the one in `serving`.
+- Don't mention or guess party affiliation; the data doesn't include it.
+
 Assistance programs (find_programs, district_program_context)
 - Describe a program only with facts from these tools: its name, agency, who it serves, \
 eligibility factors, income figures, how to apply and source. Don't add programs, \
@@ -120,8 +137,8 @@ they don't show who qualifies. Compare a district with the `median_of_districts_
 actually stated.
 
 Limits
-- The tools don't know who represents a district, and know its geography only through \
-`district_context.areas`. Don't guess anything beyond that.
+- The tools know a district's geography only through `district_context.areas`, and its \
+legislator only through the roster. Don't guess anything beyond that.
 - If a question can't be answered with this data (for example unemployment, crime, school \
 results, trends over time, sub-district areas, or a district number that doesn't exist), say \
 so clearly, then say what data would answer it (for example a specific ACS table, the Hawaiʻi \
@@ -159,8 +176,10 @@ def build_tool_schemas() -> list[dict]:
                 "and citation. Also returns district_context from the 2021 Reapportionment "
                 "Commission final report: the areas/communities the district covers, its "
                 "reapportionment (permanent resident) population, and a side-by-side with the "
-                "ACS population. Use this for 'tell me about district N', 'what areas does it "
-                "cover', and 'why is its population so large' questions."
+                "ACS population. Also returns legislator: who the capitol.hawaii.gov roster lists "
+                "for the district, with the roster's fetch date and election note. Use this for "
+                "'tell me about district N', 'what areas does it cover', 'who represents it' and "
+                "'why is its population so large' questions."
             ),
             "input_schema": {
                 "type": "object",
@@ -281,6 +300,26 @@ def build_tool_schemas() -> list[dict]:
             "strict": True,
         },
         {
+            "name": "find_district_by_legislator",
+            "description": (
+                "Find the chamber and district a Hawaiʻi state legislator represents, from the "
+                "member roster on capitol.hawaii.gov. Matches whole name words, ignoring case, "
+                "ʻokina and kahakō; never guesses. Returns one match, or 'ambiguous' with the "
+                "candidates when several legislators fit, or an error when none does. Use for "
+                "'which district does <name> represent' questions."
+            ),
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string",
+                             "description": "The legislator's name as the user gave it (surname, or first and last name)."},
+                },
+                "required": ["name"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        },
+        {
             "name": "list_available_metrics",
             "description": (
                 "List every measure the tools can report (metric id, full label as written in the "
@@ -306,6 +345,7 @@ TOOL_FUNCS: dict[str, Callable[..., dict]] = {
     "find_programs": program_tools.find_programs,
     "district_program_context": program_tools.district_program_context,
     "list_available_metrics": program_tools.list_available_metrics,
+    "find_district_by_legislator": legislator_tools.find_district_by_legislator,
 }
 
 

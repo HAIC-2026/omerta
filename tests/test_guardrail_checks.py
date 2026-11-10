@@ -37,8 +37,9 @@ def gap_parts():
 
 def test_question_set_covers_required_cases():
     ids = {q for q, _ in questions()}
-    assert {"population_gap", "programs", "low_reliability", "out_of_scope", "invalid_district"} <= ids
-    assert len(questions()) == 10
+    assert {"population_gap", "programs", "low_reliability", "out_of_scope", "invalid_district",
+            "legislator"} <= ids
+    assert len(questions()) == 11
 
 
 def test_population_gap_good_answer_passes():

@@ -13,6 +13,7 @@ def _e(x) -> str:
 
 def render() -> str:
     from agent.chat import MODEL
+    from agent.legislator_tools import load_legislators
     from agent.program_tools import load_programs
 
     meta = tools.load_data()["metadata"]
@@ -43,6 +44,18 @@ def render() -> str:
                     "Areas each district covers (Appendix D) and the permanent-resident population used to "
                     "draw it (Tables 1–10), with page citations. The Commission states that non-permanent "
                     "military and student residents were removed from that population base.</li>")
+    roster = load_legislators()
+    roster_item = roster_limit = ""
+    if roster:
+        rm = roster["metadata"]
+        shown = " ".join(rm["membership_as_stated_by_site"].values())
+        roster_item = (f"<li><strong>Legislators:</strong> the House and Senate member listings on the Hawaiʻi State "
+                       f"Legislature website (<a href=\"{_e(rm['source_urls'][0])}\">House</a>, "
+                       f"<a href=\"{_e(rm['source_urls'][1])}\">Senate</a>), fetched {_e(rm['date_fetched'])}. "
+                       f"The site says: {_e(shown)}. Names are as written there; party affiliation is not "
+                       "recorded. Members whose term the site says has ended are kept, marked as such.</li>")
+        roster_limit = (f"<li>The legislator roster is a snapshot from {_e(rm['date_fetched'])}. "
+                        f"{_e(rm.get('election_note'))} Confirm current membership on capitol.hawaii.gov.</li>")
     map_item = ""
     if shapes_src:
         map_item = (f"<li><strong>Map boundaries:</strong> {_e(shapes_src['name'])}, {_e(shapes_src['vintage'])}. "
@@ -77,6 +90,7 @@ def render() -> str:
     re-checked word for word on {_e(progs['metadata'].get('date_verified'))}. Income figures appear only where the
     agency publishes them.</li>
     {map_item}
+    {roster_item}
   </ul>
 </section>
 
@@ -90,6 +104,9 @@ def render() -> str:
     tool computes it.</li>
     <li>Every figure is cited with its source, table, year and boundary vintage, and low-reliability values carry
     a caveat.</li>
+    <li>Legislator names come only from the roster tool. Names are matched on whole words, ignoring case,
+    ʻokina and kahakō; when a name fits more than one legislator, the tool returns the candidates instead of
+    choosing one.</li>
     <li>Program descriptions come only from the program tools. The model never says someone is eligible; people
     "may qualify" and must confirm with the agency.</li>
     <li>Automated tests check real answers: every number in an answer must appear in that answer's tool results,
@@ -107,8 +124,9 @@ def render() -> str:
     have large margins of error; read flagged values as approximate.</li>
     <li>The Census population and the reapportionment population measure different things (different years,
     methods and population bases) and are not expected to match.</li>
-    <li>The tool covers only the measures and programs listed here. It doesn't know who represents a district,
-    and it doesn't cover unemployment, crime, schools or trends over time.</li>
+    <li>The tool covers only the measures and programs listed here. It doesn't cover unemployment, crime,
+    schools or trends over time.</li>
+    {roster_limit}
     <li>Program details change. Confirm eligibility, income limits and waiting lists with the agency.</li>
     <li>AI-written answers can still contain mistakes in wording. Check important figures against the cited
     sources.</li>

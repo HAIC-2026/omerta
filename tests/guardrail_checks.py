@@ -14,6 +14,7 @@ from agent.grounding import (
     extract_numbers,
     flagged_values_without_caveat,
     is_supported,
+    unsourced_legislators,
     unsourced_programs,
 )
 
@@ -33,6 +34,11 @@ def most_unreliable_house_district(metric: str = "limited_english_household_rate
     return max(recs, key=lambda r: r["metrics"][metric]["moe_to_estimate"])["district"]
 
 
+def example_legislator() -> str:
+    """The name used in the UI's example chip: a serving legislator from the roster."""
+    return "Stanley Chang"
+
+
 def questions() -> list[tuple[str, str]]:
     lr = most_unreliable_house_district()
     return [
@@ -47,6 +53,7 @@ def questions() -> list[tuple[str, str]]:
         ("compare", "Compare poverty rates in House Districts 20, 21, and 22."),
         ("rank_top", "Which five House districts have the highest renter cost burden?"),
         ("context", "How does the veteran share in Senate District 24 compare to other Senate districts?"),
+        ("legislator", f"Which district does {example_legislator()} represent?"),
     ]
 
 
@@ -113,6 +120,7 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
     unsupported = sorted({n for n in stated if not is_supported(n, sources)})
     caveats = flagged_values_without_caveat(text, outputs)
     unsourced = unsourced_programs(text, outputs)
+    unsourced_names = unsourced_legislators(text, outputs)
     claims = eligibility_claims(text)
 
     if not text:
@@ -131,6 +139,8 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
         failures.append(f"programs named without a tool result: {unsourced}")
     if claims:
         failures.append(f"eligibility stated as fact: {claims}")
+    if unsourced_names:
+        failures.append(f"legislators named without a tool result: {unsourced_names}")
 
     ok_calls = [c for c in calls if not c.is_error]
     if any(c.name in ACS_TOOLS for c in ok_calls) and qid not in ("programs",) \
@@ -156,6 +166,15 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
                 failures.append("reapportionment figure not cited to the Commission report")
             if any(not _negation_backed_by_tool(m.group(0), outputs) for m in _GAP_AS_COUNT_RE.finditer(text)):
                 failures.append("presents the population gap as a count of military members or students")
+    if qid == "legislator":
+        c = _find_call(calls, "find_district_by_legislator")
+        m = (c.output.get("match") if c else None) or {}
+        if not m:
+            failures.append("did not find the legislator with find_district_by_legislator")
+        elif f"District {m['district']}" not in text:
+            failures.append(f"district {m['district']} not stated")
+        elif c.output.get("roster_date_fetched") not in text:
+            failures.append("roster fetch date not stated")
     if qid == "programs" and not _find_call(calls, "find_programs"):
         failures.append("did not call find_programs")
     if qid == "district_programs" and not _find_call(calls, "district_program_context"):
@@ -178,6 +197,7 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
         "flagged_values_stated": caveats["stated"],
         "flagged_values_missing_caveat": caveats["missing"],
         "unsourced_programs": unsourced,
+        "unsourced_legislators": unsourced_names,
         "eligibility_claims": claims,
         "failures": failures,
     }

@@ -229,6 +229,10 @@ def get_district_profile(chamber: str, district: int) -> dict:
     ctx = _district_context(chamber, district, rec)
     if ctx:
         out["district_context"] = ctx
+    from agent.legislator_tools import district_legislators
+    leg = district_legislators(chamber, district)
+    if leg:
+        out["legislator"] = leg
     return out
 
 

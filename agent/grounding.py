@@ -257,3 +257,78 @@ def stated_flagged_values(text: str, outputs: Iterable[dict]) -> list[dict]:
                 if h not in entry["matched_text"]:
                     entry["matched_text"].append(h)
     return list(found.values())
+
+
+# ---------------------------------------------------------------------------
+# Legislator names
+# ---------------------------------------------------------------------------
+
+# "Senator Chang", "Sen. Stanley Chang", "Representative Della Au Belatti", "Rep. Ratcliffe".
+# Up to four capitalized name words after the title; "District" (as in "Senate District",
+# "2nd Representative District") ends the name and is never part of it.
+# Name words are separated by single spaces; only a one-letter initial may end in a period,
+# so "Senator Chang. The ..." stops at "Chang".
+_NAME_WORD = r"(?!Districts?\b)(?:[A-Z]\.|[A-Z][\wʻ‘’'\-]*)"
+_TITLE_NAME_RE = re.compile(
+    r"\b(?:Senators?|Sen\.|Representatives?|Rep\.|President|Speaker)[  ]+"
+    rf"({_NAME_WORD}(?:[  ]{_NAME_WORD}){{0,3}})"
+)
+
+
+def _tool_legislator_names(outputs: Iterable[dict]) -> list[str]:
+    names: list[str] = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            for k in ("name_as_written", "name_first_last"):
+                if isinstance(o.get(k), str):
+                    names.append(o[k])
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for out in outputs:
+        walk(out)
+    return names
+
+
+def _name_mentions(text_norm: str, m: dict) -> bool:
+    """True when the answer names this roster legislator by first and last name (either
+    order). Surnames alone are not checked: many are also ordinary words or place names."""
+    from agent.legislator_tools import normalize_name
+    first_last = normalize_name(m["name_first_last"])
+    last = normalize_name(m["name_as_written"].split(",")[0])
+    first = normalize_name(m["name_as_written"].split(",")[-1]).split()
+    forms = {first_last, f"{last} {first[0]}" if first else last}
+    if first:
+        forms.add(f"{first[0]} {last}")
+    return any(re.search(rf"(?<![a-z0-9]){re.escape(f)}(?![a-z0-9])", text_norm) for f in forms if f)
+
+
+def unsourced_legislators(text: str, outputs: Iterable[dict]) -> list[str]:
+    """Legislator names in the answer that no tool result this turn contains.
+
+    Two checks: any roster legislator named by first and last name must appear in the tool
+    output; and any name after a title (Senator, Representative, ...) must be made only of
+    words from legislator names in the tool output."""
+    from agent.legislator_tools import load_legislators, normalize_name
+    outputs = list(outputs)
+    sourced = _tool_legislator_names(outputs)
+    sourced_norm = {normalize_name(n) for n in sourced}
+    sourced_words = {w for n in sourced_norm for w in n.split()}
+    text_norm = normalize_name(text)
+    missing: list[str] = []
+    roster = load_legislators()
+    for m in (roster or {}).get("legislators", []):
+        if _name_mentions(text_norm, m) and not ({normalize_name(m["name_as_written"]),
+                                                  normalize_name(m["name_first_last"])} & sourced_norm):
+            if m["name_first_last"] not in missing:
+                missing.append(m["name_first_last"])
+    for t in _TITLE_NAME_RE.finditer(text):
+        words = normalize_name(re.sub(r"['’]s\b", "", t.group(1))).split()
+        if words and not all(w in sourced_words for w in words):
+            name = t.group(1).strip()
+            if name not in missing:
+                missing.append(name)
+    return missing

@@ -6,6 +6,7 @@ An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan s
 - **District map:** shade districts by any measure, with a sortable table alternative. Select a district to ask about it.
 - **One-page profiles:** a print-ready page for any district, built straight from the data with no AI involved.
 - **Assistance programs:** official facts about SNAP, Med-QUEST, WIC and others, framed as "may qualify, confirm with the agency".
+- **Legislators:** which district a legislator represents, and who represents a district, from the member listings on capitol.hawaii.gov. Names are as written there; party is not recorded.
 - **About:** `/about` explains the sources, the grounding guarantee and the limitations.
 
 ## Architecture
@@ -17,22 +18,26 @@ flowchart LR
     RC["2021 Reapportionment<br/>Commission final report (PDF)"]
     AG["Agency web pages<br/>(DHS, DOH, HPHA, DOE, ...)"]
     CB["Census 2022 cartographic<br/>boundary files"]
+    CAP["capitol.hawaii.gov<br/>House + Senate member listings"]
   end
   subgraph Build["scripts/ (verify, then write)"]
     P1["pull_acs.py<br/>checks variable IDs, computes MOEs"]
     P2["build_district_context.py<br/>parses + cross-checks tables"]
     P3["verify_programs.py<br/>re-checks every quote"]
     P4["build_map.py<br/>simplifies shapes"]
+    P5["fetch_legislators.py<br/>one serving member per district"]
   end
   subgraph Data["data/"]
     D1[districts.json]
     D2[district_context.json]
     D3[programs.json]
     D4[district_shapes.json]
+    D5[legislators.json]
   end
   subgraph Tools["agent/ tools (pure functions, no model)"]
     T1["get_district_profile · compare_districts<br/>rank_districts · statewide_context"]
     T2["find_programs · district_program_context<br/>list_available_metrics"]
+    T3["find_district_by_legislator"]
   end
   LLM["Claude (agent/chat.py)<br/>narrates tool output only"]
   WEB["FastAPI web/app.py<br/>/chat · /map · /district/…/profile · /about · /readyz"]
@@ -42,9 +47,11 @@ flowchart LR
   RC --> P2 --> D2
   AG --> P3 --> D3
   CB --> P4 --> D4
-  D1 & D2 --> T1
+  CAP --> P5 --> D5
+  D1 & D2 & D5 --> T1
   D3 & D1 --> T2
-  T1 & T2 <--> LLM
+  D5 --> T3
+  T1 & T2 & T3 <--> LLM
   LLM --> WEB
   T1 --> WEB
   D4 --> WEB
@@ -65,6 +72,7 @@ The model never reads the data files directly. It calls the tools, and the tools
    - every number in an answer must match a number in that turn's tool results (rounding to the stated precision is allowed);
    - every low-reliability value stated must have its caveat next to it;
    - every program named must come from a tool result;
+   - every legislator named must come from a tool result: any roster legislator named by first and last name, and any name after "Senator" or "Representative", must appear in that turn's tool results;
    - no sentence may state eligibility as fact.
 
    The live guardrail suite runs real questions through the model and fails on any violation. It caught the model computing a confidence range itself, which led to the tools providing `range_display`.
@@ -102,6 +110,7 @@ python scripts/compare_acs.py             # old-vs-new report after changing rel
 python scripts/build_district_context.py   # downloads the ~400 MB report, or pass --pdf PATH
 python scripts/verify_programs.py          # re-verifies program quotes and stamps date_verified
 python scripts/build_map.py
+python scripts/fetch_legislators.py       # re-fetches the roster; fails unless every district has one serving member
 ```
 
 ## Configuration
@@ -140,6 +149,7 @@ If several judges share one venue's wifi, they share one IP address, so raise `R
 | `data/programs.json` | Official agency pages | 10 programs, every fact with a verbatim quote and verification date. |
 | `data/district_shapes.json` | Census 2022 cartographic boundary files (from TIGER/Line) | Simplified to 73 KB. The Northwestern Hawaiian Islands are not drawn at map scale. |
 
+| `data/legislators.json` | Hawaiʻi State Legislature member listings ([House](https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H), [Senate](https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S)), fetched 2026-11-10 (UTC) | Name as written on the site (party suffix removed), chamber, district, official profile URL, source URL, fetch date, and the site's own status text ("Appointed 08/09/2026", "Term of Office Ended: 06/30/2026"). The site says "(Showing Representatives/Senators for the 2026 regular session)" and doesn't mention the November 3, 2026 general election, so the file is marked **pre-election** membership. Two districts list a member whose term ended (House 28, Senate 18); they are kept with `serving: false`. No party affiliation. |
 | `data/archive/districts_acs2023.json` | The previous release (ACS 2023 5-year, 2022 districts) | Kept for comparison; `reports/acs_2023_vs_2024.json` lists every value old vs new and the 31 low-reliability flags that changed (12 newly flagged, 19 no longer flagged). |
 
 **Boundary vintage.** The Census Bureau lists the state legislative district vintage for the 2024 ACS as "2024 Legislative Session Year" ([Geography Boundaries by Year, 2024](https://www.census.gov/programs-surveys/acs/geography-acs/geography-boundaries-by-year.2024.html)), and for 5-year estimates says to "use the last year of the estimate period to determine the vintage." Its [2024 geography changes](https://www.census.gov/programs-surveys/acs/technical-documentation/table-and-geography-changes/2024/geography-changes.html) page does not list Hawaiʻi among the states with new plans and says all other states had no changes to their SLD boundaries from the 2022 cycle. The map still draws the 2022 cartographic boundary files.
@@ -155,6 +165,7 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 
 | Suite | What it checks |
 |---|---|
+| `test_legislators.py` | Roster only from capitol.hawaii.gov, no party, one serving member per district; every member found by name ignoring case/ʻokina/kahakō; shared names return candidates; no fuzzy matches; profile carries the legislator; name grounding check; the UI chip names a real legislator |
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
@@ -163,4 +174,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 241 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 344 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
