@@ -52,6 +52,8 @@ class MockAgent:
             raise anthropic.APIConnectionError(request=httpx.Request("POST", "https://api.anthropic.com"))
         if "slow" in q.lower():
             time.sleep(3)
+        if "unverified" in q.lower():
+            return TurnResult(text="House District 1 has 987,654 residents.", stop_reason="end_turn")
         d = _flagged_district()
         out = tools.get_district_profile("house", d)
         m = out["metrics"]
@@ -70,6 +72,10 @@ class MockAgent:
         return TurnResult(text=text, stop_reason="end_turn",
                           tool_calls=[ToolCall("get_district_profile",
                                                {"chamber": "house", "district": d}, out, False)])
+
+    def revise(self, failures):
+        # The correction attempt still states the made-up figure, so the answer stays unverified.
+        return TurnResult(text="House District 1 has 987,654 residents (corrected).", stop_reason="end_turn")
 
 
 # ---------------------------------------------------------------- server
@@ -176,6 +182,27 @@ def test_axe_answer_with_sources_open(browser, base_url):
     assert page.locator("mark.lowrel").count() >= 1
     assert page.locator(".lowrel-panel").count() == 1
     assert run_axe(page, "answer + sources open") == []
+
+
+def test_verified_answer_shows_and_announces_check(browser, base_url):
+    page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    ask(page, "Profile a district")
+    page.wait_for_selector("article.msg-agent .verify-ok")
+    line = page.inner_text("article.msg-agent .verify-ok")
+    assert "numbers verified against cited sources" in line
+    page.wait_for_function("() => document.getElementById('status').textContent.includes('verified against cited sources')")
+    assert run_axe(page, "answer verified") == []
+
+
+def test_unverified_answer_shows_warning_in_text(browser, base_url):
+    page = new_page(browser, base_url, viewport={"width": 1280, "height": 900})
+    ask(page, "unverified answer please")
+    page.wait_for_selector("article.msg-agent .verify-warn")
+    warn = page.inner_text("article.msg-agent .verify-warn")
+    assert "Not verified" in warn and "987654" in warn  # the issue list names the number
+    assert "automatic correction attempt" in warn
+    page.wait_for_function("() => document.getElementById('status').textContent.includes('Warning')")
+    assert run_axe(page, "answer not verified") == []
 
 
 def test_axe_loading_state(browser, base_url):

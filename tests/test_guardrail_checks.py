@@ -57,7 +57,7 @@ def test_population_gap_failures_are_caught():
     no_reapp = good.replace(want, "about twenty-seven thousand")
     assert any("reapportionment population" in x for x in check_answer("population_gap", q, tr(no_reapp, [c]), MODEL)["failures"])
     made_up = good + " That is 31,337 more than expected."
-    assert any("numbers not in tool results" in x for x in check_answer("population_gap", q, tr(made_up, [c]), MODEL)["failures"])
+    assert any("Numbers not found in the tool results" in x for x in check_answer("population_gap", q, tr(made_up, [c]), MODEL)["failures"])
     as_military = good + f" The gap of {ctx['acs_vs_reapportionment']['display']} is military members."
     assert any("military" in x for x in check_answer("population_gap", q, tr(as_military, [c]), MODEL)["failures"])
     assert any("did not look up" in x for x in check_answer("population_gap", q, tr(good, []), MODEL)["failures"])
@@ -89,7 +89,7 @@ def test_programs_good_answer_passes():
 def test_program_failures_are_caught(bad, expect):
     c, _ = program_parts()
     f = check_answer("programs", questions()[1][1], tr(bad, [c]), MODEL)
-    assert any(expect in x for x in f["failures"]), f["failures"]
+    assert any(expect.lower() in x.lower() for x in f["failures"]), f["failures"]
 
 
 def test_program_not_in_tool_results_caught():
@@ -97,7 +97,7 @@ def test_program_not_in_tool_results_caught():
     c = call("find_programs", food, need="food")
     bad = "You may qualify for Kūpuna Care or Section 8; confirm. https://humanservices.hawaii.gov/bessd/snap/"
     f = check_answer("programs", "q", tr(bad, [c]), MODEL)
-    assert any("programs named without" in x for x in f["failures"]), f["failures"]
+    assert any("Programs named that no tool result returned" in x for x in f["failures"]), f["failures"]
 
 
 def test_missing_caveat_and_wrong_model_caught():
@@ -108,7 +108,7 @@ def test_missing_caveat_and_wrong_model_caught():
     c = call("get_district_profile", p, chamber="house", district=lr)
     no_cav = f"In House District {lr}, {m['value_display']} of households are limited-English. ({tools.load_data()['metadata']['dataset']})"
     f = check_answer("low_reliability", d, tr(no_cav, [c]), MODEL)
-    assert any("without caveat" in x for x in f["failures"])
+    assert any("without their caveat" in x for x in f["failures"])
     ok = no_cav + " This is a low-reliability estimate; treat it as approximate."
     assert check_answer("low_reliability", d, tr(ok, [c]), MODEL)["failures"] == []
     wrong = tr(ok, [c]); wrong.models = ["claude-opus-5-5"]
@@ -200,7 +200,7 @@ def test_program_name_inside_metric_label_allowed():
 def test_program_named_on_its_own_still_needs_tool_result(mention):
     ans = "I can't give the unemployment rate; my tools don't include it. " + mention
     f = check_answer("out_of_scope", "unemployment in House District 10?", tr(ans, []), MODEL)
-    assert any("programs named without" in x for x in f["failures"]), f["failures"]
+    assert any("Programs named that no tool result returned" in x for x in f["failures"]), f["failures"]
 
 
 def test_rescore_of_saved_live_run_matches_report():
@@ -214,4 +214,7 @@ def test_rescore_of_saved_live_run_matches_report():
     res = rescore_saved_answers(report)
     assert report["results"]["original live run"] == report["run"]["questions_passing"] == "7/10"
     assert f"{sum(x['passed'] for x in res)}/{len(res)}" == report["results"]["re-scored with fixed checker"]
-    assert res == report["rescore"]["questions"]
+    # Same verdicts and the same number of problems per question; the failure wording is now the
+    # plain-language text shared with /chat (agent.grounding.check_answer_runtime).
+    saved = report["rescore"]["questions"]
+    assert [(x["id"], x["passed"], len(x["failures"])) for x in res] ==         [(q["id"], q["passed"], len(q["failures"])) for q in saved]

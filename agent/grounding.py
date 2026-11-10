@@ -382,3 +382,88 @@ def roster_note_for(text: str, outputs: Iterable[dict]) -> str | None:
     if note and (looked_up_missing or legislators_stated(text, outputs)):
         return note
     return None
+
+
+# ---------------------------------------------------------------------------
+# One runtime check for every answer (used by /chat and by the guardrail tests)
+# ---------------------------------------------------------------------------
+
+def _roster_notes(outputs: Iterable[dict]) -> list[str]:
+    notes: list[str] = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            n = o.get("as_listed_note")
+            if isinstance(n, str) and n not in notes:
+                notes.append(n)
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for out in outputs:
+        walk(out)
+    return notes
+
+
+def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable[str] = ()) -> dict:
+    """Check an answer against the tool results it may draw on (for /chat: every tool output
+    in the conversation so far). Numbers the user wrote in `questions` may be restated.
+
+    Returns the findings plus `failures`: plain-language problems, empty when verified.
+      - every number must match a tool number (rounding to the stated precision allowed);
+      - every low-reliability value stated must have its caveat nearby;
+      - every program named must come from a tool result;
+      - no sentence may state eligibility as fact;
+      - every legislator named must come from a tool result, with the roster's as-listed note.
+    """
+    text = text or ""
+    outputs = list(outputs)
+    sources: set[Decimal] = set()
+    for o in outputs:
+        collect_tool_numbers(o, sources)
+    for q in questions:
+        sources.update(Decimal(n) for n in extract_numbers(q or ""))
+    stated = extract_numbers(text)
+    unsupported = sorted({n for n in stated if not is_supported(n, sources)},
+                         key=lambda n: (Decimal(n), n))
+    caveats = flagged_values_without_caveat(text, outputs)
+    programs = unsourced_programs(text, outputs)
+    claims = eligibility_claims(text)
+    names = unsourced_legislators(text, outputs)
+    named = legislators_stated(text, outputs)
+    notes = _roster_notes(outputs)
+    note_missing = bool(named and notes and not any(n.lower() in text.lower() for n in notes))
+
+    failures: list[str] = []
+    if not text.strip():
+        failures.append("The answer is empty.")
+    if unsupported:
+        failures.append("Numbers not found in the tool results: " + ", ".join(unsupported) + ".")
+    if caveats["missing"]:
+        failures.append("Low-reliability values stated without their caveat: "
+                        + "; ".join(caveats["missing"]) + ".")
+    if programs:
+        failures.append("Programs named that no tool result returned: " + ", ".join(programs) + ".")
+    if claims:
+        failures.append("Eligibility stated as fact (say \"may qualify\" and to confirm with the agency): "
+                        + " | ".join(claims))
+    if names:
+        failures.append("Legislators named that no tool result returned: " + ", ".join(names) + ".")
+    if note_missing:
+        failures.append(f"Legislator named without the roster note \"{notes[0]}\": " + ", ".join(named) + ".")
+
+    return {
+        "verified": not failures,
+        "numbers_checked": len(stated),
+        "numbers_supported": len(stated) - sum(1 for n in stated if n in set(unsupported)),
+        "unsupported_numbers": unsupported,
+        "flagged_values_stated": caveats["stated"],
+        "flagged_values_missing_caveat": caveats["missing"],
+        "unsourced_programs": programs,
+        "unsourced_legislators": names,
+        "legislators_stated": named,
+        "roster_note_missing": note_missing,
+        "eligibility_claims": claims,
+        "failures": failures,
+    }

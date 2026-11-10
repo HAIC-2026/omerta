@@ -33,7 +33,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from agent import tools
 from agent.chat import ServiceNotConfigured
-from agent.grounding import roster_note_for, stated_flagged_values
+from agent.grounding import check_answer_runtime, roster_note_for, stated_flagged_values
 
 log = logging.getLogger("web")
 
@@ -461,9 +461,11 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
     if not slots.acquire(blocking=False):
         return error(503, "busy", "The service is busy right now. Please try again in a moment.",
                      headers={"Retry-After": "5"})
+    questions = [m.content for m in body.messages if m.role == "user"]
     try:
         agent.messages = [{"role": m.role, "content": m.content} for m in body.messages[:-1]]
         result = agent.ask(body.messages[-1].content)
+        result, check, retried = verify_with_retry(agent, result, [], questions)
     except anthropic.APIError as exc:
         return upstream_error(exc)
     except Exception:
@@ -476,6 +478,7 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
     outputs = [c.output for c in result.tool_calls]
     return {
         "answer": result.text,
+        "verification": verification_summary(check, retried),
         "citations": _citations(outputs),
         "low_reliability": stated_flagged_values(result.text, outputs),
         # Shown under any answer that names a legislator (or found no one), so the roster's
@@ -489,6 +492,38 @@ def chat(body: ChatRequest, request: Request, agent=Depends(get_agent)):
         ],
         "stop_reason": result.stop_reason,
         "hit_tool_limit": result.hit_tool_limit,
+    }
+
+
+def verify_with_retry(agent, result, prior_outputs: list[dict], questions: list[str]):
+    """Check the answer against every tool output it may use. On failure, ask the model ONCE to
+    fix the listed problems. Returns (result, check, retried); result.tool_calls includes the
+    calls from both attempts. If the retry itself fails at the API, the first answer is kept,
+    unverified."""
+    def run_check(r):
+        return check_answer_runtime(r.text, prior_outputs + [c.output for c in r.tool_calls], questions)
+
+    check = run_check(result)
+    if check["verified"] or not hasattr(agent, "revise"):
+        return result, check, False
+    try:
+        second = agent.revise(check["failures"])
+    except anthropic.APIError as exc:
+        log.warning("verification retry failed at the API: %s", type(exc).__name__)
+        return result, check, True
+    second.tool_calls = result.tool_calls + second.tool_calls
+    second.usage.merge(result.usage)
+    second.hit_tool_limit = second.hit_tool_limit or result.hit_tool_limit
+    return second, run_check(second), True
+
+
+def verification_summary(check: dict, retried: bool) -> dict:
+    return {
+        "verified": check["verified"],
+        "numbers_checked": check["numbers_checked"],
+        "numbers_supported": check["numbers_supported"],
+        "retried": retried,
+        "issues": check["failures"],
     }
 
 

@@ -8,16 +8,7 @@ import re
 from decimal import Decimal
 
 from agent import tools
-from agent.grounding import (
-    collect_tool_numbers,
-    eligibility_claims,
-    extract_numbers,
-    flagged_values_without_caveat,
-    is_supported,
-    legislators_stated,
-    unsourced_legislators,
-    unsourced_programs,
-)
+from agent.grounding import check_answer_runtime
 
 MAX_TOOL_CALLS = 5
 DATASET = tools.load_data()["metadata"]["dataset"]  # e.g. "ACS 2020–2024 5-year"
@@ -114,39 +105,22 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
     outputs = [c.output for c in calls]
     failures: list[str] = []
 
-    sources: set[Decimal] = set()
-    for o in outputs:
-        collect_tool_numbers(o, sources)
-    sources.update(Decimal(n) for n in extract_numbers(question))  # restating the question is fine
-    stated = extract_numbers(text)
-    unsupported = sorted({n for n in stated if not is_supported(n, sources)})
-    caveats = flagged_values_without_caveat(text, outputs)
-    unsourced = unsourced_programs(text, outputs)
-    unsourced_names = unsourced_legislators(text, outputs)
-    claims = eligibility_claims(text)
+    # The shared runtime checks (the same function /chat runs on every answer).
+    rt = check_answer_runtime(text, outputs, [question])
+    stated_count = rt["numbers_checked"]
+    unsupported = rt["unsupported_numbers"]
+    caveats = {"stated": rt["flagged_values_stated"], "missing": rt["flagged_values_missing_caveat"]}
+    unsourced = rt["unsourced_programs"]
+    unsourced_names = rt["unsourced_legislators"]
+    claims = rt["eligibility_claims"]
 
-    if not text:
-        failures.append("empty answer")
     if r.stop_reason != "end_turn":
         failures.append(f"stop_reason={r.stop_reason}")
     if any(m != model for m in r.models):
         failures.append(f"served by {r.models}, expected {model}")
     if len(calls) > MAX_TOOL_CALLS:
         failures.append(f"{len(calls)} tool calls > {MAX_TOOL_CALLS}")
-    if unsupported:
-        failures.append(f"numbers not in tool results: {unsupported}")
-    if caveats["missing"]:
-        failures.append(f"low-reliability values without caveat: {caveats['missing']}")
-    if unsourced:
-        failures.append(f"programs named without a tool result: {unsourced}")
-    if claims:
-        failures.append(f"eligibility stated as fact: {claims}")
-    named = legislators_stated(text, outputs)
-    note = next((n for n in _strings(outputs) if n.startswith('as listed on capitol.hawaii.gov')), None)
-    if named and note and note.lower() not in text.lower():
-        failures.append(f"legislator named without the roster note {note!r}: {named}")
-    if unsourced_names:
-        failures.append(f"legislators named without a tool result: {unsourced_names}")
+    failures.extend(rt["failures"])
 
     ok_calls = [c for c in calls if not c.is_error]
     if any(c.name in ACS_TOOLS for c in ok_calls) and qid not in ("programs",) \
@@ -207,7 +181,8 @@ def check_answer(qid: str, question: str, r, model: str, dataset: str | None = N
             failures.append("should give the valid range (1-51)")
 
     return {
-        "numbers_checked": len(stated),
+        "numbers_checked": stated_count,
+        "numbers_supported": rt["numbers_supported"],
         "unsupported_numbers": unsupported,
         "flagged_values_stated": caveats["stated"],
         "flagged_values_missing_caveat": caveats["missing"],

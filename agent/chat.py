@@ -462,6 +462,24 @@ class Agent:
             del self.messages[checkpoint:]
             raise
 
+    def revise(self, failures: list[str]) -> TurnResult:
+        """Ask the model once to fix an answer that failed verification. The feedback and the
+        rejected answer are removed from the conversation afterwards, so the history reads as
+        question -> tool calls -> revised answer."""
+        rejected = len(self.messages) - 1  # the final assistant message that failed
+        feedback = (
+            "Automatic verification of your last answer found these problems:\n"
+            + "\n".join(f"- {f}" for f in failures)
+            + "\n\nRewrite the whole answer so it fixes every problem. Use only numbers, names, "
+            "programs and caveats that appear in the tool results in this conversation (call a tool "
+            "if you need a value you don't have), and follow all the earlier rules. Reply with the "
+            "corrected answer only; don't mention this check."
+        )
+        result = self.ask(feedback)
+        if rejected >= 0 and self.messages[rejected]["role"] == "assistant":
+            del self.messages[rejected:rejected + 2]
+        return result
+
     def _ask(self, question: str) -> TurnResult:
         self.messages.append({"role": "user", "content": question})
         result = TurnResult(text="")

@@ -68,15 +68,14 @@ The model never reads the data files directly. It calls the tools, and the tools
    - `verify_programs.py` re-fetches each agency page and confirms every quoted fact word for word.
 2. **Tools return values, never prose.** Every value carries a citation and ready-formatted display strings, plus a caveat if it's low reliability. Any number a comparison needs is computed by the tool, so the model never does arithmetic: the ACS-vs-reapportionment population gap, confidence ranges, medians of districts.
 3. **The system prompt forbids anything else.** The model may state only numbers from this turn's tool results. It must cite every figure, carry every caveat, never call someone eligible for a program, and say so when the data can't answer a question.
-4. **Answers are checked automatically** ([agent/grounding.py](agent/grounding.py)):
-   - every number in an answer must match a number in that turn's tool results (rounding to the stated precision is allowed);
+4. **Every answer is checked before it's shown** (`check_answer_runtime` in [agent/grounding.py](agent/grounding.py)):
+   - every number in an answer must match a number in the tool results (rounding to the stated precision is allowed; numbers the user typed may be restated);
    - every low-reliability value stated must have its caveat next to it;
    - every program named must come from a tool result;
-   - every legislator named must come from a tool result: any roster legislator named by first and last name, and any name after "Senator" or "Representative", must appear in that turn's tool results;
+   - every legislator named must come from a tool result: any roster legislator named by first and last name, and any name after "Senator" or "Representative". Each must carry the roster's as-listed note;
    - no sentence may state eligibility as fact.
-
-   The live guardrail suite runs real questions through the model and fails on any violation. It caught the model computing a confidence range itself, which led to the tools providing `range_display`.
-5. **The web layer reuses the same checks.** It marks the low-reliability values an answer states, so the UI can flag them visibly.
+5. **Failed answers get one retry, then a visible warning.** `/chat` runs the check on every answer. If it fails, the model gets the specific problems once and is asked to fix them using only tool results; the rejected draft is removed from the conversation. If the second answer still fails, it is returned with `verified: false` and the list of problems, and the UI shows a "Not verified" warning above the answer. Every response carries `verification: {verified, numbers_checked, numbers_supported, retried, issues}`. A verified answer shows "✓ All N numbers verified against cited sources". Both results are text (not just color) and are announced by the page's live region.
+6. **The live guardrail suite uses the same function**, plus question-specific checks. It caught the model computing a confidence range itself, which led to the tools providing `range_display`. The web layer also marks the low-reliability values an answer states, so the UI can flag them visibly.
 
 ## Run it
 
@@ -176,6 +175,7 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | Suite | What it checks |
 |---|---|
 | `test_legislators.py` | Roster only from capitol.hawaii.gov, no party, one serving member per district; every member found by name ignoring case/ʻokina/kahakō; shared names return candidates; no fuzzy matches; profile carries the legislator; name grounding check; the UI chip names a real legislator; the as-listed note travels with every legislator (tool results, /chat `roster_note`, one-pager, /about) and not-found says the roster may predate the election |
+| `test_verification.py` | The runtime check (counts, each failure type), the one-retry loop in `/chat` (verified, fixed on retry, still failing, retry API error), and that `Agent.revise` drops the rejected draft from the history |
 | `test_deploy.py` | Procfile binds `$PORT` on 0.0.0.0 with one worker; Python version pinned; runtime requirements only; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
@@ -185,4 +185,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 367 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 383 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

@@ -339,6 +339,44 @@
     return art;
   }
 
+  // Plain-text verification result, also used for the live-region announcement.
+  function verificationText(v) {
+    if (!v) return "";
+    if (v.verified) {
+      var n = v.numbers_checked || 0;
+      if (n === 0) return "No numbers stated; names and programs checked against cited sources.";
+      if (n === 1) return "1 number verified against cited sources.";
+      return "All " + n + " numbers verified against cited sources.";
+    }
+    return "Warning: parts of this answer could not be verified against the cited sources.";
+  }
+
+  function buildVerification(v) {
+    if (!v) return null;
+    if (v.verified) {
+      return el("p", { class: "verify verify-ok" }, [
+        el("span", { "aria-hidden": "true", text: "✓ " }),
+        verificationText(v)
+      ]);
+    }
+    var box = el("div", { class: "verify verify-warn" });
+    box.appendChild(el("p", { class: "verify-title" }, [
+      el("span", { "aria-hidden": "true", text: "⚠ " }),
+      el("strong", { text: "Not verified." }),
+      " Parts of this answer could not be checked against the cited sources" +
+        (v.retried ? ", even after an automatic correction attempt" : "") +
+        ". Check these before relying on them:"
+    ]));
+    var ul = el("ul");
+    (v.issues || []).forEach(function (t) { ul.appendChild(el("li", { text: t })); });
+    box.appendChild(ul);
+    if (v.numbers_checked) {
+      box.appendChild(el("p", { text: v.numbers_supported + " of " + v.numbers_checked +
+        " numbers matched the cited sources." }));
+    }
+    return box;
+  }
+
   function addAnswer(data) {
     answerCount += 1;
     var marker = makeMarker(data.low_reliability);
@@ -348,6 +386,8 @@
       el("h3", { class: "msg-who", text: "Answer" }),
       body
     ]);
+    var ver = buildVerification(data.verification);
+    if (ver) art.appendChild(ver);
     if (data.low_reliability && data.low_reliability.length) art.appendChild(buildLowRelPanel(data.low_reliability));
     if (data.roster_note) {
       art.appendChild(el("p", { class: "roster-note", text: "Legislators: " + data.roster_note + "." }));
@@ -446,7 +486,7 @@
       history.push({ role: "user", content: question });
       history.push({ role: "assistant", content: r.data.answer || "" });
       addAnswer(r.data);
-      setStatus("Answer received.");
+      setStatus("Answer received. " + verificationText(r.data.verification));
     }).catch(function (err) {
       window.clearTimeout(timer);
       hideLoading();
