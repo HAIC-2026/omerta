@@ -83,7 +83,7 @@ The model never reads the data files directly. It calls the tools, and the tools
 ```
 python -m venv .venv
 .venv\Scripts\activate                 # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt       # runtime + build scripts + tests (requirements.txt is runtime only)
 python -m playwright install chromium  # only for the browser accessibility tests
 ```
 
@@ -115,28 +115,38 @@ python scripts/fetch_legislators.py       # re-fetches the roster; fails unless 
 
 ## Configuration
 
-All settings are environment variables (or `.env`). The defaults suit a small demo.
+All settings are environment variables (or `.env` locally). On Heroku, set them under **Settings → Config Vars**; see [DEPLOY.md](DEPLOY.md). Nothing secret is in the code or the repo.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `CHAT_MODEL` | `claude-sonnet-5-5` | Claude model for chat |
-| `CHAT_EFFORT` | `medium` | Reasoning effort |
-| `CHAT_MAX_TOKENS` | `8000` | Max tokens per model response |
-| `CHAT_MAX_TOOL_CALLS` | `10` | Tool calls allowed per question |
-| `CHAT_SERVER_FALLBACK` | `1` | Retry on a fallback model if a safety filter declines (`0` to disable) |
-| `RATE_LIMIT_PER_MINUTE` | `6` | Questions per IP per minute |
-| `RATE_LIMIT_PER_DAY` | `150` | Questions per IP per day |
-| `RATE_LIMIT_GLOBAL_PER_MINUTE` | `30` | Questions per minute across all users |
-| `CHAT_MAX_CONCURRENT` | `4` | Questions processed at once |
-| `ALLOWED_ORIGINS` | *(none)* | Comma-separated origins allowed cross-origin access (CORS is off by default) |
-| `TRUST_PROXY` | `0` | Set `1` behind a reverse proxy so rate limits apply per client |
+| Variable | Default | Demo value | Meaning |
+|---|---|---|---|
+| `ANTHROPIC_API_KEY` | *(none)* | your key | Required for chat. Without it the map, profiles and `/about` still work and chat says it's unavailable. |
+| `CHAT_MODEL` | `claude-sonnet-5-5` | `claude-sonnet-5-5` | Claude model for chat |
+| `CHAT_EFFORT` | `medium` | `medium` | Reasoning effort (`low`, `medium`, `high`, `xhigh`, `max`) |
+| `CHAT_MAX_TOKENS` | `8000` | `8000` | Max tokens per model response |
+| `CHAT_MAX_TOOL_CALLS` | `10` | `10` | Tool calls allowed per question |
+| `CHAT_SERVER_FALLBACK` | `1` | `1` | Retry on a fallback model if a safety filter declines (`0` to disable) |
+| `RATE_LIMIT_PER_MINUTE` | `6` | `30` | Questions per client IP per minute. Raise it for the demo: everyone on a venue's wifi shares one IP. |
+| `RATE_LIMIT_PER_DAY` | `150` | `600` | Questions per client IP per day (same shared-IP reason) |
+| `RATE_LIMIT_GLOBAL_PER_MINUTE` | `30` | `60` | Questions per minute across all users; this is the cap on API spend |
+| `CHAT_MAX_CONCURRENT` | `4` | `4` | Questions processed at once (more get "busy, try again") |
+| `CHAT_MAX_MESSAGES` | `20` | `20` | Messages of conversation history accepted per request |
+| `CHAT_MAX_MESSAGE_CHARS` | `2000` | `2000` | Max characters in one message |
+| `CHAT_MAX_TOTAL_CHARS` | `20000` | `20000` | Max characters across the conversation in one request |
+| `ALLOWED_ORIGINS` | *(none)* | *(leave unset)* | Comma-separated origins allowed cross-origin access. The UI is served from the same origin, so it doesn't need this. |
+| `TRUST_PROXY` | `0` | `1` | Set `1` behind exactly one reverse proxy you trust (Heroku's router), so rate limits apply per client. The app then uses the last `X-Forwarded-For` entry, which the proxy adds; earlier entries can be forged. |
+| `PORT` | set by the host | *(set by Heroku)* | Port the web process binds to (`Procfile`). Locally, uvicorn defaults to 8000. |
+| `CENSUS_API_KEY` | *(none)* | *(not needed)* | Only for `scripts/pull_acs.py` when rebuilding data |
 
-If several judges share one venue's wifi, they share one IP address, so raise `RATE_LIMIT_PER_MINUTE` for the demo.
+Rate limits live in memory in one process, so the `Procfile` runs a single uvicorn worker. Don't scale to more than one dyno: each would keep its own limits.
+
+## Deploy
+
+Hosted on Heroku, one always-on **Basic** dyno. The GitHub Student Developer Pack's $13/month Heroku credit covers it, so it costs $0/month for 24 months. Step-by-step instructions, including where to paste the API key, are in [DEPLOY.md](DEPLOY.md). The repo has the files Heroku needs: `Procfile` (binds to `$PORT`, one worker), `.python-version` (3.12), a runtime-only `requirements.txt`, and `.slugignore`.
 
 ## Operations
 
 - `GET /healthz`: liveness.
-- `GET /readyz`: data loaded (district, context, program and map counts; program verification date) and whether chat is configured. `?deep=1` also checks that the AI service is reachable; this uses no tokens.
+- `GET /readyz`: data loaded (district, context, program and map counts; program verification date; serving legislators and roster date), proxy mode, and whether chat is configured. `?deep=1` also checks that the AI service is reachable; this uses no tokens.
 - **AI service down or out of credits:** the user sees a clear message ("temporarily unavailable…", "overloaded…") with links to the map and the about page, which still work. Upstream error text, keys and stack traces never reach the browser; details go to the server log with the request ID.
 - **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts. Model output is rendered with DOM APIs, never `innerHTML`.
 
@@ -166,6 +176,7 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | Suite | What it checks |
 |---|---|
 | `test_legislators.py` | Roster only from capitol.hawaii.gov, no party, one serving member per district; every member found by name ignoring case/ʻokina/kahakō; shared names return candidates; no fuzzy matches; profile carries the legislator; name grounding check; the UI chip names a real legislator; the as-listed note travels with every legislator (tool results, /chat `roster_note`, one-pager, /about) and not-found says the roster may predate the election |
+| `test_deploy.py` | Procfile binds `$PORT` on 0.0.0.0 with one worker; Python version pinned; runtime requirements only; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
@@ -174,4 +185,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 354 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 367 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

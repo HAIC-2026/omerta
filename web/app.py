@@ -108,10 +108,16 @@ def default_limiter() -> RateLimiter:
 
 
 def client_ip(request: Request) -> str:
+    """The client's IP for rate limiting. Behind one trusted proxy (TRUST_PROXY=1, e.g. the
+    Heroku router), use the LAST X-Forwarded-For entry: the proxy appends the address it
+    saw, while earlier entries are whatever the client sent and could be forged to dodge
+    the limits."""
     if TRUST_PROXY:
         fwd = request.headers.get("x-forwarded-for")
         if fwd:
-            return fwd.split(",")[0].strip()
+            last = fwd.split(",")[-1].strip()
+            if last:
+                return last
     return request.client.host if request.client else "unknown"
 
 
@@ -343,6 +349,11 @@ def readyz(deep: int = 0):
     except Exception:
         checks["programs"] = 0
     checks["map_shapes"] = _shapes() is not None
+    from agent.legislator_tools import load_legislators
+    roster = load_legislators()
+    checks["legislators_serving"] = (sum(1 for m in roster["legislators"] if m["serving"]) if roster else 0)
+    checks["legislators_fetched"] = roster["metadata"]["date_fetched"] if roster else None
+    checks["trust_proxy"] = TRUST_PROXY
     checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
     if deep:
         checks["ai_service"] = _check_model_api()

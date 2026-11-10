@@ -1,0 +1,5 @@
+# Not needed at runtime; keeps the Heroku slug small.
+tests/
+scripts/
+reports/
+data/archive/

@@ -1,0 +1,11 @@
+# Everything for local development: runtime + data build scripts + tests.
+-r requirements.txt
+requests>=2.31      # scripts/*.py (Census API, report, agency pages, legislator roster)
+pypdf>=4.0          # scripts/build_district_context.py
+pyshp>=2.3          # scripts/build_map.py
+
+# tests
+pytest>=8.0
+httpx>=0.27
+playwright>=1.45
+axe-playwright-python>=0.1.4
