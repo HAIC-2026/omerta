@@ -27,6 +27,15 @@ def render() -> str:
     except Exception:
         shapes_src = None
 
+    vd = meta.get("boundary_vintage_documentation") or {}
+    vintage_note = " (the boundaries drawn by the 2021 Reapportionment Commission)"
+    if vd:
+        vintage_note = (f". The Census Bureau lists the state legislative district vintage for this release as "
+                        f"&ldquo;{_e(vd.get('stated_vintage'))}&rdquo; (<a href=\"{_e(vd.get('source_url'))}\">"
+                        "Geography Boundaries by Year</a>). Its <a href=\""
+                        f"{_e(vd.get('changes_url'))}\">2024 geography changes</a> page does not list Hawaiʻi "
+                        "among the states with new plans and says all other states had no changes from the "
+                        "2022 cycle, so these are the boundaries drawn by the 2021 Reapportionment Commission")
     ctx_item = ""
     if ctx:
         ctx_item = (f"<li><strong>District context:</strong> {_e(ctx['source']['title'])}, submitted to the "
@@ -60,7 +69,7 @@ def render() -> str:
   <h2 id="sources">Data sources and vintages</h2>
   <ul>
     <li><strong>Census data:</strong> U.S. Census Bureau, American Community Survey, {_e(meta['dataset'])} estimates,
-    for {_e(meta['boundary_vintage'])} (the boundaries drawn by the 2021 Reapportionment Commission). Margins of
+    for {_e(meta['boundary_vintage'])}{vintage_note}. Margins of
     error are at the {_e(meta.get('moe_confidence_level'))} confidence level. Values are flagged low reliability when
     {_e(meta.get('low_reliability_rule'))}.</li>
     {ctx_item}

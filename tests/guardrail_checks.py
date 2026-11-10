@@ -7,6 +7,7 @@ import json
 import re
 from decimal import Decimal
 
+from agent import tools
 from agent.grounding import (
     collect_tool_numbers,
     eligibility_claims,
@@ -17,6 +18,7 @@ from agent.grounding import (
 )
 
 MAX_TOOL_CALLS = 5
+DATASET = tools.load_data()["metadata"]["dataset"]  # e.g. "ACS 2020–2024 5-year"
 ACS_TOOLS = {"get_district_profile", "compare_districts", "rank_districts", "statewide_context",
              "district_program_context"}
 PROGRAM_TOOLS = {"find_programs", "district_program_context"}
@@ -96,7 +98,7 @@ def _find_call(calls, name, **inp):
     return None
 
 
-def check_answer(qid: str, question: str, r, model: str) -> dict:
+def check_answer(qid: str, question: str, r, model: str, dataset: str | None = None) -> dict:
     """Run every guardrail check on one TurnResult. Returns findings plus a list of failures."""
     text = r.text or ""
     calls = r.tool_calls
@@ -132,8 +134,8 @@ def check_answer(qid: str, question: str, r, model: str) -> dict:
 
     ok_calls = [c for c in calls if not c.is_error]
     if any(c.name in ACS_TOOLS for c in ok_calls) and qid not in ("programs",) \
-            and "ACS 2023 5-year" not in text:
-        failures.append("answer with Census data doesn't cite 'ACS 2023 5-year'")
+            and (dataset or DATASET) not in text:
+        failures.append(f"answer with Census data doesn't cite {dataset or DATASET!r}")
     if any(c.name in PROGRAM_TOOLS for c in ok_calls):
         if not re.search(r"https?://|\.gov|verified", text):
             failures.append("program answer doesn't cite an agency source")
@@ -198,10 +200,38 @@ def dumps(obj) -> str:
 def rescore_saved_answers(report: dict) -> list[dict]:
     """Re-run check_answer on a saved live report without calling the API. The report keeps
     each answer and its tool calls (name + input) but not the tool outputs, so the calls are
-    replayed against the local data, which the tools read deterministically."""
+    replayed against the ACS data file the live run used (its answers quote that release's
+    figures), which the tools read deterministically."""
     from agent.chat import ToolCall, TurnResult, run_tool
     qtext = dict(questions())
     model = report["run"]["model"]
+    data_path = saved_run_data_path(report)
+    original = tools.DATA_PATH
+    tools.DATA_PATH = data_path
+    tools.load_data.cache_clear()
+    try:
+        return _rescore(report, qtext, model, tools.load_data()["metadata"]["dataset"])
+    finally:
+        tools.DATA_PATH = original
+        tools.load_data.cache_clear()
+
+
+def saved_run_data_path(report: dict):
+    """The districts file a saved live run used. Runs record it in run.dataset; reports made
+    before that field existed ran on the ACS 2023 5-year file, now archived."""
+    from pathlib import Path
+    dataset = report["run"].get("dataset")
+    current = tools.DATA_PATH
+    archive = current.parent / "archive" / "districts_acs2023.json"
+    if dataset is None or dataset == "ACS 2023 5-year":
+        return archive
+    if dataset == DATASET:
+        return current
+    raise RuntimeError(f"no local data file for saved run dataset {dataset!r}")
+
+
+def _rescore(report, qtext, model, dataset) -> list[dict]:
+    from agent.chat import ToolCall, TurnResult, run_tool
     out = []
     for q in report["questions"]:
         calls = []
@@ -211,7 +241,7 @@ def rescore_saved_answers(report: dict) -> list[dict]:
         if [c.is_error for c in calls] != [t["is_error"] for t in q["tools"]]:
             raise RuntimeError(f"{q['id']}: replayed tool errors differ from the live run")
         r = TurnResult(text=q["answer"], tool_calls=calls, stop_reason=q["stop_reason"], models=q["models"])
-        f = check_answer(q["id"], qtext.get(q["id"], q["question"]), r, model)
+        f = check_answer(q["id"], qtext.get(q["id"], q["question"]), r, model, dataset)
         out.append({"id": q["id"], "passed": not f["failures"], "failures": f["failures"],
                     "original_passed": q["passed"], "original_failures": q["failures"]})
     return out

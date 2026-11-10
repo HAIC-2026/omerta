@@ -102,7 +102,7 @@ def _check_metric(metric: Any) -> tuple[str | None, dict | None]:
 # ---------------------------------------------------------------------------
 
 def _boundary_phrase(vintage: str) -> str:
-    # "2022 districts" -> "2022 district boundaries"
+    # "2024 districts" -> "2024 district boundaries"
     year = vintage.split()[0] if vintage else ""
     return f"{year} district boundaries" if year.isdigit() else vintage
 
@@ -116,10 +116,14 @@ def _citation(tables: list[str]) -> str:
 
 
 def _year(dataset: str) -> str | None:
-    for tok in dataset.split():
-        if tok.isdigit() and len(tok) == 4:
-            return tok
-    return None
+    """The ACS release year (last year of the 5-year period), e.g. "2024" for
+    "ACS 2020–2024 5-year". Read from the data's metadata when present."""
+    meta_year = load_data()["metadata"].get("acs_year")
+    if meta_year:
+        return str(meta_year)
+    years = [t for t in dataset.replace("–", " ").replace("-", " ").split()
+             if t.isdigit() and len(t) == 4]
+    return years[-1] if years else None
 
 
 def _caveat(m: dict) -> str | None:

@@ -103,7 +103,7 @@ def test_missing_caveat_and_wrong_model_caught():
     p = tools.get_district_profile("house", lr)
     m = p["metrics"]["limited_english_household_rate"]
     c = call("get_district_profile", p, chamber="house", district=lr)
-    no_cav = f"In House District {lr}, {m['value_display']} of households are limited-English. (ACS 2023 5-year)"
+    no_cav = f"In House District {lr}, {m['value_display']} of households are limited-English. ({tools.load_data()['metadata']['dataset']})"
     f = check_answer("low_reliability", d, tr(no_cav, [c]), MODEL)
     assert any("without caveat" in x for x in f["failures"])
     ok = no_cav + " This is a low-reliability estimate; treat it as approximate."

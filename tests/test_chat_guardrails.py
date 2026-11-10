@@ -18,6 +18,7 @@ from pathlib import Path
 import pytest
 from dotenv import load_dotenv
 
+from agent import tools
 from tests.guardrail_checks import MAX_TOOL_CALLS, check_answer, dumps, questions, report_entry
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -51,6 +52,7 @@ def token_report():
     run = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "model": MODEL, "effort": EFFORT,
+        "dataset": tools.load_data()["metadata"]["dataset"],
         "max_tokens_per_response": TEST_MAX_TOKENS, "max_tool_calls_per_question": MAX_TOOL_CALLS,
         "checks": [
             "Every number in the answer appears in that question's tool results (rounding to the stated "
@@ -58,7 +60,7 @@ def token_report():
             "Every low-reliability value stated has its caveat next to it",
             "Every program named comes from a tool result; eligibility is never stated as fact; program "
             "answers use 'may qualify / confirm with the agency' framing and cite the agency source",
-            "Answers with Census data cite 'ACS 2023 5-year'",
+            f"Answers with Census data cite {tools.load_data()['metadata']['dataset']!r}",
             "Per question: House 46 gap states and cites the reapportionment population without calling the "
             "gap a count of military members; program questions call the program tools; out-of-scope is "
             "declined; invalid district gets the valid range",

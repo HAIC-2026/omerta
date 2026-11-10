@@ -28,10 +28,30 @@ from dotenv import load_dotenv
 # Configuration
 # ---------------------------------------------------------------------------
 
-YEAR = "2023"
+# The one place the ACS release is set: the last year of the 5-year period.
+ACS_YEAR = 2024
+
+YEAR = str(ACS_YEAR)
+START_YEAR = str(ACS_YEAR - 4)
 DATASET_PATH = f"{YEAR}/acs/acs5"
-DATASET_LABEL = "ACS 2023 5-year"
-BOUNDARY_VINTAGE = "2022 districts"
+DATASET_LABEL = f"ACS {START_YEAR}–{YEAR} 5-year"  # en dash, e.g. "ACS 2020–2024 5-year"
+# State legislative district vintage, as the Census Bureau states it for this release.
+# Rule: "For ACS 5-year estimates, use the last year of the estimate period to determine the vintage."
+# The 2024 table lists State Legislative Districts as "2024 Legislative Session Year".
+BOUNDARY_VINTAGE = f"{YEAR} districts"
+BOUNDARY_VINTAGE_DOC = {
+    "stated_vintage": f"{YEAR} Legislative Session Year",
+    "source_url": "https://www.census.gov/programs-surveys/acs/geography-acs/"
+                  f"geography-boundaries-by-year.{YEAR}.html",
+    "rule_verbatim": "For ACS 5-year estimates, use the last year of the estimate period "
+                     "to determine the vintage.",
+    "changes_url": "https://www.census.gov/programs-surveys/acs/technical-documentation/"
+                   f"table-and-geography-changes/{YEAR}/geography-changes.html",
+    "changes_note": "The Census Bureau's 2024 geography-changes page lists the states with new "
+                    "state legislative district plans for the 2024 cycle; Hawaii is not listed, and "
+                    "the page says all other states had no changes to their SLD boundaries from the "
+                    "2022 cycle.",
+}
 BASE_URL = f"https://api.census.gov/data/{DATASET_PATH}"
 VARIABLES_URL = f"{BASE_URL}/variables.json"
 
@@ -41,6 +61,7 @@ CHAMBERS = {
     "senate": "state legislative district (upper chamber)",
 }
 
+EXPECTED_DISTRICTS = {"house": 51, "senate": 25}
 RELIABILITY_THRESHOLD = 0.30  # flag when MOE / estimate exceeds this
 MAX_VARS_PER_CALL = 48  # API limit is 50 incl. NAME; leave headroom
 TIMEOUT = 120
@@ -68,7 +89,7 @@ METRICS: dict[str, dict] = {
         "var": "B01002_001",
     },
     "median_household_income": {
-        "label": "Median household income (2023 inflation-adjusted dollars)",
+        "label": f"Median household income ({YEAR} inflation-adjusted dollars)",
         "unit": "dollars",
         "table": "B19013",
         "kind": "direct",
@@ -237,6 +258,9 @@ def verify_variables(session: requests.Session, base_vars: list[str]) -> dict[st
         print(f"  ok  {e_id}/{m_id}  [{entry.get('concept', '')}] {labels[base]}")
     if missing:
         raise CensusError(f"Variables not found in {VARIABLES_URL}: {', '.join(missing)}")
+    income = labels.get(METRICS["median_household_income"]["var"], "")
+    if f"{YEAR} inflation-adjusted" not in income:
+        raise CensusError(f"B19013 label does not match the {YEAR} dollar year: {income!r}")
     return labels
 
 
@@ -454,6 +478,10 @@ def main() -> int:
                         },
                     })
                 print(f"  {sum(1 for r in records if r['chamber'] == chamber)} {chamber} districts")
+            got = {c: sorted(r["district"] for r in records if r["chamber"] == c) for c in CHAMBERS}
+            for c, n in EXPECTED_DISTRICTS.items():
+                if got[c] != list(range(1, n + 1)):
+                    raise CensusError(f"expected {c} districts 1-{n}, got {got[c]}")
         except CensusError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             return 1
@@ -463,7 +491,10 @@ def main() -> int:
             "dataset": DATASET_LABEL,
             "api_endpoint": BASE_URL,
             "variables_catalog": VARIABLES_URL,
+            "acs_year": ACS_YEAR,
+            "acs_period": f"{START_YEAR}–{YEAR}",
             "boundary_vintage": BOUNDARY_VINTAGE,
+            "boundary_vintage_documentation": BOUNDARY_VINTAGE_DOC,
             "state_fips": STATE_FIPS,
             "low_reliability_rule": f"MOE / estimate > {RELIABILITY_THRESHOLD:.0%}",
             "moe_confidence_level": "90%",

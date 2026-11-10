@@ -17,7 +17,7 @@ META = RAW["metadata"]
 METRICS = sorted({m for r in RAW["districts"] for m in r["metrics"]})
 COUNTS = META["counts_by_chamber"]
 CITATION_RE = re.compile(
-    r"^U\.S\. Census Bureau, ACS \d{4} 5-year, Tables? [A-Z]\d{5}(, [A-Z]\d{5})*; "
+    r"^U\.S\. Census Bureau, ACS \d{4}–\d{4} 5-year, Tables? [A-Z]\d{5}(, [A-Z]\d{5})*; "
     r"\d{4} district boundaries$"
 )
 
@@ -73,14 +73,16 @@ def test_profile_fields_present():
     for key in ("value", "moe", "low_reliability", "source_url", "year",
                 "boundary_vintage", "citation"):
         assert key in m
-    assert m["year"] == "2023"
+    assert m["year"] == str(META["acs_year"])
+    assert META["dataset"] == f"ACS {META['acs_year'] - 4}–{META['acs_year']} 5-year"
     assert m["boundary_vintage"] == META["boundary_vintage"]
 
 
 def test_citation_format_example():
     m = get_district_profile("house", 1)["metrics"]["median_household_income"]
     assert m["citation"] == (
-        "U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 district boundaries"
+        f"U.S. Census Bureau, {META['dataset']}, Table B19013; "
+        f"{META['boundary_vintage'].split()[0]} district boundaries"
     )
 
 

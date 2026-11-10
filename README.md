@@ -13,7 +13,7 @@ An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan s
 ```mermaid
 flowchart LR
   subgraph Sources["Official sources (fetched by build scripts)"]
-    ACS["Census API<br/>ACS 2023 5-year"]
+    ACS["Census API<br/>ACS 2020–2024 5-year"]
     RC["2021 Reapportionment<br/>Commission final report (PDF)"]
     AG["Agency web pages<br/>(DHS, DOH, HPHA, DOE, ...)"]
     CB["Census 2022 cartographic<br/>boundary files"]
@@ -97,7 +97,8 @@ Then open http://127.0.0.1:8000. You can also chat in a terminal with `python -m
 The data files are committed. To rebuild them from the sources:
 
 ```
-python scripts/pull_acs.py
+python scripts/pull_acs.py                # verifies every variable ID first; the release year is ACS_YEAR at the top
+python scripts/compare_acs.py             # old-vs-new report after changing releases (reports/acs_<old>_vs_<new>.json)
 python scripts/build_district_context.py   # downloads the ~400 MB report, or pass --pdf PATH
 python scripts/verify_programs.py          # re-verifies program quotes and stamps date_verified
 python scripts/build_map.py
@@ -134,10 +135,14 @@ If several judges share one venue's wifi, they share one IP address, so raise `R
 
 | File | Source | Notes |
 |---|---|---|
-| `data/districts.json` | U.S. Census Bureau ACS 2023 5-year, 2022 district boundaries | 12 measures per district: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden, veterans (count and rate), Armed Forces (count and rate), limited-English households. Each has its MOE, table, variable IDs and source URL. |
+| `data/districts.json` | U.S. Census Bureau ACS 2020–2024 5-year, 2024 district boundaries | 12 measures per district: total population, median age, median household income, poverty rate, SNAP households (count and rate), renter cost burden, veterans (count and rate), Armed Forces (count and rate), limited-English households. Each has its MOE, table, variable IDs and source URL. |
 | `data/district_context.json` | 2021 Reapportionment Commission Final Report and Plan (Office of Elections) | Areas covered (Appendix D) and permanent-resident population (Tables 1–10), with page citations. |
 | `data/programs.json` | Official agency pages | 10 programs, every fact with a verbatim quote and verification date. |
 | `data/district_shapes.json` | Census 2022 cartographic boundary files (from TIGER/Line) | Simplified to 73 KB. The Northwestern Hawaiian Islands are not drawn at map scale. |
+
+| `data/archive/districts_acs2023.json` | The previous release (ACS 2023 5-year, 2022 districts) | Kept for comparison; `reports/acs_2023_vs_2024.json` lists every value old vs new and the 31 low-reliability flags that changed (12 newly flagged, 19 no longer flagged). |
+
+**Boundary vintage.** The Census Bureau lists the state legislative district vintage for the 2024 ACS as "2024 Legislative Session Year" ([Geography Boundaries by Year, 2024](https://www.census.gov/programs-surveys/acs/geography-acs/geography-boundaries-by-year.2024.html)), and for 5-year estimates says to "use the last year of the estimate period to determine the vintage." Its [2024 geography changes](https://www.census.gov/programs-surveys/acs/technical-documentation/table-and-geography-changes/2024/geography-changes.html) page does not list Hawaiʻi among the states with new plans and says all other states had no changes to their SLD boundaries from the 2022 cycle. The map still draws the 2022 cartographic boundary files.
 
 Rates are computed from counts. Their MOEs use the Census Bureau's approximation formulas: the square root of summed squared MOEs for sums and differences, and the proportion formula for rates (falling back to the ratio formula when the proportion formula's radicand is negative).
 
@@ -150,6 +155,7 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 
 | Suite | What it checks |
 |---|---|
+| `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
 | `test_web.py`, `test_hardening.py` | `/chat` with a mocked agent, validation, rate limiting, key never exposed, AI-service failures, readiness, CORS, config, `/about` |
@@ -157,4 +163,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 208 passed, with zero axe violations across 14 page states. Reports are in [reports/](reports/): `a11y_report.json` and `guardrail_report.json`.
+Latest offline run: 241 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

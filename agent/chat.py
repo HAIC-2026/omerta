@@ -74,8 +74,8 @@ strings exactly as given, so decimals are consistent (for example "12.10%" with 
 
 Sources
 - Cite every figure with source, table, year and boundary vintage, using the tool's \
-`citation` string (for example: U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 \
-district boundaries). One citation line per table used is enough, placed right after the \
+`citation` string (for example: {CITATION_EXAMPLE}). One citation line per table used is \
+enough, placed right after the \
 figures it covers.
 - When a value has low_reliability true, include its `caveat` in plain words next to that \
 value. Do not drop or soften it.
@@ -133,6 +133,10 @@ rename a measure (for example, don't turn a label into "SNAP participation").
 - If a tool returns an error, tell the user what was wrong (for example the valid district \
 range from the error) instead of guessing what they meant.
 """
+
+
+# The citation example is built from the data, so it always names the loaded ACS release.
+SYSTEM_PROMPT = SYSTEM_PROMPT.replace("{CITATION_EXAMPLE}", tools._citation(["B19013"]))
 
 
 # ---------------------------------------------------------------------------

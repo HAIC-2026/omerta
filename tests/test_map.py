@@ -40,7 +40,9 @@ def test_api_map_values_match_tools(client):
         assert row["value_display"] == m["value_display"] and row["moe_display"] == m["moe_display"]
         assert row["low_reliability"] == m["low_reliability"]
         assert row["path"] and row["island_group"] in {"oahu", "hawaii", "maui", "kauai"}
-    assert j["citation"] == "U.S. Census Bureau, ACS 2023 5-year, Table B17001; 2022 district boundaries"
+    meta = tools.load_data()["metadata"]
+    assert j["citation"] == (f"U.S. Census Bureau, {meta['dataset']}, Table B17001; "
+                             f"{meta['boundary_vintage'].split()[0]} district boundaries")
 
 
 def test_island_groups_are_sensible(client):

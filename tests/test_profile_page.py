@@ -87,13 +87,14 @@ def test_semantic_structure(client):
         assert tag in s.tags, tag
     assert '<html lang="en">' in r.text
     assert 'scope="col"' in r.text and 'scope="row"' in r.text
-    assert "Generated " in r.text and "ACS 2023 5-year" in r.text and "2022 districts" in r.text
+    meta = tools.load_data()["metadata"]
+    assert "Generated " in r.text and meta["dataset"] in r.text and meta["boundary_vintage"] in r.text
     assert "Hawaiʻi" in r.text
 
 
 def test_citations_and_sources(client):
     r = get(client, "house", 46)
-    assert "U.S. Census Bureau, ACS 2023 5-year, Tables" in r.text
+    assert f"U.S. Census Bureau, {tools.load_data()['metadata']['dataset']}, Tables" in r.text
     assert "Appendix D" in r.text and "PDF p." in r.text
     assert 'href="https://api.census.gov/' in r.text and 'href="https://elections.hawaii.gov/' in r.text
     assert "key=" not in r.text
