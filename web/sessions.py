@@ -2,7 +2,7 @@
 
 The client never sends the conversation back: it sends a session ID and its new question.
 Each session keeps the full model conversation (including tool_use and tool_result blocks),
-every tool output so far (for grounding checks) and the user's questions.
+every tool call so far with its turn (for grounding checks and Sources) and the user's questions.
 
 In-memory and single-process (the Procfile runs one worker). Sessions expire after a period
 without activity, and the total number is capped; when full, the least recently used idle
@@ -23,9 +23,15 @@ class Session:
     id: str
     last_used: float
     messages: list[dict] = field(default_factory=list)       # model conversation, as sent to the API
-    tool_outputs: list[dict] = field(default_factory=list)   # every tool output in the session
+    # Every tool call in the session: {tool, input, is_error, output, turn} (turn is 1-based).
+    tool_calls: list[dict] = field(default_factory=list)
     questions: list[str] = field(default_factory=list)       # the user's questions, in order
     lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    @property
+    def tool_outputs(self) -> list[dict]:
+        """Every tool output in the session (grounding checks draw on all of them)."""
+        return [c["output"] for c in self.tool_calls]
 
     @property
     def total_question_chars(self) -> int:

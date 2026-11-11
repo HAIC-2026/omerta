@@ -7,6 +7,7 @@ import os
 import anthropic
 import httpx
 import pytest
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 from agent import tools
@@ -193,6 +194,47 @@ def test_grounding_uses_tool_outputs_from_the_whole_session(client):
     # A new conversation doesn't have that lookup, so the same answer fails.
     v2 = ask(client, "repeat that").json()["verification"]
     assert v2["verified"] is False
+
+
+def test_follow_up_without_new_lookups_cites_the_earlier_lookup(client):
+    """Live smoke-test bug: a follow-up answered from earlier tool results showed
+    "Sources (0 citations, 0 data lookups)"."""
+    call1, out1 = _profile_call("house", 1)
+    call2, out2 = _profile_call("senate", 4)
+    pop1 = out1["metrics"]["total_population"]["value_display"]
+    pop2 = out2["metrics"]["total_population"]["value_display"]
+    agent = use_agent(FakeAgent(f"House District 1 has {pop1} people.", [call1]))
+    first = ask(client, "Population of House District 1?").json()
+    sid = first["session_id"]
+    agent.calls, agent.answer = [call2], f"Senate District 4 has {pop2} people."
+    ask(client, "And Senate District 4?", sid)
+
+    # Turn 3: no new tool calls; the answer restates House 1's figure only.
+    agent.calls, agent.answer = [], f"House District 1, as above, has {pop1} people."
+    body = ask(client, "Remind me about House District 1?", sid).json()
+    assert body["verification"]["verified"]
+    tr = body["tool_results"]
+    assert [(t["tool"], t["input"], t["reused"], t["turn"]) for t in tr] == [
+        ("get_district_profile", {"chamber": "house", "district": 1}, True, 1)]   # not Senate 4
+    assert body["citations"] == first["citations"] and body["citations"]
+    assert tr[0]["citations"] and any(u.startswith("https://api.census.gov/") for u in tr[0]["source_urls"])
+    # This turn's own lookups are never marked reused.
+    assert [t["reused"] for t in first["tool_results"]] == [False]
+
+
+def test_follow_up_using_no_earlier_data_lists_no_sources(client):
+    call, out = _profile_call("house", 1)
+    agent = use_agent(FakeAgent("House District 1 has {} people.".format(
+        out["metrics"]["total_population"]["value_display"]), [call]))
+    sid = ask(client, "q1").json()["session_id"]
+    agent.calls, agent.answer = [], "You're welcome! District 1 is on Hawaiʻi Island, ACS 2020–2024."
+    body = ask(client, "thanks", sid).json()
+    assert body["tool_results"] == [] and body["citations"] == []
+
+
+def test_sources_panel_labels_reused_lookups():
+    js = (Path(webapp.__file__).parent / "static" / "app.js").read_text(encoding="utf-8")
+    assert "from an earlier lookup in this conversation" in js and "t.reused" in js
 
 
 def test_conversation_length_cap(client):

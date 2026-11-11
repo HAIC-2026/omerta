@@ -37,7 +37,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from agent import tools
 from agent.chat import ServiceNotConfigured
-from agent.grounding import check_answer_runtime, roster_note_for, stated_flagged_values
+from agent.grounding import check_answer_runtime, roster_note_for, stated_flagged_values, supports_answer
 from web.sessions import SessionsFull, SessionStore
 
 log = logging.getLogger("web")
@@ -562,7 +562,9 @@ def _chat(body: ChatRequest, request: Request, agent, rec: dict):
     else:
         # Commit the turn only once it has a final answer.
         session.messages = list(agent.messages)
-        session.tool_outputs.extend(c.output for c in result.tool_calls)
+        turn = len(session.questions) + 1
+        session.tool_calls.extend({"tool": c.name, "input": c.input, "is_error": c.is_error,
+                                   "output": c.output, "turn": turn} for c in result.tool_calls)
         session.questions.append(body.question)
     finally:
         slots.release()
@@ -572,27 +574,48 @@ def _chat(body: ChatRequest, request: Request, agent, rec: dict):
         else:
             store.touch(session)
 
-    outputs = [c.output for c in result.tool_calls]
     all_outputs = session.tool_outputs
+    lookups = answer_lookups(result.text, session.tool_calls, len(session.questions))
     return {
         "session_id": session.id,
         "session_status": status,
         "answer": result.text,
         "verification": verification_summary(check, retried),
-        "citations": _citations(outputs),
+        "citations": _citations([t["output"] for t in lookups]),
         "low_reliability": stated_flagged_values(result.text, all_outputs),
         # Shown under any answer that names a legislator (or found no one), so the roster's
         # date travels with the name even if the model's wording drops it.
         "roster_note": roster_note_for(result.text, all_outputs),
+        # This turn's lookups, then earlier lookups in the conversation that support a number
+        # or fact in this answer (reused: true), so a follow-up answered from earlier data
+        # still shows where it came from.
         "tool_results": [
-            {"tool": c.name, "input": c.input, "is_error": c.is_error,
-             "citations": _citations([c.output]), "source_urls": _source_urls(c.output),
-             "output": c.output}
-            for c in result.tool_calls
+            {"tool": t["tool"], "input": t["input"], "is_error": t["is_error"],
+             "reused": t["turn"] != len(session.questions), "turn": t["turn"],
+             "citations": _citations([t["output"]]), "source_urls": _source_urls(t["output"]),
+             "output": t["output"]}
+            for t in lookups
         ],
         "stop_reason": result.stop_reason,
         "hit_tool_limit": result.hit_tool_limit,
     }
+
+
+def answer_lookups(text: str, calls: list[dict], turn: int) -> list[dict]:
+    """The tool calls an answer's Sources panel lists: every call made this turn, then each
+    earlier call in the session whose result supports a number or fact the answer states
+    (not failed calls, and only the latest of identical lookups or one this turn repeated)."""
+    def key(c):
+        return c["tool"], json.dumps(c["input"], sort_keys=True, default=str)
+    current = [c for c in calls if c["turn"] == turn]
+    seen = {key(c) for c in current}
+    earlier: list[dict] = []
+    for c in reversed([c for c in calls if c["turn"] < turn]):
+        if c["is_error"] or key(c) in seen or not supports_answer(text, c["output"]):
+            continue
+        seen.add(key(c))
+        earlier.append(c)
+    return current + earlier[::-1]
 
 
 def verify_with_retry(agent, result, prior_outputs: list[dict], questions: list[str]):

@@ -237,3 +237,20 @@ def test_latency_summary_nearest_rank():
 def test_live_report_format_includes_latency():
     src = (Path(__file__).resolve().parent / "test_chat_guardrails.py").read_text(encoding="utf-8")
     assert '"latency_ms": latency_ms' in src and '"latency_ms": latency' in src
+
+
+# --- supports_answer: which tool result an answer draws on ---------------------------------
+
+def test_supports_answer_matches_numbers_names_and_programs():
+    from agent.grounding import supports_answer
+    from agent import tools
+    h1 = tools.get_district_profile("house", 1)
+    h2 = tools.get_district_profile("house", 2)
+    pop = h1["metrics"]["total_population"]["value_display"]
+    assert supports_answer(f"It has {pop} people.", h1)
+    assert not supports_answer(f"It has {pop} people.", h2)
+    # District numbers, years and small counts alone don't tie an answer to a lookup.
+    assert not supports_answer("House District 2 uses ACS 2020–2024 data, table 3.", h2)
+    name = h1["legislator"]["serving"][0]["name_first_last"]
+    assert supports_answer(f"{name} represents it.", h1)
+    assert not supports_answer(f"{name} represents it.", h2)

@@ -224,4 +224,8 @@ def test_server_keeps_tool_use_and_tool_result_blocks_between_turns(monkeypatch)
     assert history[2]["content"][0]["type"] == "tool_result" and history[2]["content"][0]["tool_use_id"] == "tu_1"
     assert history[4]["content"][0]["text"] == "Really?"
     # Turn 2 made no tool call, but its number is verified against turn 1's tool output.
-    assert second["verification"]["verified"] and second["tool_results"] == []
+    assert second["verification"]["verified"]
+    # ...and its Sources panel lists that turn-1 lookup, marked as reused.
+    assert [(t["tool"], t["reused"], t["turn"]) for t in second["tool_results"]] == [
+        ("get_district_profile", True, 1)]
+    assert second["citations"] and second["citations"] == first["citations"]

@@ -295,6 +295,7 @@ details.sources[open] summary { border-bottom: 1px solid var(--border); }
 .sources-body ul, .sources-body ol { margin: 0; padding-left: 1.2rem; }
 .sources-body li + li { margin-top: 0.3rem; }
 .sources-body .tool-error { color: var(--error-text); }
+.sources-body .reused-note { color: var(--muted, inherit); font-style: italic; }
 
 /* Status, loading and errors */
 .status { min-height: 1.5rem; margin-top: 0.75rem; color: var(--muted); }

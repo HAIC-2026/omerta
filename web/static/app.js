@@ -258,9 +258,11 @@
     var tools = data.tool_results || [];
     var details = el("details", { class: "sources" });
     var count = citations.length;
+    var reused = tools.filter(function (t) { return t.reused; }).length;
     details.appendChild(el("summary", {
       text: "Sources (" + count + " citation" + (count === 1 ? "" : "s") + ", " +
-        tools.length + " data lookup" + (tools.length === 1 ? "" : "s") + ")"
+        tools.length + " data lookup" + (tools.length === 1 ? "" : "s") +
+        (reused ? ", " + (reused === tools.length ? "all" : reused) + " from earlier in this conversation" : "") + ")"
     }));
     var body = el("div", { class: "sources-body" });
     body.appendChild(el("h4", { text: "Citations" }));
@@ -276,6 +278,9 @@
       var ol = el("ol");
       tools.forEach(function (t) {
         var li = el("li", { text: describeTool(t) });
+        if (t.reused) {
+          li.appendChild(el("span", { class: "reused-note", text: " (from an earlier lookup in this conversation)" }));
+        }
         if (t.is_error) {
           li.appendChild(el("span", { class: "tool-error", text: " — not found: " + ((t.output && t.output.error) || "error") }));
         }

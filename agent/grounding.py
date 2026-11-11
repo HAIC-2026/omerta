@@ -467,3 +467,43 @@ def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable
         "eligibility_claims": claims,
         "failures": failures,
     }
+
+
+# --- which tool results an answer draws on (for its Sources panel) --------------------------
+
+_YEAR_RE = re.compile(r"(?:19|20)\d\d")
+
+
+def _distinctive_numbers(text: str) -> list[str]:
+    """Numbers in the answer specific enough to tie it to one tool result: not a year
+    ("ACS 2020–2024") and not a bare small integer such as a district number ("District 12")
+    unless it is a percent. Decimals, percents and numbers of 100 or more count."""
+    out = []
+    for m in NUM_RE.finditer(text):
+        n = _normalize(m)
+        after = text[m.end():m.end() + 9].lstrip().lower()
+        if "." not in n and "," not in m.group(1) and _YEAR_RE.fullmatch(n):
+            continue
+        if "." not in n and int(n) < 100 and not after.startswith(("%", "percent")):
+            continue
+        out.append(n)
+    return out
+
+
+def supports_answer(text: str, output: dict) -> bool:
+    """True if this one tool result supports a number or fact the answer states: a distinctive
+    number it contains (rounding allowed), a legislator it returned whom the answer names, or a
+    program it returned that the answer names."""
+    import json
+    text = text or ""
+    if not isinstance(output, (dict, list)):
+        return False
+    nums: set[Decimal] = set()
+    collect_tool_numbers(output, nums)
+    if any(is_supported(n, nums) for n in _distinctive_numbers(text)):
+        return True
+    if legislators_stated(text, [output]):
+        return True
+    returned = set(re.findall(r'"id": "([a-z0-9_]+)"', json.dumps(output, ensure_ascii=False)))
+    return any(_alias_re(a).search(text) for pid, aliases in _program_aliases().items()
+               if pid in returned for a in aliases)
