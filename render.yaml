@@ -1,0 +1,35 @@
+# Render Blueprint describing the service as it runs today at
+# https://know-your-district.onrender.com. Reference: https://render.com/docs/blueprint-spec
+#
+# The live service was created in the Render dashboard, not from this file. This file records
+# its settings so they're reviewable and reproducible. Never put the API key in this file.
+services:
+  - type: web
+    name: know-your-district
+    runtime: python
+    # "starter" is the legacy name for plan 0.5c-512mb (0.5 CPU, 512 MB). Legacy names remain
+    # valid in Blueprints: https://render.com/docs/compute-plans#legacy-plan-names
+    # Always on (no spin-down), which the demo needs.
+    plan: starter
+    # region is omitted. It can't be changed after creation; check the dashboard before
+    # syncing a Blueprint against the existing service (the Blueprint default is oregon).
+    branch: main
+    autoDeployTrigger: commit   # deploy every push to main (replaces deprecated autoDeploy: true)
+    buildCommand: pip install -r requirements.txt
+    # One worker: rate limits and conversations are held in memory in one process.
+    startCommand: uvicorn web.app:app --host 0.0.0.0 --port $PORT --workers 1 --no-server-header --timeout-graceful-shutdown 20
+    healthCheckPath: /healthz
+    # Python version: Render reads .python-version (3.12) from the repo root.
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false             # secret: entered in the dashboard, never stored here
+      - key: TRUST_PROXY
+        value: "1"              # behind Render's proxy; see client_ip() in web/app.py
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "30"             # per client IP; venue wifi shares one IP
+      - key: RATE_LIMIT_PER_DAY
+        value: "600"
+      - key: RATE_LIMIT_GLOBAL_PER_MINUTE
+        value: "60"
+      - key: RATE_LIMIT_GLOBAL_PER_DAY
+        value: "500"            # whole-site daily cap on questions (the cap on API spend)

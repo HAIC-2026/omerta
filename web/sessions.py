@@ -4,7 +4,7 @@ The client never sends the conversation back: it sends a session ID and its new 
 Each session keeps the full model conversation (including tool_use and tool_result blocks),
 every tool call so far with its turn (for grounding checks and Sources) and the user's questions.
 
-In-memory and single-process (the Procfile runs one worker). Sessions expire after a period
+In-memory and single-process (the start command runs one worker). Sessions expire after a period
 without activity, and the total number is capped; when full, the least recently used idle
 session is dropped.
 """

@@ -1,4 +1,4 @@
-# Runtime dependencies: what the web app needs (Heroku installs this file).
+# Runtime dependencies: what the web app needs (Render installs this file).
 # Pinned to the exact versions the offline test suite passes on (Python 3.12).
 # To upgrade: change a version, reinstall, run `python -m pytest -m "not live"`, then update the pins.
 
@@ -31,6 +31,6 @@ typing-inspection==0.4.5
 watchfiles==1.3.0
 websockets==17.4
 
-# Linux-only (Heroku): uvicorn[standard] uses uvloop there. Pinned to the current release so
+# Linux-only (Render): uvicorn[standard] uses uvloop there. Pinned to the current release so
 # deploys are reproducible; the Windows test run does not exercise it.
 uvloop==0.23.0 ; sys_platform != "win32"

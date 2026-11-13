@@ -1,4 +1,4 @@
-"""Deploy configuration: Procfile, Python version, runtime requirements, env-var docs and
+"""Deploy configuration: render.yaml, Python version, runtime requirements, env-var docs and
 proxy handling. Offline."""
 
 from __future__ import annotations
@@ -15,20 +15,54 @@ from web import app as webapp
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def test_procfile_binds_port_on_all_interfaces_with_one_worker():
-    lines = [ln for ln in (ROOT / "Procfile").read_text(encoding="utf-8").splitlines() if ln.strip()]
-    assert len(lines) == 1 and lines[0].startswith("web: uvicorn web.app:app ")
-    cmd = lines[0]
+def _render_service() -> dict:
+    import yaml
+    spec = yaml.safe_load((ROOT / "render.yaml").read_text(encoding="utf-8"))
+    assert len(spec["services"]) == 1     # one instance: rate limits and sessions are in-process
+    return spec["services"][0]
+
+
+def test_render_start_command_binds_port_on_all_interfaces_with_one_worker():
+    svc = _render_service()
+    assert svc["type"] == "web" and svc["runtime"] == "python"
+    cmd = svc["startCommand"]
+    assert cmd.startswith("uvicorn web.app:app ")
     assert "--host 0.0.0.0" in cmd and "--port $PORT" in cmd
     assert "--workers 1" in cmd          # rate limits are in-process
     assert "--reload" not in cmd and "--proxy-headers" not in cmd
+    assert svc["buildCommand"] == "pip install -r requirements.txt"
+
+
+def test_render_service_settings_match_the_live_setup():
+    svc = _render_service()
+    assert svc["plan"] == "starter"       # always on; free instances spin down
+    assert svc["healthCheckPath"] == "/healthz"
+    assert svc["branch"] == "main" and svc["autoDeployTrigger"] == "commit"
+    env = {e["key"]: e for e in svc["envVars"]}
+    assert env["TRUST_PROXY"]["value"] == "1"
+    # Every configured name is one the app reads and the README documents.
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for k in env:
+        assert f"| `{k}` |" in readme
+
+
+def test_render_yaml_never_holds_the_api_key():
+    svc = _render_service()
+    key = next(e for e in svc["envVars"] if e["key"] == "ANTHROPIC_API_KEY")
+    assert key == {"key": "ANTHROPIC_API_KEY", "sync": False}
+    assert "sk-ant" not in (ROOT / "render.yaml").read_text(encoding="utf-8")
+
+
+def test_heroku_files_are_gone():
+    for f in ("Procfile", ".slugignore", "runtime.txt", "app.json"):
+        assert not (ROOT / f).exists(), f
 
 
 def test_python_version_matches_the_tested_interpreter():
     pinned = (ROOT / ".python-version").read_text(encoding="utf-8").strip()
     assert re.fullmatch(r"3\.\d+", pinned)
     assert pinned == f"{sys.version_info.major}.{sys.version_info.minor}"
-    assert not (ROOT / "runtime.txt").exists()   # deprecated on Heroku
+    assert not (ROOT / "runtime.txt").exists()   # Render reads .python-version
 
 
 def test_runtime_requirements_are_runtime_only():

@@ -1,5 +1,27 @@
 # Hawaiʻi District Profiles
 
+**Live demo:** https://know-your-district.onrender.com · No login needed.
+
+## Evaluate in 3 minutes
+
+**1. Ask three questions.** Open the [live demo](https://know-your-district.onrender.com) and paste each of these into the question box:
+
+| Paste this | What to look for |
+|---|---|
+| `What is the median household income in Senate District 12?` | A cited figure with its margin of error, and the badge **✓ All N numbers verified against cited sources** above the answer. Every number was checked against the data the tools returned before the answer was shown. |
+| `What share of households in House District 51 are limited-English speaking?` | A **low-reliability caveat** next to the figure: its margin of error is more than 30% of the estimate, so the answer says to treat it with caution rather than presenting it as precise. |
+| `What assistance programs might help a family of 4 on Oʻahu with a child under 5?` | Programs taken from official agency pages, each fact quoted with its source. The answer says the family *may qualify* and should confirm with the agency; it never states eligibility as fact. |
+
+Open **Sources** under any answer to see the table, year and source link behind each figure.
+
+**2. Open the [district map](https://know-your-district.onrender.com/map).** Choose a measure to shade the districts. Hatched districts have low-reliability estimates. A sortable table is the accessible alternative to the map. Select a district to ask about it in the chat.
+
+**3. Open a one-page profile:** [State Senate District 12](https://know-your-district.onrender.com/district/senate/12/profile). It's print-ready, built straight from the data with no AI involved, and includes the district's legislator with the source and date.
+
+The [About page](https://know-your-district.onrender.com/about) explains the sources, how answers are checked, and the limitations.
+
+---
+
 An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan social and economic profiles of all 51 State House and 25 State Senate districts. Built for HAIC 2026.
 
 - **Chat:** ask in plain language. Every figure comes from a data tool and is cited (source, table, year, boundary vintage), with caveats for low-reliability estimates.
@@ -114,7 +136,7 @@ python scripts/fetch_legislators.py       # re-fetches the roster; fails unless 
 
 ## Configuration
 
-All settings are environment variables (or `.env` locally). On Heroku, set them under **Settings → Config Vars**; see [DEPLOY.md](DEPLOY.md). Nothing secret is in the code or the repo.
+All settings are environment variables (or `.env` locally). On Render, set them on the service's **Environment** page; see [DEPLOY.md](DEPLOY.md). Nothing secret is in the code or the repo.
 
 | Variable | Default | Demo value | Meaning |
 |---|---|---|---|
@@ -135,15 +157,15 @@ All settings are environment variables (or `.env` locally). On Heroku, set them 
 | `CHAT_MAX_MESSAGE_CHARS` | `2000` | `2000` | Max characters in one message |
 | `CHAT_MAX_TOTAL_CHARS` | `20000` | `20000` | Max characters across all questions in one conversation |
 | `ALLOWED_ORIGINS` | *(none)* | *(leave unset)* | Comma-separated origins allowed cross-origin access. The UI is served from the same origin, so it doesn't need this. |
-| `TRUST_PROXY` | `0` | `1` | Set `1` behind exactly one reverse proxy you trust (Heroku's router), so rate limits apply per client. The app then uses the last `X-Forwarded-For` entry, which the proxy adds; earlier entries can be forged. |
-| `PORT` | set by the host | *(set by Heroku)* | Port the web process binds to (`Procfile`). Locally, uvicorn defaults to 8000. |
+| `TRUST_PROXY` | `0` | `1` | Set `1` behind Render's proxy, so rate limits apply per client. The app then uses the last `X-Forwarded-For` entry, which the proxy adds; earlier entries can be forged. |
+| `PORT` | set by the host | *(set by Render)* | Port the web process binds to (the start command in `render.yaml`). Locally, uvicorn defaults to 8000. |
 | `CENSUS_API_KEY` | *(none)* | *(not needed)* | Only for `scripts/pull_acs.py` when rebuilding data |
 
-Rate limits and conversations live in memory in one process, so the `Procfile` runs a single uvicorn worker. Don't scale to more than one dyno: each would keep its own limits.
+Rate limits and conversations live in memory in one process, so the start command runs a single uvicorn worker. Don't scale to more than one instance: each would keep its own limits.
 
 ## Deploy
 
-Hosted on Heroku, one always-on **Basic** dyno. The GitHub Student Developer Pack's $13/month Heroku credit covers it, so it costs $0/month for 24 months. Step-by-step instructions, including where to paste the API key, are in [DEPLOY.md](DEPLOY.md). The repo has the files Heroku needs: `Procfile` (binds to `$PORT`, one worker), `.python-version` (3.12), a runtime-only `requirements.txt`, and `.slugignore`.
+Hosted on Render at https://know-your-district.onrender.com: one always-on Python web service on the **Starter** instance type, deployed automatically from `main`. [render.yaml](render.yaml) records the service settings (start command, `/healthz` health check, auto-deploy, environment variables; the API key is set only in the dashboard). [DEPLOY.md](DEPLOY.md) covers where the key lives, checking `/readyz?deep=1`, confirming the deployed commit, and suspending the service after the event. Render reads `.python-version` (3.12) and installs the runtime-only `requirements.txt`.
 
 ## Operations
 
@@ -184,7 +206,7 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_legislators.py` | Roster only from capitol.hawaii.gov, no party, one serving member per district; every member found by name ignoring case/ʻokina/kahakō; shared names return candidates; no fuzzy matches; profile carries the legislator; name grounding check; the UI chip names a real legislator; the as-listed note travels with every legislator (tool results, /chat `roster_note`, one-pager, /about) and not-found says the roster may predate the election |
 | `test_verification.py` | The runtime check (counts, each failure type), the one-retry loop in `/chat` (verified, fixed on retry, still failing, retry API error), and that `Agent.revise` drops the rejected draft from the history |
 | `test_caching.py` | One moving `cache_control` marker on the last message of every request plus the system prompt's, never stored; each request starts with the previous request's messages (prefix stability); cache read and creation tokens per request and per API call in the log |
-| `test_deploy.py` | Procfile binds `$PORT` on 0.0.0.0 with one worker; Python version pinned; runtime requirements only; every requirement pinned with `==` to the version the tests ran on; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
+| `test_deploy.py` | `render.yaml` describes one Starter web service that binds `$PORT` on 0.0.0.0 with one worker, health-checks `/healthz`, auto-deploys `main`, and never contains the API key; Python version pinned; runtime requirements only; every requirement pinned with `==` to the version the tests ran on; every env var the app reads is documented; a forged `X-Forwarded-For` can't dodge the rate limit |
 | `test_acs_release.py` | Data matches the one `ACS_YEAR` constant; boundary vintage documented; the archived release and the comparison report agree with both files |
 | `test_tools.py`, `test_context.py` | All 76 districts load; values match the data; invalid input returns an error, never a guess; every response is cited; display strings use consistent decimals |
 | `test_grounding.py`, `test_programs.py` | The number, caveat, program and eligibility checkers; program data is official, quoted, and has no unquoted numbers |
@@ -193,4 +215,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 411 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 414 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.

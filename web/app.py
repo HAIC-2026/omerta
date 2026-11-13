@@ -43,7 +43,7 @@ from web.sessions import SessionsFull, SessionStore
 log = logging.getLogger("web")
 
 # One JSON line per /chat request: latency, tool calls, tokens and outcome. Never the question,
-# the answer or tool inputs. Written to stdout so the host's log stream (Heroku logs) shows it.
+# the answer or tool inputs. Written to stdout so the host's log stream (Render logs) shows it.
 request_log = logging.getLogger("web.requests")
 if not request_log.handlers:
     _h = logging.StreamHandler(sys.stdout)
@@ -133,8 +133,8 @@ def default_limiter() -> RateLimiter:
 
 
 def client_ip(request: Request) -> str:
-    """The client's IP for rate limiting. Behind one trusted proxy (TRUST_PROXY=1, e.g. the
-    Heroku router), use the LAST X-Forwarded-For entry: the proxy appends the address it
+    """The client's IP for rate limiting. Behind one trusted proxy (TRUST_PROXY=1, e.g. Render's
+    proxy), use the LAST X-Forwarded-For entry: the proxy appends the address it
     saw, while earlier entries are whatever the client sent and could be forged to dodge
     the limits."""
     if TRUST_PROXY:
