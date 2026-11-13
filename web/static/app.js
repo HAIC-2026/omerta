@@ -228,6 +228,8 @@
         return "Programs and related measures: " + ch + " District " + a.district;
       case "list_available_metrics":
         return "Available measures and programs";
+      case "find_district_by_legislator":
+        return "Legislator roster lookup" + (a.name ? ": " + a.name : "");
       default:
         return TOOL_LABELS[t.tool] || t.tool;
     }
@@ -288,7 +290,9 @@
         (t.source_urls || []).forEach(function (u) {
           var isReport = u.indexOf("https://elections.hawaii.gov/") === 0;
           var isCensus = u.indexOf("https://api.census.gov/") === 0;
+          var isRoster = u.indexOf("https://www.capitol.hawaii.gov/") === 0;
           var label = isReport ? "Reapportionment Commission final report (PDF)"
+            : isRoster ? "Legislature member listing (capitol.hawaii.gov)"
             : isCensus ? "Census API query" + (census.length > 1 ? " " + (census.indexOf(u) + 1) : "")
             : "Program source: " + u.replace(/^https:\/\/(www\.)?/, "").split("/")[0];
           li.appendChild(document.createTextNode(" — "));
@@ -533,6 +537,16 @@
     sel.textContent = "";
     var list = (meta && meta.chambers[chamber]) || [];
     list.forEach(function (d) { sel.appendChild(el("option", { value: String(d), text: "District " + d })); });
+    updateProfileLink();
+  }
+
+  // The picker's direct link to the chosen district's one-page profile (works without chat).
+  function updateProfileLink() {
+    var link = $("pick-profile");
+    var chamber = $("pick-chamber").value, district = $("pick-district").value;
+    if (!link || !district) return;
+    link.href = "/district/" + encodeURIComponent(chamber) + "/" + encodeURIComponent(district) + "/profile";
+    link.textContent = "open the one-page profile of " + chamberName(chamber) + " District " + district;
   }
 
   function fillTopics() {
@@ -591,6 +605,7 @@
     });
 
     $("pick-chamber").addEventListener("change", fillDistricts);
+    $("pick-district").addEventListener("change", updateProfileLink);
     $("picker").addEventListener("submit", function (e) {
       e.preventDefault();
       if (!meta || !$("pick-district").value) return;

@@ -393,6 +393,25 @@ def test_security_headers(client):
     csp = r.headers["content-security-policy"]
     assert "script-src 'self'" in csp and "frame-ancestors 'none'" in csp
     assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["strict-transport-security"].startswith("max-age=")
+    assert "geolocation=()" in r.headers["permissions-policy"]
+
+
+def test_legislator_lookup_links_the_member_listing():
+    """Sources shows the capitol.hawaii.gov listing for a roster lookup, and nothing off the allowlist."""
+    from agent.legislator_tools import find_district_by_legislator, load_legislators
+    m = next(x for x in load_legislators()["legislators"] if x["serving"])
+    urls = webapp._source_urls(find_district_by_legislator(m["name_as_written"]))
+    assert urls == [m["source_url"]] and urls[0].startswith("https://www.capitol.hawaii.gov/")
+    assert webapp._source_urls({"source_url": "https://capitol.hawaii.gov.example.com/x"}) == []
+    js = (webapp.STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    assert 'case "find_district_by_legislator"' in js    # a readable label, not the raw tool name
+
+
+def test_profile_is_reachable_without_chat(client):
+    """The chat page and the map table link straight to the no-AI one-page profile."""
+    assert 'id="pick-profile" href="/district/house/1/profile"' in client.get("/").text
+    assert '"/district/" + data.chamber + "/" + r.district + "/profile"' in client.get("/static/map.js").text
 
 
 def test_meta_matches_data(client):

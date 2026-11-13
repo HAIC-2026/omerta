@@ -37,6 +37,7 @@
 .map-table { border-collapse: collapse; width: 100%; background: var(--surface); font-size: 0.95rem; }
 .map-table th, .map-table td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
 .map-table td:nth-child(2), .map-table td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.map-table td:last-child { white-space: nowrap; }
 .map-table th button {
   font: inherit; font-weight: 650; background: none; border: 0; color: var(--primary);
   padding: 0.2rem 0; cursor: pointer; text-decoration: underline; min-height: 2rem;

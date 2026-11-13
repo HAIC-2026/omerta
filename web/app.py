@@ -285,6 +285,9 @@ async def security_headers(request: Request, call_next):
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "no-referrer")
     response.headers.setdefault("X-Frame-Options", "DENY")
+    # The pages use no camera, microphone or location. HSTS is only honoured over HTTPS.
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    response.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
     return response
 
 
@@ -508,7 +511,8 @@ def _program_source_prefixes() -> tuple[str, ...]:
     return tuple(f"https://{d}/" for d in doms) + tuple(f"https://www.{d}/" for d in doms)
 
 
-SOURCE_URL_PREFIXES = ("https://api.census.gov/", "https://elections.hawaii.gov/") + _program_source_prefixes()
+SOURCE_URL_PREFIXES = ("https://api.census.gov/", "https://elections.hawaii.gov/",
+                       "https://www.capitol.hawaii.gov/") + _program_source_prefixes()
 
 
 def _source_urls(output: dict) -> list[str]:

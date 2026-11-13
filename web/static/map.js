@@ -182,7 +182,11 @@
           ? el("span", { class: "lr-label", text: "⚠︎ Low (MOE " + r.moe_percent_of_estimate + "% of estimate)" })
           : document.createTextNode(r.moe_percent_of_estimate !== null ? "MOE " + r.moe_percent_of_estimate + "% of estimate" : "n/a")]),
         el("td", {}, [el("a", { href: askUrl(data.chamber, r.district, data.metric) },
-          ["Ask", el("span", { class: "visually-hidden", text: " about " + districtName(data.chamber, r.district) })])])
+          ["Ask", el("span", { class: "visually-hidden", text: " about " + districtName(data.chamber, r.district) })]),
+          " · ",
+          // The one-page profile needs no AI, so it works even when chat is unavailable.
+          el("a", { href: "/district/" + data.chamber + "/" + r.district + "/profile" },
+            ["Profile", el("span", { class: "visually-hidden", text: " of " + districtName(data.chamber, r.district) })])])
       ]);
       tb.appendChild(tr);
     });
