@@ -12,7 +12,10 @@ fetch date is marked serving=false; everyone else the site lists is serving=true
 
 The site's own statement of which membership it shows ("(Showing Senators for the 2026
 regular session)") is stored verbatim. Every district must end up with exactly one serving
-member, or the script fails rather than writing a guess.
+member, with one exception that is recorded rather than resolved: when the site lists two
+members for a district, one with no end date and one whose printed "Term of Office Ended"
+date is still in the future, both are kept with both_listed=true and neither is picked.
+Anything else ambiguous makes the script fail rather than write a guess.
 
 Usage:
     python scripts/fetch_legislators.py
@@ -24,7 +27,7 @@ import html
 import json
 import re
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -99,7 +102,9 @@ def parse_listing(chamber: str, page: str, source_url: str, fetched: date) -> tu
             "district": int(m.group(1)),
             "profile_url": BASE + html.unescape(link.group(1)),
             "status_as_written": status,
+            "term_end_as_listed": end_date.isoformat() if end_date else None,
             "serving": not (end_date and end_date < fetched),
+            "both_listed": False,
             "source_url": source_url,
             "date_fetched": fetched.isoformat(),
         })
@@ -109,11 +114,26 @@ def parse_listing(chamber: str, page: str, source_url: str, fetched: date) -> tu
 GENERAL_ELECTION_2026 = date(2026, 11, 3)
 
 
-def election_status(shown: dict[str, str], fetched: date) -> dict:
-    """Pre- or post-election, as the site states it. The 2026 regular session ran before the
+def election_status(shown: dict[str, str], fetched: date, members: list[dict] = ()) -> dict:
+    """Pre- or post-election, as the site shows it. The 2026 regular session ran before the
     November 3, 2026 general election, so a listing labeled for that session is pre-election
-    membership. Any other label is recorded as 'unstated' for a person to review."""
+    membership, unless the site has started replacing members: it then prints term-end dates
+    from the day before the election onward (a term begins on election day) next to newly
+    listed members. That state is 'updating-after-election': the site doesn't say the update
+    is complete, so the roster is not called post-election. Any other label is recorded as
+    'unstated' for a person to review."""
     pre = all("2026 regular session" in s for s in shown.values())
+    turnover = [m for m in members if m.get("term_end_as_listed")
+                and date.fromisoformat(m["term_end_as_listed"]) >= GENERAL_ELECTION_2026 - timedelta(days=1)]
+    if fetched >= GENERAL_ELECTION_2026 and pre and turnover:
+        n = len({(m["chamber"], m["district"]) for m in turnover})
+        return {"election_status": "updating-after-election",
+                "election_note": "The 2026 general election was held on November 3, 2026. Both listings "
+                                 "still say they show members for the 2026 regular session, but the site "
+                                 f"now lists a new member in {n} district{'s' if n != 1 else ''} next to a "
+                                 "member whose term it says ended on or after 11/02/2026. The site doesn't "
+                                 "say the update is complete. This roster is the membership as the site "
+                                 "lists it on the fetch date, not certified election results."}
     if fetched >= GENERAL_ELECTION_2026 and pre:
         return {"election_status": "pre-election",
                 "election_note": "The 2026 general election was held on November 3, 2026. The site does "
@@ -124,6 +144,31 @@ def election_status(shown: dict[str, str], fetched: date) -> dict:
             "election_note": "The site's listing statements are recorded verbatim in "
                              "membership_as_stated_by_site; check them before describing this roster as "
                              "pre- or post-election."}
+
+
+def check_districts(members: list[dict]) -> list[str]:
+    """Check that every district resolves without a guess; return the problems (empty = fine).
+
+    A district must have exactly one serving member. The one exception is recorded, not
+    resolved: two serving members where exactly one carries a printed term-end date (which,
+    since they count as serving, has not passed). Both get both_listed=true. Everything else
+    (no serving member, two with no end date, two with end dates, three or more) is a problem."""
+    problems = []
+    for chamber, n in EXPECTED.items():
+        for d in range(1, n + 1):
+            serving = [m for m in members if m["chamber"] == chamber and m["district"] == d and m["serving"]]
+            ending = [m for m in serving if m["term_end_as_listed"]]
+            if len(serving) == 2 and len(ending) == 1:
+                for m in serving:
+                    m["both_listed"] = True
+                continue
+            if len(serving) != 1:
+                problems.append(f"{chamber} {d}: {len(serving)} serving members "
+                                f"({[m['name_as_written'] for m in serving]})")
+        extra = {m["district"] for m in members if m["chamber"] == chamber} - set(range(1, n + 1))
+        if extra:
+            problems.append(f"{chamber}: unexpected districts {sorted(extra)}")
+    return problems
 
 
 def main() -> int:
@@ -138,22 +183,15 @@ def main() -> int:
             members += rows
             print(f"  {len(rows)} members listed; site says {shown[chamber]!r}")
 
-    problems = []
-    for chamber, n in EXPECTED.items():
-        for d in range(1, n + 1):
-            serving = [m for m in members if m["chamber"] == chamber and m["district"] == d and m["serving"]]
-            if len(serving) != 1:
-                problems.append(f"{chamber} {d}: {len(serving)} serving members "
-                                f"({[m['name_as_written'] for m in serving]})")
-        extra = {m["district"] for m in members if m["chamber"] == chamber} - set(range(1, n + 1))
-        if extra:
-            problems.append(f"{chamber}: unexpected districts {sorted(extra)}")
+    problems = check_districts(members)
     if problems:
         for p in problems:
             print("ERROR:", p, file=sys.stderr)
         return 1
 
-    members.sort(key=lambda m: (m["chamber"] != "house", m["district"], not m["serving"]))
+    # Within a district: serving first; of two both-listed members, the one with the end date first.
+    members.sort(key=lambda m: (m["chamber"] != "house", m["district"], not m["serving"],
+                                not m["term_end_as_listed"] if m["both_listed"] else False))
     output = {
         "metadata": {
             "source": "Hawaiʻi State Legislature website (capitol.hawaii.gov), House and Senate member listings",
@@ -161,14 +199,25 @@ def main() -> int:
             "date_fetched": fetched.isoformat(),
             "date_fetched_timezone": "UTC",
             "membership_as_stated_by_site": shown,
-            **election_status(shown, fetched),
+            **election_status(shown, fetched, members),
             "serving_rule": "serving=false only when the site prints 'Term of Office Ended: <date>' "
                             "with a date before the fetch date.",
+            "both_listed_rule": "both_listed=true when the site lists two members for a district, one "
+                                "with no end date and one whose printed 'Term of Office Ended' date is "
+                                "after the fetch date. Both are kept; neither is picked as the member.",
+            "both_listed_districts": [list(k) for k in sorted(
+                {(m["chamber"], m["district"]) for m in members if m["both_listed"]},
+                key=lambda k: (k[0] != "house", k[1]))],
             "fields_not_recorded": ["party affiliation"],
             "name_note": "name_as_written is exactly as on the site minus its party suffix; "
                          "name_first_last reorders 'Last, First' to 'First Last'.",
             "counts": {c: {"listed": sum(1 for m in members if m["chamber"] == c),
-                           "serving": sum(1 for m in members if m["chamber"] == c and m["serving"])}
+                           "serving": sum(1 for m in members if m["chamber"] == c and m["serving"]),
+                           "districts_with_one_serving_member": len(
+                               {m["district"] for m in members
+                                if m["chamber"] == c and m["serving"] and not m["both_listed"]}),
+                           "districts_with_two_listed": len(
+                               {m["district"] for m in members if m["chamber"] == c and m["both_listed"]})}
                        for c in EXPECTED},
         },
         "legislators": members,
@@ -178,7 +227,7 @@ def main() -> int:
     for m in members:
         if m["status_as_written"]:
             print(f"  {m['chamber']} {m['district']}: {m['name_as_written']} {m['status_as_written']} "
-                  f"serving={m['serving']}")
+                  f"serving={m['serving']} both_listed={m['both_listed']}")
     return 0
 
 

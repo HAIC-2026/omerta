@@ -286,6 +286,9 @@
         if (t.is_error) {
           li.appendChild(el("span", { class: "tool-error", text: " — not found: " + ((t.output && t.output.error) || "error") }));
         }
+        // Where the site lists two members for a district, the lookup shows both, as listed.
+        var listed = t.output && (t.output.listing_statement || (t.output.legislator && t.output.legislator.listing_statement));
+        if (listed) li.appendChild(el("span", { class: "both-listed", text: " — " + listed }));
         var census = (t.source_urls || []).filter(function (u) { return u.indexOf("https://api.census.gov/") === 0; });
         (t.source_urls || []).forEach(function (u) {
           var isReport = u.indexOf("https://elections.hawaii.gov/") === 0;
@@ -410,7 +413,8 @@
     if (ver) art.appendChild(ver);
     if (data.low_reliability && data.low_reliability.length) art.appendChild(buildLowRelPanel(data.low_reliability));
     if (data.roster_note) {
-      art.appendChild(el("p", { class: "roster-note", text: "Legislators: " + data.roster_note + "." }));
+      var both = (data.roster_both_listed || []).map(function (s) { return " " + s + "."; }).join("");
+      art.appendChild(el("p", { class: "roster-note", text: "Legislators: " + data.roster_note + "." + both }));
     }
     if (data.hit_tool_limit) {
       art.appendChild(el("p", { class: "hint", text: "This answer reached the lookup limit for one question, so it may be incomplete. Try asking a narrower question." }));

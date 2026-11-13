@@ -54,9 +54,16 @@ def render() -> str:
                        f"<a href=\"{_e(rm['source_urls'][1])}\">Senate</a>), fetched {_e(rm['date_fetched'])}. "
                        f"The site says: {_e(shown)}. Names are as written there; party affiliation is not "
                        "recorded. Members whose term the site says has ended are kept, marked as such.</li>")
+        both = rm.get("both_listed_districts") or []
+        both_text = ""
+        if both:
+            names = ", ".join(f"{'House' if c == 'house' else 'Senate'} District {d}" for c, d in both)
+            both_text = (f"For {_e(names)} the site lists two members, one with a term-end date that had "
+                         "not passed on the fetch date. Both are shown with the site's own status text; "
+                         "this tool doesn't pick one. ")
         roster_limit = (f"<li>Legislators are shown {_e(as_listed_note(rm))}. {_e(rm.get('election_note'))} "
-                        "If a name isn't found, the roster may predate the election. Confirm current "
-                        "membership on capitol.hawaii.gov.</li>")
+                        f"{both_text}If a name isn't found, the site may not list that member yet. Confirm "
+                        "current membership on capitol.hawaii.gov.</li>")
     map_item = ""
     if shapes_src:
         map_item = (f"<li><strong>Map boundaries:</strong> {_e(shapes_src['name'])}, {_e(shapes_src['vintage'])}. "

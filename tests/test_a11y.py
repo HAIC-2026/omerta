@@ -286,7 +286,8 @@ def _longest_profiles(n=3):
     """Districts whose profile has the most text (most areas listed)."""
     ctx = tools.load_context()
     recs = sorted(ctx["districts"], key=lambda r: len(r["boundary_description"]["description"]), reverse=True)
-    return [(r["chamber"], r["district"]) for r in recs[:n]] + [("house", 46)]
+    # Plus the districts where the site lists two legislators (the longest header line).
+    return [(r["chamber"], r["district"]) for r in recs[:n]] + [("house", 46), ("house", 14), ("house", 18), ("house", 32)]
 
 
 def test_profile_prints_on_one_page(browser, base_url, tmp_path):

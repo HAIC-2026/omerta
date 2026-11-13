@@ -37,7 +37,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from agent import tools
 from agent.chat import ServiceNotConfigured
-from agent.grounding import check_answer_runtime, roster_note_for, stated_flagged_values, supports_answer
+from agent.grounding import (both_listed_in_answer, check_answer_runtime, roster_note_for,
+                             stated_flagged_values, supports_answer)
 from web.sessions import SessionsFull, SessionStore
 
 log = logging.getLogger("web")
@@ -440,7 +441,9 @@ def readyz(deep: int = 0):
     checks["map_shapes"] = _shapes() is not None
     from agent.legislator_tools import load_legislators
     roster = load_legislators()
-    checks["legislators_serving"] = (sum(1 for m in roster["legislators"] if m["serving"]) if roster else 0)
+    # Districts the roster covers: one serving member, or two the site lists side by side.
+    checks["legislators_serving"] = (len({(m["chamber"], m["district"]) for m in roster["legislators"]
+                                          if m["serving"]}) if roster else 0)
     checks["legislators_fetched"] = roster["metadata"]["date_fetched"] if roster else None
     checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
     if deep:
@@ -660,6 +663,9 @@ def _chat(body: ChatRequest, request: Request, agent, rec: dict):
         # Shown under any answer that names a legislator (or found no one), so the roster's
         # date travels with the name even if the model's wording drops it.
         "roster_note": roster_note_for(result.text, all_outputs),
+        # Districts named in the answer for which the site lists two members: both names with
+        # the site's status text, shown with the note whatever the model wrote.
+        "roster_both_listed": [b["listing_statement"] for b in both_listed_in_answer(result.text, all_outputs)],
         # This turn's lookups, then earlier lookups in the conversation that support a number
         # or fact in this answer (reused: true), so a follow-up answered from earlier data
         # still shows where it came from.

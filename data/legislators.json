@@ -5,27 +5,46 @@
       "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
       "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S"
     ],
-    "date_fetched": "2026-11-10",
+    "date_fetched": "2026-11-13",
     "date_fetched_timezone": "UTC",
     "membership_as_stated_by_site": {
       "house": "(Showing Representatives for the 2026 regular session)",
       "senate": "(Showing Senators for the 2026 regular session)"
     },
-    "election_status": "pre-election",
-    "election_note": "The 2026 general election was held on November 3, 2026. The site does not mention it: both listings say they show members for the 2026 regular session, which predates the election. This roster is the membership as the site lists it on the fetch date, not the election results.",
+    "election_status": "updating-after-election",
+    "election_note": "The 2026 general election was held on November 3, 2026. Both listings still say they show members for the 2026 regular session, but the site now lists a new member in 6 districts next to a member whose term it says ended on or after 11/02/2026. The site doesn't say the update is complete. This roster is the membership as the site lists it on the fetch date, not certified election results.",
     "serving_rule": "serving=false only when the site prints 'Term of Office Ended: <date>' with a date before the fetch date.",
+    "both_listed_rule": "both_listed=true when the site lists two members for a district, one with no end date and one whose printed 'Term of Office Ended' date is after the fetch date. Both are kept; neither is picked as the member.",
+    "both_listed_districts": [
+      [
+        "house",
+        14
+      ],
+      [
+        "house",
+        18
+      ],
+      [
+        "house",
+        32
+      ]
+    ],
     "fields_not_recorded": [
       "party affiliation"
     ],
     "name_note": "name_as_written is exactly as on the site minus its party suffix; name_first_last reorders 'Last, First' to 'First Last'.",
     "counts": {
       "house": {
-        "listed": 52,
-        "serving": 51
+        "listed": 58,
+        "serving": 54,
+        "districts_with_one_serving_member": 48,
+        "districts_with_two_listed": 3
       },
       "senate": {
         "listed": 26,
-        "serving": 25
+        "serving": 25,
+        "districts_with_one_serving_member": 25,
+        "districts_with_two_listed": 0
       }
     }
   },
@@ -37,9 +56,11 @@
       "district": 1,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=297&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Keohokapu-Lee Loy, Sue L.",
@@ -48,9 +69,11 @@
       "district": 2,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=298&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Todd, Chris",
@@ -59,9 +82,11 @@
       "district": 3,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=137&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Ilagan, Greggor",
@@ -70,9 +95,11 @@
       "district": 4,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=61&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kapela, Jeanne",
@@ -81,9 +108,11 @@
       "district": 5,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=71&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kahaloa, Kirstin",
@@ -92,9 +121,11 @@
       "district": 6,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=264&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Lowen, Nicole E.",
@@ -103,9 +134,11 @@
       "district": 7,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=83&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Tarnas, David A.",
@@ -114,9 +147,11 @@
       "district": 8,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=135&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Woodson, Justin H.",
@@ -125,9 +160,11 @@
       "district": 9,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=146&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Miyake, Tyson K.",
@@ -136,9 +173,11 @@
       "district": 10,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=294&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Amato, Terez",
@@ -147,9 +186,11 @@
       "district": 11,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=250&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Yamashita, Kyle T.",
@@ -158,9 +199,11 @@
       "district": 12,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=149&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Poepoe, Mahina",
@@ -169,9 +212,11 @@
       "district": 13,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=284&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Cochran, Elle",
@@ -179,10 +224,27 @@
       "chamber": "house",
       "district": 14,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=253&year=2026",
-      "status_as_written": [],
+      "status_as_written": [
+        "Term of Office Ended: 11/16/2026"
+      ],
+      "term_end_as_listed": "2026-11-16",
       "serving": true,
+      "both_listed": true,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Kiakona, Pa'ele",
+      "name_first_last": "Pa'ele Kiakona",
+      "chamber": "house",
+      "district": 14,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=319&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": true,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Nakamura, Nadine K.",
@@ -191,9 +253,11 @@
       "district": 15,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=100&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Evslin, Luke A.",
@@ -202,9 +266,11 @@
       "district": 16,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=291&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Morikawa, Dee",
@@ -213,9 +279,11 @@
       "district": 17,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=96&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Gedeon, Joe",
@@ -223,10 +291,27 @@
       "chamber": "house",
       "district": 18,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=309&year=2026",
-      "status_as_written": [],
+      "status_as_written": [
+        "Term of Office Ended: 11/16/2026"
+      ],
+      "term_end_as_listed": "2026-11-16",
       "serving": true,
+      "both_listed": true,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Wataru, James",
+      "name_first_last": "James Wataru",
+      "chamber": "house",
+      "district": 18,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=318&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": true,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Hashem, Mark J.",
@@ -235,9 +320,11 @@
       "district": 19,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=55&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Grandinetti, Tina Nakada",
@@ -246,9 +333,24 @@
       "district": 20,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=299&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Turbin, Derek",
+      "name_first_last": "Derek Turbin",
+      "chamber": "house",
+      "district": 21,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=315&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": false,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Sayama, Jackson D.",
@@ -256,10 +358,14 @@
       "chamber": "house",
       "district": 21,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=120&year=2026",
-      "status_as_written": [],
-      "serving": true,
+      "status_as_written": [
+        "Term of Office Ended: 11/02/2026"
+      ],
+      "term_end_as_listed": "2026-11-02",
+      "serving": false,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Garrett, Andrew Takuya",
@@ -268,9 +374,11 @@
       "district": 22,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=256&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Olds, Ikaika",
@@ -279,9 +387,11 @@
       "district": 23,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=300&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Tam, Adrian K.",
@@ -290,9 +400,11 @@
       "district": 24,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=132&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Iwamoto, Kim Coco",
@@ -301,9 +413,24 @@
       "district": 25,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=301&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Ross, Ian",
+      "name_first_last": "Ian Ross",
+      "chamber": "house",
+      "district": 26,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=316&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": false,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Belatti, Della Au",
@@ -311,10 +438,14 @@
       "chamber": "house",
       "district": 26,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=7&year=2026",
-      "status_as_written": [],
-      "serving": true,
+      "status_as_written": [
+        "Term of Office Ended: 11/02/2026"
+      ],
+      "term_end_as_listed": "2026-11-02",
+      "serving": false,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Takenouchi, Jenna",
@@ -323,9 +454,11 @@
       "district": 27,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=290&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Ratcliffe, M. Cov",
@@ -334,9 +467,11 @@
       "district": 28,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=311&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Holt, Daniel",
@@ -347,9 +482,11 @@
       "status_as_written": [
         "Term of Office Ended: 02/13/2026"
       ],
+      "term_end_as_listed": "2026-02-13",
       "serving": false,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Hussey, Ikaika",
@@ -358,9 +495,11 @@
       "district": 29,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=302&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Templo, Shirley Ann",
@@ -369,9 +508,11 @@
       "district": 30,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=303&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Ichiyama, Linda",
@@ -380,9 +521,11 @@
       "district": 31,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=60&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Shimizu, Garner M.",
@@ -390,10 +533,27 @@
       "chamber": "house",
       "district": 32,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=306&year=2026",
-      "status_as_written": [],
+      "status_as_written": [
+        "Term of Office Ended: 11/16/2026"
+      ],
+      "term_end_as_listed": "2026-11-16",
       "serving": true,
+      "both_listed": true,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Aiu, Micah",
+      "name_first_last": "Micah Aiu",
+      "chamber": "house",
+      "district": 32,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=248&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": true,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kong, Sam Satoru",
@@ -402,9 +562,11 @@
       "district": 33,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=78&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Takayama, Gregg",
@@ -413,9 +575,11 @@
       "district": 34,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=130&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Chun, Cory M.",
@@ -424,9 +588,11 @@
       "district": 35,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=252&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Hartsfield, Daisy",
@@ -437,9 +603,11 @@
       "status_as_written": [
         "Appointed 01/12/2026"
       ],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "La Chica, Trish",
@@ -448,9 +616,11 @@
       "district": 37,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=292&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Matsumoto, Lauren",
@@ -459,9 +629,24 @@
       "district": 38,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=90&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
+    },
+    {
+      "name_as_written": "Rosenlee, Corey",
+      "name_first_last": "Corey Rosenlee",
+      "chamber": "house",
+      "district": 39,
+      "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=317&year=2026",
+      "status_as_written": [],
+      "term_end_as_listed": null,
+      "serving": true,
+      "both_listed": false,
+      "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Pierick, Elijah",
@@ -469,10 +654,14 @@
       "chamber": "house",
       "district": 39,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=283&year=2026",
-      "status_as_written": [],
-      "serving": true,
+      "status_as_written": [
+        "Term of Office Ended: 11/02/2026"
+      ],
+      "term_end_as_listed": "2026-11-02",
+      "serving": false,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Reyes Oda, Julie",
@@ -481,9 +670,11 @@
       "district": 40,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=304&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Alcos III, David",
@@ -492,9 +683,11 @@
       "district": 41,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=249&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Garcia, Diamond",
@@ -503,9 +696,11 @@
       "district": 42,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=255&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Souza, Kanani",
@@ -514,9 +709,11 @@
       "district": 43,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=288&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kila, Darius K.",
@@ -525,9 +722,11 @@
       "district": 44,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=266&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Muraoka, Christopher L.",
@@ -536,9 +735,11 @@
       "district": 45,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=307&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Perruso, Amy A.",
@@ -547,9 +748,11 @@
       "district": 46,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=109&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Quinlan, Sean",
@@ -558,9 +761,11 @@
       "district": 47,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=112&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kitagawa, Lisa",
@@ -569,9 +774,11 @@
       "district": 48,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=76&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Matayoshi, Scot Z.",
@@ -580,9 +787,11 @@
       "district": 49,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=89&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Lee, Mike",
@@ -591,9 +800,11 @@
       "district": 50,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=305&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Marten, Lisa",
@@ -602,9 +813,11 @@
       "district": 51,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=87&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Inouye, Lorraine R.",
@@ -613,9 +826,11 @@
       "district": 1,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=181&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "San Buenaventura, Joy A.",
@@ -624,9 +839,11 @@
       "district": 2,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=206&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kanuha, Dru Mamo",
@@ -635,9 +852,11 @@
       "district": 3,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=184&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Richards, III, Herbert M. \"Tim\"",
@@ -646,9 +865,11 @@
       "district": 4,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=244&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Hashimoto, Troy N.",
@@ -657,9 +878,11 @@
       "district": 5,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=293&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "McKelvey, Angus L.K.",
@@ -668,9 +891,11 @@
       "district": 6,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=241&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "DeCoite, Lynn",
@@ -679,9 +904,11 @@
       "district": 7,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=161&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kouchi, Ronald D.",
@@ -690,9 +917,11 @@
       "district": 8,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=192&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Chang, Stanley",
@@ -701,9 +930,11 @@
       "district": 9,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=157&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Ihara, Jr., Les",
@@ -712,9 +943,11 @@
       "district": 10,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=180&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Fukunaga, Carol",
@@ -723,9 +956,11 @@
       "district": 11,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=168&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Moriwaki, Sharon Y.",
@@ -734,9 +969,11 @@
       "district": 12,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=198&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Rhoads, Karl",
@@ -745,9 +982,11 @@
       "district": 13,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=201&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kim, Donna Mercado",
@@ -756,9 +995,11 @@
       "district": 14,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=189&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Wakai, Glenn",
@@ -767,9 +1008,11 @@
       "district": 15,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=217&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Elefante, Brandon J.C.",
@@ -778,9 +1021,11 @@
       "district": 16,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=229&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Dela Cruz, Donovan M.",
@@ -789,9 +1034,11 @@
       "district": 17,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=162&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Bass, Danielle M.M.",
@@ -802,9 +1049,11 @@
       "status_as_written": [
         "Appointed 08/09/2026"
       ],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Kidani, Michelle N.",
@@ -815,9 +1064,11 @@
       "status_as_written": [
         "Term of Office Ended: 06/30/2026"
       ],
+      "term_end_as_listed": "2026-06-30",
       "serving": false,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Lamosao, Rachele",
@@ -826,9 +1077,11 @@
       "district": 19,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=270&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Fevella, Kurt",
@@ -837,9 +1090,11 @@
       "district": 20,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=166&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Gabbard, Mike",
@@ -848,9 +1103,11 @@
       "district": 21,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=169&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "DeCorte, Samantha M.",
@@ -859,9 +1116,11 @@
       "district": 22,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=308&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Awa, Brenton",
@@ -870,9 +1129,11 @@
       "district": 23,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=225&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Keohokalole, Jarrett",
@@ -881,9 +1142,11 @@
       "district": 24,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=187&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     },
     {
       "name_as_written": "Lee, Chris",
@@ -892,9 +1155,11 @@
       "district": 25,
       "profile_url": "https://www.capitol.hawaii.gov/legislature/memberpage.aspx?member=193&year=2026",
       "status_as_written": [],
+      "term_end_as_listed": null,
       "serving": true,
+      "both_listed": false,
       "source_url": "https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S",
-      "date_fetched": "2026-11-10"
+      "date_fetched": "2026-11-13"
     }
   ]
 }

@@ -358,6 +358,40 @@ def legislators_stated(text: str, outputs: Iterable[dict]) -> list[str]:
     return found
 
 
+def _surname_in(text_norm: str, view: dict) -> bool:
+    from agent.legislator_tools import normalize_name
+    last = normalize_name(view["name_as_written"].split(",")[0])
+    return bool(last and re.search(rf"(?<![a-z0-9]){re.escape(last)}(?![a-z0-9])", text_norm))
+
+
+def both_listed_in_answer(text: str, outputs: Iterable[dict]) -> list[dict]:
+    """Districts for which the site lists two members (tool key `both_listed`) and the answer
+    names at least one of them. Each entry: the site's listing_statement, who the answer
+    names, and who it leaves out (`missing`). The site doesn't say which of the two holds the
+    seat, so an answer that names one must name the other too."""
+    from agent.legislator_tools import normalize_name
+    text_norm = normalize_name(text)
+    found: list[dict] = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            pair = o.get("both_listed")
+            if isinstance(pair, list) and len(pair) > 1 and isinstance(o.get("listing_statement"), str):
+                named = [v["name_first_last"] for v in pair if _surname_in(text_norm, v)]
+                if named and not any(f["listing_statement"] == o["listing_statement"] for f in found):
+                    found.append({"listing_statement": o["listing_statement"], "named": named,
+                                  "missing": [v["name_first_last"] for v in pair
+                                              if v["name_first_last"] not in named]})
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    for out in outputs:
+        walk(out)
+    return found
+
+
 def roster_note_for(text: str, outputs: Iterable[dict]) -> str | None:
     """The roster's as-listed note, when the answer names a legislator from the tools or a
     legislator lookup found no one (so the reader knows how fresh the roster is)."""
@@ -415,7 +449,8 @@ def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable
       - every low-reliability value stated must have its caveat nearby;
       - every program named must come from a tool result;
       - no sentence may state eligibility as fact;
-      - every legislator named must come from a tool result, with the roster's as-listed note.
+      - every legislator named must come from a tool result, with the roster's as-listed note;
+      - where the site lists two members for a district, an answer naming one names both.
     """
     text = text or ""
     outputs = list(outputs)
@@ -434,6 +469,7 @@ def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable
     named = legislators_stated(text, outputs)
     notes = _roster_notes(outputs)
     note_missing = bool(named and notes and not any(n.lower() in text.lower() for n in notes))
+    one_of_two = [b for b in both_listed_in_answer(text, outputs) if b["missing"]]
 
     failures: list[str] = []
     if not text.strip():
@@ -452,6 +488,10 @@ def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable
         failures.append("Legislators named that no tool result returned: " + ", ".join(names) + ".")
     if note_missing:
         failures.append(f"Legislator named without the roster note \"{notes[0]}\": " + ", ".join(named) + ".")
+    for b in one_of_two:
+        failures.append("The site lists two members for this district and doesn't say which holds the "
+                        f"seat; the answer names only {', '.join(b['named'])}. State both, as: "
+                        f"\"{b['listing_statement']}\".")
 
     return {
         "verified": not failures,
@@ -464,6 +504,7 @@ def check_answer_runtime(text: str, outputs: Iterable[dict], questions: Iterable
         "unsourced_legislators": names,
         "legislators_stated": named,
         "roster_note_missing": note_missing,
+        "both_listed_named_one_only": [b["listing_statement"] for b in one_of_two],
         "eligibility_claims": claims,
         "failures": failures,
     }

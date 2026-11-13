@@ -90,10 +90,18 @@ def render(chamber: str, district: int) -> tuple[int, str]:
 
     leg = p.get("legislator") or {}
     leg_html = ""
-    if leg.get("serving"):
+    leg_links: list[tuple[str, str]] = []
+    if leg.get("both_listed"):
+        # The site lists two members and doesn't say which holds the seat: show both, as listed.
+        role = "Senator" if p["chamber"] == "senate" else "Representative"
+        leg_html = (f"<p class=\"sub legislator\"><strong>{role}:</strong> {e(leg['listing_statement'])}; "
+                    f"{e(leg['as_listed_note'])}.</p>")
+        leg_links = [(f"Legislator profile: {x['name_first_last']} (capitol.hawaii.gov)", x["profile_url"])
+                     for x in leg["both_listed"]]
+    elif leg.get("serving"):
         role = "Senator" if p["chamber"] == "senate" else "Representative"
         names = ", ".join(e(x["name_first_last"]) for x in leg["serving"])
-        prof = leg["serving"][0]["profile_url"]
+        leg_links = [("Legislator profile (capitol.hawaii.gov)", leg["serving"][0]["profile_url"])]
         # One header line (the page must print on one sheet); the full citation is in Sources.
         leg_html = (f"<p class=\"sub legislator\"><strong>{role}:</strong> {names}, "
                     f"{e(leg['as_listed_note'])}.</p>")
@@ -121,8 +129,7 @@ def render(chamber: str, district: int) -> tuple[int, str]:
     src_urls.append(("Census API query", first if isinstance(first, str) else first[0]))
     if ctx.get("source_url"):
         src_urls.append(("2021 Reapportionment Commission final report (PDF)", ctx["source_url"]))
-    if leg_html:
-        src_urls.append(("Legislator profile (capitol.hawaii.gov)", prof))
+    src_urls.extend(leg_links)
 
     generated = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
     body = f"""
