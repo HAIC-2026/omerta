@@ -75,8 +75,9 @@ RATE_GLOBAL_PER_DAY = _env_int("RATE_LIMIT_GLOBAL_PER_DAY", 500)   # whole-site 
 MAX_CONCURRENT = _env_int("CHAT_MAX_CONCURRENT", 4)
 SESSION_TTL_MINUTES = _env_int("SESSION_TTL_MINUTES", 60)  # idle time before a conversation expires
 SESSION_MAX = _env_int("SESSION_MAX", 200)                # conversations held in memory at once
-# Only trust X-Forwarded-For when running behind a proxy you control.
-TRUST_PROXY = os.getenv("TRUST_PROXY", "0") == "1"
+# How many proxies in front of the app append to X-Forwarded-For (0 = not behind a proxy;
+# the header is ignored). Render needs 2; see client_ip().
+TRUST_PROXY = max(0, _env_int("TRUST_PROXY", 0))
 
 
 # ---------------------------------------------------------------------------
@@ -132,17 +133,35 @@ def default_limiter() -> RateLimiter:
     ])
 
 
+UNVERIFIED_CLIENT = "unverified-forwarding"
+
+
 def client_ip(request: Request) -> str:
-    """The client's IP for rate limiting. Behind one trusted proxy (TRUST_PROXY=1, e.g. Render's
-    proxy), use the LAST X-Forwarded-For entry: the proxy appends the address it
-    saw, while earlier entries are whatever the client sent and could be forged to dodge
-    the limits."""
+    """The client's IP for rate limiting.
+
+    Behind TRUST_PROXY=N proxies, each proxy appends the address it received the request
+    from, so the client is the Nth X-Forwarded-For entry from the RIGHT. Anything further
+    left is whatever the client sent and can be forged to dodge the limits.
+
+    On Render, N is 2. Render doesn't document its X-Forwarded-For format. It says only that
+    its load balancer terminates TLS and forwards to the service
+    (https://render.com/docs/web-services#connecting-from-the-public-internet). Requests
+    arrive through Cloudflare, which appends the client's IP to any X-Forwarded-For the
+    client sent (https://developers.cloudflare.com/fundamentals/reference/http-headers/).
+    Measured on the live service (2026-11-13): a plain request arrives with 2 entries,
+    the client's IP (equal to CF-Connecting-IP) and then a proxy address. Forged entries are
+    kept, in front of the client's IP. So the last entry is a proxy, and the client is 2nd from the right.
+
+    If there are fewer than N entries, the request didn't come through the expected proxies,
+    so it goes into one shared bucket. It never falls back to request.client.host, because
+    on Render uvicorn rewrites that from X-Forwarded-For (Render sets
+    FORWARDED_ALLOW_IPS=*, https://render.com/docs/environment-variables#python-3),
+    so it is the forgeable leftmost entry."""
     if TRUST_PROXY:
-        fwd = request.headers.get("x-forwarded-for")
-        if fwd:
-            last = fwd.split(",")[-1].strip()
-            if last:
-                return last
+        entries = [e.strip() for e in request.headers.get("x-forwarded-for", "").split(",")]
+        if len(entries) >= TRUST_PROXY and entries[-TRUST_PROXY]:
+            return entries[-TRUST_PROXY]
+        return UNVERIFIED_CLIENT
     return request.client.host if request.client else "unknown"
 
 
@@ -341,41 +360,8 @@ def _check_model_api() -> str:
     return status
 
 
-_PROBE_IP = "198.51.100.77"   # TEST-NET-2 (RFC 5737): never a real client
-
-
-def _forwarded_shape(request: Request) -> dict:
-    """TEMPORARY diagnostic: how the host's proxy builds the forwarding headers, as counts,
-    positions and booleans only (never an IP address). Send X-Forwarded-For and
-    CF-Connecting-IP set to _PROBE_IP to see whether client-sent values survive."""
-    import ipaddress
-    h = request.headers
-    xff = [e.strip() for e in (h.get("x-forwarded-for") or "").split(",") if e.strip()]
-
-    def pos(v):  # 1 = last entry
-        return len(xff) - xff.index(v) if v in xff else None
-
-    def private(v):
-        try:
-            return ipaddress.ip_address(v).is_private
-        except ValueError:
-            return None
-    cf, tci, xri = h.get("cf-connecting-ip"), h.get("true-client-ip"), h.get("x-real-ip")
-    return {
-        "xff_entries": len(xff),
-        "xff_probe_pos_from_end": pos(_PROBE_IP),
-        "xff_private_pos_from_end": [len(xff) - i for i, e in enumerate(xff) if private(e)],
-        "cf_connecting_ip_present": cf is not None, "cf_connecting_ip_is_probe": cf == _PROBE_IP,
-        "cf_connecting_ip_pos_from_end": pos(cf) if cf else None,
-        "true_client_ip_present": tci is not None, "true_client_ip_is_probe": tci == _PROBE_IP,
-        "true_client_ip_equals_cf": tci == cf if tci and cf else None,
-        "x_real_ip_present": xri is not None, "x_real_ip_pos_from_end": pos(xri) if xri else None,
-        "peer_is_private": private(request.client.host) if request.client else None,
-    }
-
-
 @app.get("/readyz")
-def readyz(request: Request, deep: int = 0, probe: int = 0):
+def readyz(deep: int = 0):
     """Readiness: data files loaded, chat configured. ?deep=1 also checks the AI service
     (no tokens used). Data features stay up even when the AI service is down."""
     from agent.chat import EFFORT, MODEL
@@ -400,8 +386,6 @@ def readyz(request: Request, deep: int = 0, probe: int = 0):
     checks["legislators_serving"] = (sum(1 for m in roster["legislators"] if m["serving"]) if roster else 0)
     checks["legislators_fetched"] = roster["metadata"]["date_fetched"] if roster else None
     checks["trust_proxy"] = TRUST_PROXY
-    if probe:
-        checks["forwarded"] = _forwarded_shape(request)
     checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
     if deep:
         checks["ai_service"] = _check_model_api()

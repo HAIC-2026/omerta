@@ -39,7 +39,7 @@ def test_render_service_settings_match_the_live_setup():
     assert svc["healthCheckPath"] == "/healthz"
     assert svc["branch"] == "main" and svc["autoDeployTrigger"] == "commit"
     env = {e["key"]: e for e in svc["envVars"]}
-    assert env["TRUST_PROXY"]["value"] == "1"
+    assert env["TRUST_PROXY"]["value"] == "2"     # Cloudflare + Render's proxy
     # Every configured name is one the app reads and the README documents.
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for k in env:
@@ -96,46 +96,85 @@ class _Req:
         self.client = type("C", (), {"host": host})()
 
 
+# Render (measured 2026-11-13): "<client>, <proxy>". Forged entries are added in front.
+CLIENT, EDGE = "203.0.113.9", "172.70.1.1"
+
+
+@pytest.mark.parametrize("xff,want", [
+    (f"{CLIENT}, {EDGE}", CLIENT),                        # plain request on Render
+    (f"1.2.3.4, {CLIENT}, {EDGE}", CLIENT),               # client-forged entry is ignored
+    (f"1.2.3.4,5.6.7.8, {CLIENT}, {EDGE}", CLIENT),
+    (f"{CLIENT},{EDGE}", CLIENT),                         # no spaces
+    (EDGE, webapp.UNVERIFIED_CLIENT),                     # too few hops: shared bucket
+    (None, webapp.UNVERIFIED_CLIENT),                     # never the (forgeable) peer address
+    ("", webapp.UNVERIFIED_CLIENT),
+    (f", {EDGE}", webapp.UNVERIFIED_CLIENT),              # empty client slot
+])
+def test_client_ip_on_render_is_second_from_the_right(monkeypatch, xff, want):
+    monkeypatch.setattr(webapp, "TRUST_PROXY", 2)
+    assert webapp.client_ip(_Req(xff)) == want
+
+
 @pytest.mark.parametrize("xff,want", [
     ("203.0.113.9", "203.0.113.9"),
-    ("1.2.3.4, 203.0.113.9", "203.0.113.9"),     # client-forged first entry is ignored
-    ("1.2.3.4,5.6.7.8, 203.0.113.9", "203.0.113.9"),
-    (None, "10.0.0.1"),
-    ("", "10.0.0.1"),
+    ("1.2.3.4, 203.0.113.9", "203.0.113.9"),
+    (None, webapp.UNVERIFIED_CLIENT),
 ])
-def test_client_ip_behind_proxy_uses_last_forwarded_entry(monkeypatch, xff, want):
-    monkeypatch.setattr(webapp, "TRUST_PROXY", True)
+def test_client_ip_behind_one_proxy_uses_last_entry(monkeypatch, xff, want):
+    monkeypatch.setattr(webapp, "TRUST_PROXY", 1)
     assert webapp.client_ip(_Req(xff)) == want
 
 
 def test_client_ip_ignores_forwarded_header_without_proxy(monkeypatch):
-    monkeypatch.setattr(webapp, "TRUST_PROXY", False)
+    monkeypatch.setattr(webapp, "TRUST_PROXY", 0)
     assert webapp.client_ip(_Req("1.2.3.4")) == "10.0.0.1"
 
 
-def test_forged_forwarded_for_cannot_dodge_the_limit(monkeypatch):
-    """Behind the proxy, rotating a fake first X-Forwarded-For entry still hits one bucket."""
+@pytest.mark.parametrize("value,want", [("0", 0), ("1", 1), ("2", 2), ("-1", 0), ("yes", 0), ("", 0)])
+def test_trust_proxy_parses_as_hop_count(monkeypatch, value, want):
+    import importlib
+    monkeypatch.setenv("TRUST_PROXY", value)
+    try:
+        assert importlib.reload(webapp).TRUST_PROXY == want
+    finally:
+        monkeypatch.delenv("TRUST_PROXY")
+        importlib.reload(webapp)
+
+
+def _post_from(forwarded: list[str]) -> list[int]:
     from tests.test_web import FakeAgent
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
-    monkeypatch.setattr(webapp, "TRUST_PROXY", True)
     webapp.app.state.limiter = webapp.RateLimiter([("ip", 2, 60)])
     webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent("ok")
     try:
         c = TestClient(webapp.app)
-        codes = [c.post("/chat", json={"question": "hi"},
-                        headers={"x-forwarded-for": f"9.9.9.{i}, 203.0.113.9"}).status_code
-                 for i in range(3)]
+        return [c.post("/chat", json={"question": "hi"}, headers={"x-forwarded-for": x}).status_code
+                for x in forwarded]
     finally:
         webapp.app.dependency_overrides.clear()
         webapp.app.state.limiter = webapp.default_limiter()
+
+
+def test_forged_forwarded_for_cannot_dodge_the_limit(monkeypatch):
+    """On Render, rotating fake leading X-Forwarded-For entries still hits one bucket."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    monkeypatch.setattr(webapp, "TRUST_PROXY", 2)
+    codes = _post_from([f"9.9.9.{i}, {CLIENT}, {EDGE}" for i in range(3)])
     assert codes == [200, 200, 429]
+
+
+def test_visitors_behind_the_same_proxy_get_separate_limits(monkeypatch):
+    """The bug "last entry" had on Render: every visitor keyed on the proxy's address."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-fake")
+    monkeypatch.setattr(webapp, "TRUST_PROXY", 2)
+    codes = _post_from([f"203.0.113.{i}, {EDGE}" for i in range(4)])
+    assert codes == [200, 200, 200, 200]
 
 
 def test_readyz_reports_roster_and_proxy_mode():
     c = TestClient(webapp.app).get("/readyz").json()["checks"]
     assert c["legislators_serving"] == 76
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", c["legislators_fetched"])
-    assert c["trust_proxy"] in (True, False)
+    assert isinstance(c["trust_proxy"], int) and c["trust_proxy"] >= 0
 
 
 @pytest.mark.parametrize("fname", ["requirements.txt", "requirements-dev.txt"])

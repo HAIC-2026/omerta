@@ -24,7 +24,7 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false             # secret: entered in the dashboard, never stored here
       - key: TRUST_PROXY
-        value: "1"              # behind Render's proxy; see client_ip() in web/app.py
+        value: "2"              # 2 proxies append to X-Forwarded-For on Render; see client_ip() in web/app.py
       - key: RATE_LIMIT_PER_MINUTE
         value: "30"             # per client IP; venue wifi shares one IP
       - key: RATE_LIMIT_PER_DAY

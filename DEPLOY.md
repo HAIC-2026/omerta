@@ -28,7 +28,7 @@ The Anthropic API key exists in one place only: the service's **Environment** pa
 | Key | Value | Why |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | *(secret)* | Required for chat. To rotate it, create a new key at https://console.anthropic.com → **API Keys**, paste it here, save, then delete the old key in the console. |
-| `TRUST_PROXY` | `1` | The app is behind Render's proxy. This makes rate limits apply per visitor, not to the proxy. See `client_ip()` in [web/app.py](web/app.py). |
+| `TRUST_PROXY` | `2` | Requests reach the app through Cloudflare and Render's load balancer. `X-Forwarded-For` arrives as `<client>, <proxy>`, so the visitor is the 2nd entry from the right. Entries further left are client-sent and could be forged to dodge limits. Render doesn't document this format; it was measured on the live service on 2026-11-13. See `client_ip()` in [web/app.py](web/app.py). |
 | `RATE_LIMIT_PER_MINUTE` | `30` | Per client IP. Everyone on a venue's wifi shares one IP. |
 | `RATE_LIMIT_PER_DAY` | `600` | Per client IP |
 | `RATE_LIMIT_GLOBAL_PER_MINUTE` | `60` | Whole site |
@@ -41,7 +41,7 @@ Everything else uses the defaults in the README's [Configuration](README.md#conf
 | URL | Expect |
 |---|---|
 | `/healthz` | `{"ok":true}`. Render's health check polls this path. |
-| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, `trust_proxy: true`, and the rate limits above under `config` |
+| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, `trust_proxy: 2`, and the rate limits above under `config` |
 | `/readyz?deep=1` | Also `"ai_service": "ok"`: the API key works and the Anthropic API is reachable. This check uses no tokens and is cached for 60 seconds. |
 
 ```bash
@@ -83,7 +83,7 @@ Open the service → **Logs**. Each `/chat` request writes one JSON line (`"even
 | Symptom | Likely cause |
 |---|---|
 | "Chat is temporarily unavailable" | The key is missing or wrong, or the Anthropic account is out of credit. Check `/readyz?deep=1`. |
-| Everyone gets "Too many questions" | `TRUST_PROXY` isn't `1`, so every visitor looks like the proxy. Or the per-IP limit is too low for a shared venue network. |
+| Everyone gets "Too many questions" | `TRUST_PROXY` isn't `2`, so visitors are keyed on a proxy address and share a limit. Or the per-IP limit is too low for a shared venue network. |
 | Chat says the demo hit today's limit | `RATE_LIMIT_GLOBAL_PER_DAY` was reached. The window slides over 24 hours. Raise it on the Environment page if the API budget allows. |
 
 ## After the event: stop billing (after November 21, 2026)
