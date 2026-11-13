@@ -147,6 +147,7 @@ main { padding-block: 1.25rem; }
 .field { display: flex; flex-direction: column; gap: 0.25rem; min-width: 8rem; flex: 1 1 8rem; }
 .field-wide { flex: 3 1 14rem; }
 .field-button { flex: 0 0 auto; min-width: 0; }
+.picker-profile { margin: 0.6rem 0 0; }
 .field label { font-weight: 600; font-size: 0.95rem; }
 .field select { width: 100%; min-width: 0; }
 
@@ -222,7 +223,9 @@ select, textarea {
 .msg-agent p, .msg-agent ul, .msg-agent ol { margin: 0 0 0.75rem; }
 .msg-agent li + li { margin-top: 0.2rem; }
 
-.table-wrap { overflow-x: auto; margin: 0 0 0.75rem; }
+/* position: relative keeps the visually-hidden link text inside the scroll area, so a wide
+   table on a phone scrolls in its own box and never widens the page. */
+.table-wrap { position: relative; overflow-x: auto; margin: 0 0 0.75rem; }
 .table-wrap:focus-visible { outline-offset: 0; }
 .msg-agent table { border-collapse: collapse; min-width: 100%; font-size: 0.95rem; overflow-wrap: normal; }
 .msg-agent td { word-break: normal; }
