@@ -53,7 +53,7 @@ def test_healthz(client):
     assert client.get("/healthz").json() == {"ok": True}
 
 
-def test_readyz_reports_data_and_config(client):
+def test_readyz_reports_data_but_not_config(client):
     r = client.get("/readyz")
     assert r.status_code == 200
     j = r.json()
@@ -65,8 +65,80 @@ def test_readyz_reports_data_and_config(client):
     assert c["programs_verified"] == load_programs()["metadata"]["date_verified"]
     assert c["map_shapes"] is True and c["chat_configured"] is True
     assert "ai_service" not in c  # deep check only on request
-    assert j["config"]["model"] and j["config"]["rate_limit_per_minute"] >= 1
+    # The default response is only what monitoring needs: no model, effort, limits or proxy mode.
+    assert set(j) == {"ready", "chat_available", "checks"}
+    assert set(c) == {"acs_districts", "district_context", "programs", "programs_verified", "map_shapes",
+                      "legislators_serving", "legislators_fetched", "chat_configured"}
+    for hidden in ("claude", "model", "effort", "rate_limit", "trust_proxy", "max_concurrent", "allowed_origins"):
+        assert hidden not in r.text
     assert FAKE_KEY not in r.text and "sk-ant" not in r.text
+
+
+def test_readyz_deep_adds_operating_config(client, monkeypatch):
+    monkeypatch.setattr(webapp, "_check_model_api", lambda: "ok")
+    r = client.get("/readyz", params={"deep": 1})
+    j = r.json()
+    assert j["config"]["model"] and j["config"]["effort"] and j["config"]["rate_limit_per_minute"] >= 1
+    assert isinstance(j["checks"]["trust_proxy"], int)
+    assert FAKE_KEY not in r.text and "sk-ant" not in r.text
+
+
+# ---------------------------------------------------------------- request body cap
+
+def _chat_post(client, content: bytes, **headers):
+    return client.post("/chat", content=content, headers={"content-type": "application/json", **headers})
+
+
+def test_chat_body_over_the_cap_is_a_clean_413(client):
+    big = json.dumps({"question": "hi", "session_id": None, "pad": "x" * webapp.MAX_BODY_BYTES}).encode()
+    r = _chat_post(client, big)
+    assert r.status_code == 413
+    assert r.json()["code"] == "payload_too_large" and "too large" in r.json()["error"]
+    assert r.headers["content-type"].startswith("application/json")
+    assert r.headers["x-content-type-options"] == "nosniff"      # security headers still applied
+    assert FAKE_KEY not in r.text
+
+
+def test_chat_body_cap_counts_bytes_when_no_length_is_declared(client):
+    def chunks():
+        for _ in range(5):
+            yield b" " * 4096                                      # 20 KB, sent chunked
+    r = client.post("/chat", content=chunks(), headers={"content-type": "application/json"})
+    assert r.status_code == 413 and r.json()["code"] == "payload_too_large"
+
+
+def test_chat_body_at_the_cap_still_reaches_validation_and_normal_questions_work(client):
+    from tests.test_web import FakeAgent
+    webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent("ok")   # no network
+    exact = b'{"question": "hi"}'.ljust(webapp.MAX_BODY_BYTES)        # trailing spaces: valid JSON
+    assert len(exact) == webapp.MAX_BODY_BYTES
+    assert _chat_post(client, exact).status_code == 200
+    longest = json.dumps({"question": "ʻ" * webapp.MAX_MESSAGE_CHARS}).encode()   # multi-byte, max length
+    assert len(longest) < webapp.MAX_BODY_BYTES
+    assert _chat_post(client, longest).status_code == 200
+    assert _chat_post(client, exact + b" ").status_code == 413
+
+
+def test_body_cap_applies_only_to_chat(client):
+    assert client.get("/readyz").status_code == 200
+    assert client.post("/healthz", content=b"x" * (webapp.MAX_BODY_BYTES + 1)).status_code == 405
+
+
+# ---------------------------------------------------------------- map -> chat handoff
+
+def test_map_hands_the_question_over_in_the_url_fragment():
+    """Fragments are never sent to the server, so the question can't reach access logs."""
+    js = (webapp.STATIC_DIR / "map.js").read_text(encoding="utf-8")
+    assert '"/#ask="' in js and "?ask=" not in js
+
+
+def test_handed_over_question_is_prefilled_never_auto_submitted():
+    js = (webapp.STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    block = js[js.index("var handed = null;"):js.index('if (document.readyState === "loading")')]
+    assert "window.location.hash" in block and "window.location.search" in block   # old ?ask= links too
+    assert "replaceState" in block                       # stripped from the address bar
+    assert "textarea.value = handed.slice(0, 2000)" in block and "textarea.focus()" in block
+    assert "ask(" not in block and "submit" not in block.lower().replace("never sent automatically", "")
 
 
 def test_readyz_without_key(client, monkeypatch):

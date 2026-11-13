@@ -75,6 +75,7 @@ RATE_GLOBAL_PER_DAY = _env_int("RATE_LIMIT_GLOBAL_PER_DAY", 500)   # whole-site 
 MAX_CONCURRENT = _env_int("CHAT_MAX_CONCURRENT", 4)
 SESSION_TTL_MINUTES = _env_int("SESSION_TTL_MINUTES", 60)  # idle time before a conversation expires
 SESSION_MAX = _env_int("SESSION_MAX", 200)                # conversations held in memory at once
+MAX_BODY_BYTES = 16 * 1024   # POST /chat body cap; a 2,000-character question fits many times over
 # How many proxies in front of the app append to X-Forwarded-For (0 = not behind a proxy;
 # the header is ignored). Render needs 2; see client_ip().
 TRUST_PROXY = max(0, _env_int("TRUST_PROXY", 0))
@@ -225,6 +226,49 @@ CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' 
        "form-action 'self'")
 
 
+class ChatBodyLimit:
+    """Reject POST /chat bodies over MAX_BODY_BYTES with a JSON 413 before they are parsed.
+    Checks Content-Length first, then counts the bytes actually received (a chunked or
+    mislabelled body can't get past it). The body, at most the cap, is buffered and replayed."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope["method"] != "POST" or scope["path"] != "/chat":
+            return await self.app(scope, receive, send)
+        too_large = JSONResponse(
+            {"error": "That request is too large. Questions are limited to "
+                      f"{MAX_MESSAGE_CHARS:,} characters.", "code": "payload_too_large"},
+            status_code=413, headers={"Connection": "close"})
+        declared = dict(scope["headers"]).get(b"content-length", b"")
+        if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+            return await too_large(scope, receive, send)
+        chunks, size, more = [], 0, True
+        while more:
+            msg = await receive()
+            if msg["type"] != "http.request":      # client disconnected
+                return
+            chunk = msg.get("body", b"")
+            size += len(chunk)
+            if size > MAX_BODY_BYTES:
+                return await too_large(scope, receive, send)
+            chunks.append(chunk)
+            more = msg.get("more_body", False)
+        sent = False
+
+        async def replay():
+            nonlocal sent
+            if not sent:
+                sent = True
+                return {"type": "http.request", "body": b"".join(chunks), "more_body": False}
+            return await receive()
+        await self.app(scope, replay, send)
+
+
+app.add_middleware(ChatBodyLimit)   # added before security_headers, so its 413 gets those headers
+
+
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -362,8 +406,10 @@ def _check_model_api() -> str:
 
 @app.get("/readyz")
 def readyz(deep: int = 0):
-    """Readiness: data files loaded, chat configured. ?deep=1 also checks the AI service
-    (no tokens used). Data features stay up even when the AI service is down."""
+    """Readiness: data files loaded, chat configured. The default response carries only what
+    monitoring needs: ready, counts, data dates and whether chat is available. ?deep=1 adds
+    the AI service check (no tokens used) and the operating config (model, effort, limits,
+    proxy hops). Data features stay up even when the AI service is down."""
     from agent.chat import EFFORT, MODEL
     checks: dict[str, Any] = {}
     try:
@@ -385,17 +431,18 @@ def readyz(deep: int = 0):
     roster = load_legislators()
     checks["legislators_serving"] = (sum(1 for m in roster["legislators"] if m["serving"]) if roster else 0)
     checks["legislators_fetched"] = roster["metadata"]["date_fetched"] if roster else None
-    checks["trust_proxy"] = TRUST_PROXY
     checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
     if deep:
         checks["ai_service"] = _check_model_api()
+        checks["trust_proxy"] = TRUST_PROXY
     data_ok = checks["acs_districts"] > 0
     chat_ok = checks["chat_configured"] and checks.get("ai_service", "ok") == "ok"
-    body = {"ready": data_ok, "chat_available": chat_ok, "checks": checks,
-            "config": {"model": MODEL, "effort": EFFORT, "rate_limit_per_minute": RATE_PER_IP_PER_MINUTE,
+    body: dict[str, Any] = {"ready": data_ok, "chat_available": chat_ok, "checks": checks}
+    if deep:
+        body["config"] = {"model": MODEL, "effort": EFFORT, "rate_limit_per_minute": RATE_PER_IP_PER_MINUTE,
                        "rate_limit_per_day": RATE_PER_IP_PER_DAY, "rate_limit_global_per_minute":
                        RATE_GLOBAL_PER_MINUTE, "rate_limit_global_per_day": RATE_GLOBAL_PER_DAY, "max_concurrent": MAX_CONCURRENT,
-                       "allowed_origins": ALLOWED_ORIGINS}}
+                       "allowed_origins": ALLOWED_ORIGINS}
     return JSONResponse(body, status_code=200 if data_ok else 503)
 
 

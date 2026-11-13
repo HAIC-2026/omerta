@@ -343,10 +343,28 @@ def test_map_keyboard_asks_about_district(browser, base_url):
     assert not page.is_hidden("#map-tip") and "District 46" in page.inner_text("#map-tip")
     ring = page.evaluate("() => getComputedStyle(document.activeElement).strokeWidth")
     assert float(ring.replace("px", "")) >= 3
-    page.keyboard.press("Enter")
-    page.wait_for_selector("article.msg-agent")  # chat page received the question and answered (mock)
+    with page.expect_request(lambda r: r.is_navigation_request() and r.url.rstrip("/") == base_url.rstrip("/")) as nav:
+        page.keyboard.press("Enter")
+    assert "ask" not in nav.value.url and "District" not in nav.value.url   # nothing sent to the server
+    # The chat page prefills the question and focuses the box; it does not send it.
+    page.wait_for_function("() => document.getElementById('question').value.includes('State House District 46')")
+    assert page.evaluate("() => document.activeElement.id") == "question"
+    assert "ask=" not in page.url and "#" not in page.url
+    page.wait_for_timeout(300)
+    assert page.locator("article.msg-user").count() == 0 and page.locator("article.msg-agent").count() == 0
+    page.click("#send")                                   # the user sends it
+    page.wait_for_selector("article.msg-agent")
     assert "State House District 46" in page.inner_text("article.msg-user")
+
+
+def test_old_query_string_handoff_is_prefilled_not_sent(browser, base_url):
+    page = browser.new_page()
+    page.goto(base_url + "/?ask=" + "What%20is%20the%20median%20age%20in%20Senate%20District%203%3F")
+    page.wait_for_function("() => document.getElementById('question').value === 'What is the median age in Senate District 3?'")
     assert "ask=" not in page.url
+    page.wait_for_timeout(300)
+    assert page.locator("article.msg-user").count() == 0
+    page.close()
 
 
 def test_map_table_sorts(browser, base_url):

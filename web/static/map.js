@@ -35,7 +35,9 @@
   function question(ch, d, metric) {
     return "Tell me about " + districtName(ch, d) + ", including its " + phrase(metric) + ".";
   }
-  function askUrl(ch, d, metric) { return "/?ask=" + encodeURIComponent(question(ch, d, metric)); }
+  // The question travels in the URL fragment, which browsers never send to the server, so it
+  // can't end up in access logs. The chat page prefills it; the user sends it.
+  function askUrl(ch, d, metric) { return "/#ask=" + encodeURIComponent(question(ch, d, metric)); }
   function status(t) { $("map-status").textContent = t; }
 
   // Equal-count (quantile) classes over districts with a value.

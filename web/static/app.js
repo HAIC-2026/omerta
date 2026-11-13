@@ -626,12 +626,22 @@
       }
     }).catch(function () {});
 
-    // A question handed over from the district map (/?ask=...). Plain text only.
-    var params = new URLSearchParams(window.location.search);
-    var handed = params.get("ask");
-    if (handed) {
+    // A question handed over from the district map in the URL fragment (/#ask=...), which is
+    // never sent to the server. Older /?ask=... links are accepted the same way. The question
+    // is only placed in the box, as plain text: the user reads it and presses Ask. It is
+    // never sent automatically, so a crafted link can't make someone ask something.
+    var handed = null;
+    try {
+      handed = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("ask") ||
+               new URLSearchParams(window.location.search).get("ask");
+    } catch (e) { handed = null; }
+    if (/[#?&]ask=/.test(window.location.hash + window.location.search)) {
       window.history.replaceState(null, "", window.location.pathname);
-      ask(handed.slice(0, 2000));
+    }
+    if (handed) {
+      textarea.value = handed.slice(0, 2000);
+      textarea.focus();
+      setStatus("The question from the map is in the question box. Press Ask to send it.");
     }
   }
 

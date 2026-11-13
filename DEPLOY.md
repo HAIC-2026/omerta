@@ -41,8 +41,8 @@ Everything else uses the defaults in the README's [Configuration](README.md#conf
 | URL | Expect |
 |---|---|
 | `/healthz` | `{"ok":true}`. Render's health check polls this path. |
-| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, `trust_proxy: 2`, and the rate limits above under `config` |
-| `/readyz?deep=1` | Also `"ai_service": "ok"`: the API key works and the Anthropic API is reachable. This check uses no tokens and is cached for 60 seconds. |
+| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, and the data dates. No configuration is shown here. |
+| `/readyz?deep=1` | Also `"ai_service": "ok"`: the API key works and the Anthropic API is reachable. This check uses no tokens and is cached for 60 seconds. Also shows `trust_proxy: 2` and, under `config`, the model, effort and the rate limits above. |
 
 ```bash
 curl -s https://know-your-district.onrender.com/readyz?deep=1
