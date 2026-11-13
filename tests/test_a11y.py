@@ -329,7 +329,9 @@ def test_axe_map(browser, base_url):
 def test_map_low_reliability_is_hatched_not_color_only(browser, base_url):
     page = _map_page(browser, base_url, viewport={"width": 1280, "height": 900})
     page.select_option("#map-metric", "limited_english_household_rate")
-    page.wait_for_function("() => document.querySelectorAll('#map-hatches path').length > 0")
+    # Wait for the new measure itself: the default measure already has hatches, so waiting for
+    # "some hatches" could count the old table's rows against the new map's hatches.
+    page.wait_for_function("() => document.getElementById('map-caption').textContent.startsWith('Limited-English')")
     flagged = page.locator("#map-table tbody tr.flag").count()
     assert page.locator("#map-hatches path").count() == flagged
     label = page.get_attribute("#map-districts path.district", "aria-label")
