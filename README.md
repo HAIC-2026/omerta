@@ -16,7 +16,7 @@ Open **Sources** under any answer to see the table, year and source link behind 
 
 **2. Open the [district map](https://know-your-district.onrender.com/map).** Choose a measure to shade the districts. Hatched districts have low-reliability estimates. A sortable table is the accessible alternative to the map. Select a district to put a question about it in the chat box, then press **Ask**.
 
-**3. Open a one-page profile:** [State Senate District 12](https://know-your-district.onrender.com/district/senate/12/profile). It's print-ready, built straight from the data with no AI involved, and includes the district's legislator with the source and date.
+**3. Open a one-page profile:** [State Senate District 12](https://know-your-district.onrender.com/district/senate/12/profile). It's print-ready, built straight from the data with no AI involved, and includes the district's legislator with the source and date. Any district's profile is one click from the chat page (under **Build a question**) and from each row of the map's table.
 
 The [About page](https://know-your-district.onrender.com/about) explains the sources, how answers are checked, and the limitations.
 
@@ -28,7 +28,7 @@ An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan s
 - **District map:** shade districts by any measure, with a sortable table alternative. Select a district to prefill a question about it in the chat.
 - **One-page profiles:** a print-ready page for any district, including its serving legislator with source and fetch date, built straight from the data with no AI involved.
 - **Assistance programs:** official facts about SNAP, Med-QUEST, WIC and others, framed as "may qualify, confirm with the agency".
-- **Legislators:** which district a legislator represents, and who represents a district, from the member listings on capitol.hawaii.gov. Names are as written there; party is not recorded. Every legislator shown, in chat answers, under them in the UI, and on the one-page profile, comes with the note "as listed on capitol.hawaii.gov on November 10, 2026, before the Nov 3, 2026 general election results took effect". When a name isn't found, the answer says the roster may predate the election, not just "not found".
+- **Legislators:** which district a legislator represents, and who represents a district, from the member listings on capitol.hawaii.gov. Names are as written there; party is not recorded. Every legislator shown, in chat answers, under them in the UI, and on the one-page profile, comes with the note "as listed on capitol.hawaii.gov on November 10, 2026, a listing that does not reflect the Nov 3, 2026 general election". When a name isn't found, the answer says the roster may predate the election, not just "not found".
 - **About:** `/about` explains the sources, the grounding guarantee and the limitations.
 
 ## Architecture
@@ -100,6 +100,8 @@ The model never reads the data files directly. It calls the tools, and the tools
 6. **The live guardrail suite uses the same function**, plus question-specific checks. It caught the model computing a confidence range itself, which led to the tools providing `range_display`. The web layer also marks the low-reliability values an answer states, so the UI can flag them visibly.
 
 ## Run it
+
+To evaluate, you don't need to install anything: use the [live demo](https://know-your-district.onrender.com). To run it yourself you need Python 3.12 and, for chat only, your own Anthropic API key. No database or other service is needed.
 
 ```
 python -m venv .venv
@@ -176,7 +178,36 @@ Hosted on Render at https://know-your-district.onrender.com: one always-on Pytho
 - **Prompt caching:** every model request has two cache breakpoints, the system prompt and the last block of the newest message (a question or a batch of tool results). Each call writes the conversation so far, and the next call in the same conversation (the tool round-trip or a follow-up question) reads it back, earlier tool results included, at the cache-read price. The marker is added when the request is sent and never stored, so the history never carries more than one. In the log, a healthy follow-up shows most of its prompt under `cache_read_input_tokens` and only the new turn under `cache_creation_input_tokens`. Cache entries last 5 minutes from their last use, so a follow-up asked after a longer pause pays to write the conversation again.
 - **Daily cap:** `RATE_LIMIT_GLOBAL_PER_DAY` (default 500) stops chat for everyone once the day's questions are used, with a friendly message pointing to the map and profiles.
 - **Conversations are held on the server.** The browser sends only a random session ID and its new question; it never sends earlier answers, so a client can't plant text in the model's history. Each session keeps the full conversation (including tool calls and tool results) in memory for 60 minutes without activity (`SESSION_TTL_MINUTES`), up to `SESSION_MAX` sessions. Grounding checks use every tool result from the session, so a follow-up can restate an earlier figure. Each answer's Sources panel lists the lookups made for it plus any earlier lookup in the conversation whose result supports a number or fact the answer states (a distinctive number, a legislator or a program; district numbers and years alone don't count), with its citations and source links, labelled "from an earlier lookup in this conversation". An unknown or expired session ID starts a new conversation, and the UI says so. A server restart ends all conversations.
-- **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts. Model output is rendered with DOM APIs, never `innerHTML`. `POST /chat` bodies over 16 KB are rejected with a JSON `413` before they are parsed. A link can prefill a question but never send one.
+- **Security:** the API key stays on the server. The pages run under a strict content security policy with no inline scripts, plus HSTS, `nosniff`, no-referrer and frame-blocking headers. Model output is rendered with DOM APIs, never `innerHTML`. `POST /chat` bodies over 16 KB are rejected with a JSON `413` before they are parsed. A link can prefill a question but never send one. There are no accounts, cookies or analytics.
+
+## Third-party services, AI models and data
+
+Everything the live demo needs at review time is the Render service and the Anthropic API. The data sources are read only by the build scripts; their results are committed in `data/`, so the app doesn't call them while it runs.
+
+| What | Used for | Needed while the app runs? |
+|---|---|---|
+| [Anthropic Claude API](https://docs.anthropic.com), model `claude-sonnet-5-5` | Writes chat answers from tool results. Questions and tool results are sent to it. | Yes, for chat only. The map, profiles and `/about` work without it. |
+| [Render](https://render.com) (Starter web service) | Hosts the live demo | Yes |
+| [U.S. Census Bureau API](https://www.census.gov/data/developers/data-sets/acs-5year.html), ACS 2020–2024 5-year (and the ACS 2023 5-year release for the archived comparison) | District measures and margins of error | No (`scripts/pull_acs.py`) |
+| Census cartographic boundary files, 2022 | District shapes on the map | No (`scripts/build_map.py`) |
+| [2021 Reapportionment Commission final report](https://elections.hawaii.gov/wp-content/uploads/2021-Reapportionment-Commission-Final-Report-952-pages-February-25-2022.pdf), Hawaiʻi Office of Elections | Areas each district covers; permanent-resident population | No (`scripts/build_district_context.py`) |
+| [capitol.hawaii.gov](https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H) member listings | Legislator roster | No (`scripts/fetch_legislators.py`) |
+| Official agency pages on humanservices.hawaii.gov, medquest.hawaii.gov, health.hawaii.gov, hpha.hawaii.gov, dod.hawaii.gov, hawaiipublicschools.org, elderlyaffairs.com and benefits.va.gov | The 10 assistance programs' quoted facts | No (`scripts/verify_programs.py`) |
+
+Open-source libraries: FastAPI, Uvicorn, the Anthropic Python SDK and python-dotenv at runtime ([requirements.txt](requirements.txt)); pytest, Playwright, axe-core and the build scripts' parsers for development ([requirements-dev.txt](requirements-dev.txt)). The browser UI uses no framework, CDN, font or analytics service. Code is under the [MIT License](LICENSE).
+
+## Known limitations
+
+- **The legislator roster doesn't reflect the November 3, 2026 general election.** It was fetched on November 10, 2026, when capitol.hawaii.gov still listed members for the 2026 regular session. Every name is shown with that note. Re-running `scripts/fetch_legislators.py` once the site lists the new Legislature updates it.
+- **Census figures are survey estimates, not counts.** Small districts and small groups have large margins of error. Values whose margin of error is more than 30% of the estimate are flagged, not hidden.
+- **12 measures and 10 programs only.** No unemployment, crime, school results, trends over time or areas smaller than a district. The assistant says so when asked and names where that data lives.
+- **Program facts are a snapshot** quoted from agency pages and re-checked on 2026-11-07. Income limits and waiting lists change; the tool never says someone is eligible.
+- **The grounding check verifies numbers, names, programs, caveats and eligibility wording, not every sentence.** An answer that passes can still be worded badly. An answer that fails after one retry is shown with a "Not verified" warning rather than blocked.
+- **Chat depends on the Anthropic API and a spending cap.** The demo stops answering after 500 questions in 24 hours, or if the API is down or out of credit. The map and profiles keep working.
+- **Answers arrive all at once (no streaming)** and can take up to a minute for a question that needs several lookups.
+- **One server process, memory only.** Conversations and rate limits are lost on a restart or deploy, a conversation holds 10 questions, and the app can't scale past one instance without moving that state to a shared store.
+- **The map draws 2022 boundary files** (the Census Bureau reports no change for Hawaiʻi since) and leaves out the Northwestern Hawaiian Islands at map scale.
+- **English only**, with Hawaiian place names spelled with ʻokina and kahakō. The last live guardrail run in `reports/` predates the switch to the 2024 data (see [Tests](#tests)).
 
 ## Data
 
@@ -186,7 +217,6 @@ Hosted on Render at https://know-your-district.onrender.com: one always-on Pytho
 | `data/district_context.json` | 2021 Reapportionment Commission Final Report and Plan (Office of Elections) | Areas covered (Appendix D) and permanent-resident population (Tables 1–10), with page citations. |
 | `data/programs.json` | Official agency pages | 10 programs, every fact with a verbatim quote and verification date. |
 | `data/district_shapes.json` | Census 2022 cartographic boundary files (from TIGER/Line) | Simplified to 73 KB. The Northwestern Hawaiian Islands are not drawn at map scale. |
-
 | `data/legislators.json` | Hawaiʻi State Legislature member listings ([House](https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H), [Senate](https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S)), fetched 2026-11-10 (UTC) | Name as written on the site (party suffix removed), chamber, district, official profile URL, source URL, fetch date, and the site's own status text ("Appointed 08/09/2026", "Term of Office Ended: 06/30/2026"). The site says "(Showing Representatives/Senators for the 2026 regular session)" and doesn't mention the November 3, 2026 general election, so the file is marked **pre-election** membership. Two districts list a member whose term ended (House 28, Senate 18); they are kept with `serving: false`. No party affiliation. |
 | `data/archive/districts_acs2023.json` | The previous release (ACS 2023 5-year, 2022 districts) | Kept for comparison; `reports/acs_2023_vs_2024.json` lists every value old vs new and the 31 low-reliability flags that changed (12 newly flagged, 19 no longer flagged). |
 
