@@ -209,7 +209,8 @@ def test_rescore_of_saved_live_run_matches_report():
     import json
     from pathlib import Path
     from tests.guardrail_checks import rescore_saved_answers
-    p = Path(__file__).resolve().parent.parent / "reports" / "guardrail_report.json"
+    # The first live run (ACS 2023 data, 7/10) and its offline re-score, kept for the record.
+    p = Path(__file__).resolve().parent.parent / "reports" / "guardrail_report_acs2023.json"
     report = json.loads(p.read_text(encoding="utf-8"))
     if "rescore" not in report:
         pytest.skip("report has no rescore section")

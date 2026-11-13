@@ -207,7 +207,7 @@ Open-source libraries: FastAPI, Uvicorn, the Anthropic Python SDK and python-dot
 - **Answers arrive all at once (no streaming)** and can take up to a minute for a question that needs several lookups.
 - **One server process, memory only.** Conversations and rate limits are lost on a restart or deploy, a conversation holds 10 questions, and the app can't scale past one instance without moving that state to a shared store.
 - **The map draws 2022 boundary files** (the Census Bureau reports no change for Hawaiʻi since) and leaves out the Northwestern Hawaiian Islands at map scale.
-- **English only**, with Hawaiian place names spelled with ʻokina and kahakō. The last live guardrail run in `reports/` predates the switch to the 2024 data (see [Tests](#tests)).
+- **English only**, with Hawaiian place names spelled with ʻokina and kahakō. The last live guardrail run (2026-11-13, on the current 2024 data) passed 12 of 12 questions; that is a small fixed set, not proof that every possible answer is grounded, which is why every answer is also checked at runtime (see [Tests](#tests)).
 
 ## Data
 
@@ -245,4 +245,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 438 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, made on the ACS 2023 5-year data; re-scoring replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 438 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, 2026-11-13, on the current ACS 2020–2024 5-year data: 12/12 questions passed on `claude-sonnet-5-5`; latency per question p50 4.8 s, p95 15.4 s), `guardrail_report_acs2023.json` (the first live run, on the ACS 2023 5-year data: 7/10, or 9/10 after fixing the checker; an offline test replays it against the archived file) and `acs_2023_vs_2024.json`.

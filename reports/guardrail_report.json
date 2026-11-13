@@ -1,32 +1,40 @@
 {
   "run": {
-    "generated_at": "2026-11-07T17:10:14+00:00",
+    "generated_at": "2026-11-13T19:22:55+00:00",
     "model": "claude-sonnet-5-5",
     "effort": "medium",
+    "dataset": "ACS 2020–2024 5-year",
     "max_tokens_per_response": 4096,
     "max_tool_calls_per_question": 5,
     "checks": [
       "Every number in the answer appears in that question's tool results (rounding to the stated precision allowed; numbers restated from the question allowed)",
       "Every low-reliability value stated has its caveat next to it",
       "Every program named comes from a tool result; eligibility is never stated as fact; program answers use 'may qualify / confirm with the agency' framing and cite the agency source",
-      "Answers with Census data cite 'ACS 2023 5-year'",
+      "Answers with Census data cite 'ACS 2020–2024 5-year'",
       "Per question: House 46 gap states and cites the reapportionment population without calling the gap a count of military members; program questions call the program tools; out-of-scope is declined; invalid district gets the valid range"
     ],
-    "questions_passing": "7/10"
+    "questions_passing": "12/12"
   },
   "totals": {
-    "input_tokens": 74556,
-    "output_tokens": 7800,
-    "cache_creation_input_tokens": 4118,
-    "cache_read_input_tokens": 74124,
-    "requests": 19,
-    "total_tokens": 160598
+    "input_tokens": 72,
+    "output_tokens": 9259,
+    "cache_creation_input_tokens": 82330,
+    "cache_read_input_tokens": 119088,
+    "requests": 24,
+    "total_tokens": 210749,
+    "latency_ms": {
+      "count": 12,
+      "p50_ms": 4832,
+      "p95_ms": 15395,
+      "min_ms": 2547,
+      "max_ms": 15395
+    }
   },
   "questions": [
     {
       "id": "population_gap",
       "question": "House District 46 has about twice the population of a typical House district. Why is that?",
-      "answer": "**The short answer:** The two population figures measure different things. The ACS counts everyone living in the district. The Reapportionment Commission drew the district using permanent residents only. The sources don't give an exact cause for the gap, but the Commission's report does say it removed non-permanent military and student residents.\n\n**The numbers**\n\n| Measure | House District 46 |\n|---|---|\n| ACS total population | 50,404 ± 1,940 (range 48,464 to 52,344) |\n| Commission permanent resident population | 26,984 |\n| ACS minus Commission figure | 23,420 ± 1,940 |\n| Median of House districts (ACS) | 27,365 |\n\nHD 46 has the highest ACS population of the 51 House districts with an estimate. The lowest is District 4, at 23,550 ± 2,183.\n\nThe Commission's figure of 26,984 is close to its statewide target of 26,432. The report lists a deviation of 2.09% statewide and 0.76% against the Oʻahu target of 26,780. So by the Commission's count, HD 46 is a typical-sized district.\n\n**What the report says about the gap**\n\nThe Commission removed 107,217 non-permanent residents from the U.S. Census population before it drew districts. The report describes them as \"non-permanent military and student residents.\" The ACS doesn't make that adjustment.\n\nHD 46 has a large Armed Forces presence in the ACS data:\n- People in the Armed Forces (age 16 and over): 10,544 ± 581\n- Share of the population age 16 and over in the Armed Forces: 27.49% ± 1.19%\n\nThese two measures are not the same thing, so the 23,420 difference is not a count of military members or students. The ACS figure also differs from the Commission's in year and method.\n\n**Areas covered:** The report describes HD 46 as including a portion of Waipio Acres, Wahiawā, Whitmore Village, a portion of Waialua, and Mokuleʻia, all on Oʻahu.\n\n**Sources**\n- U.S. Census Bureau, ACS 2023 5-year, Table B01003; 2022 district boundaries\n- U.S. Census Bureau, ACS 2023 5-year, Table B23025; 2022 district boundaries\n- State of Hawaiʻi 2021 Reapportionment Commission, Final Report and Reapportionment Plan, Table 9, p. 19 (PDF p. 27), and Table 1, p. 16 (PDF p. 24). Population basis: p. 8 and Executive Summary p. ii. Boundary description: Appendix D, p. D-031 (PDF p. 905).",
+      "answer": "House District 46 has the largest ACS population of any House district. The tools don't give a cause, but the Commission's report explains part of the gap.\n\n**ACS population (survey estimate of everyone living in the district)**\n- District 46: 50,178 ± 2,164 (range 48,014 to 52,342)\n- Median of the 51 House districts: 27,240\n- Smallest district (District 4): 24,022 ± 1,972\n\nU.S. Census Bureau, ACS 2020–2024 5-year, Table B01003; 2024 district boundaries.\n\n**Commission's population for drawing the district**\n- Permanent resident population: 26,984\n- Statewide House target: 26,432\n- Oʻahu island-unit target: 26,780\n\nThe ACS and Commission figures are different measures, and the tool says they aren't expected to match. The Commission's figure comes from a permanent resident population base. Its report says that base removed non-permanent military and student residents from the U.S. Census population. The tool shows the ACS figure above the Commission figure by 23,194 ± 2,164. That difference also reflects different years and methods. It is not a count of military members or students.\n\n**Armed Forces context**\n- People in the Armed Forces (population 16 years and over): 10,243 ± 535\n- Share of the population 16 years and over in the Armed Forces: 26.59% ± 0.95%\n\nU.S. Census Bureau, ACS 2020–2024 5-year, Table B23025; 2024 district boundaries.\n\n**Areas covered**\nThe district covers a portion of Waipio Acres, Wahiawā, Whitmore Village, a portion of Waialua, and Mokuleʻia, on Oʻahu. (State of Hawaiʻi 2021 Reapportionment Commission, Final Report and Reapportionment Plan, Appendix D, p. D-031.)\n\n**What the data supports**\nThe Commission drew District 46 at about its target using permanent residents only. The ACS counts everyone living there, and the district has a large Armed Forces population. The tools don't say how much of the gap comes from military housing, students, or anything else. The report's statement is general to the whole state and doesn't break out District 46. A breakdown of the extracted non-permanent residents by district would need the Commission's block-level data.",
       "tools": [
         {
           "name": "get_district_profile",
@@ -51,29 +59,44 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 46,
+      "numbers_checked": 34,
+      "numbers_supported": 34,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
-      "failures": [
-        "presents the population gap as a count of military members or students"
-      ],
-      "passed": false,
+      "failures": [],
+      "passed": true,
       "usage": {
-        "input_tokens": 11267,
-        "output_tokens": 1005,
-        "cache_creation_input_tokens": 4118,
-        "cache_read_input_tokens": 4118,
+        "input_tokens": 6,
+        "output_tokens": 888,
+        "cache_creation_input_tokens": 16951,
+        "cache_read_input_tokens": 5225,
         "requests": 2,
-        "total": 20508
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 145,
+            "cache_read": 0,
+            "cache_creation": 5225
+          },
+          {
+            "input": 2,
+            "output": 743,
+            "cache_read": 5225,
+            "cache_creation": 11726
+          }
+        ],
+        "total": 23070
+      },
+      "latency_ms": 9104
     },
     {
       "id": "programs",
       "question": "What assistance programs might help a family of 4 on Oʻahu with a child under 5?",
-      "answer": "Here are programs from the tool that a family of 4 on Oʻahu with a child under 5 may qualify for. Only the administering agency can decide eligibility, so confirm with each one.\n\n**Food and nutrition**\n- **WIC** (Hawaiʻi State Department of Health, WIC Services Branch). It serves pregnant, breastfeeding or postpartum women, and infants and children under 5 who meet income guidelines and have a medical or nutritional risk. Proof of Quest, TANF or food stamp benefits meets WIC's income requirement. To apply, contact a Hawaiʻi WIC clinic. Source: https://health.hawaii.gov/wic/program_details/ (verified 2026-11-07).\n- **SNAP** (DHS Benefit, Employment & Support Services Division). Published income standards for a household of 4, effective 10/1/2026:\n  - Gross monthly income at 130% of the Federal Poverty Level (FPL): $4,112.\n  - Gross monthly income at 200% of FPL (BBCE): $6,326.\n  - Net monthly income at 100% of FPL: $3,163.\n  - The agency says its chart is for reference only, and an intake worker makes the final determination.\n  - You can apply online, by mail, or in person. The information line is 1-855-643-1643.\n  - Source: https://humanservices.hawaii.gov/bessd/snap/ (verified 2026-11-07).\n- **Free and Reduced-Price School Meals** (Department of Education). For school year 2026-27, free meals extend to households at or below 300% of the federal poverty level (Act 139, SLH 2025). Apply through EZMealApp. This applies once a child is in a public school. Source: https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/ (verified 2026-11-07).\n\n**Health coverage**\n- **Med-QUEST (Hawaiʻi Medicaid)**. It has separate programs for children under 19, for parents or caretaker relatives living with a child under 19, and for adults 19 to under 65. Apply online through KOLEA, or by phone, mail or fax. Source: https://medquest.hawaii.gov/en/members-applicants/get-started/programs (verified 2026-11-07).\n\n**Child care and cash**\n- **Child Care Subsidy** (DHS Child Care Program). It covers children under 13 with parents or caretakers who are working, in school, or in job training. Gross monthly income must not exceed 85% of the State Median Income for the family size. The tool does not give a dollar figure. Apply online or with the DHS 911 form. Source: https://humanservices.hawaii.gov/bessd/ccch-subsidies/ (verified 2026-11-07).\n- **TANF/TAONF** (DHS). It provides temporary monthly cash assistance to families with a related adult and a minor child. There is a 60-month lifetime limit, and families must take part in the First-To-Work Program. The published figures are for a family of three, not four: gross income below 185% of the 2006 FPL ($2,941) and adjusted net income below 100% of the 2006 FPL ($1,590). Source: https://humanservices.hawaii.gov/bessd/tanf/ (verified 2026-11-07).\n\n**Housing and energy**\n- **Housing Choice Voucher (Section 8)** (Hawaiʻi Public Housing Authority, Oʻahu only). When verified, the HPHA said all waiting lists were closed. Source: https://hpha.hawaii.gov/programs-and-resources/voucher-programs (verified 2026-11-07).\n- **H-HEAP** (energy bill help, applied for through the Community Action Agency). It makes a one-time payment toward an electric or gas bill.\n  - Energy Crisis Intervention is for households with a disconnect notice. It is accepted year-round, but monthly approvals are limited.\n  - Energy Credit applications are accepted only June 1–30.\n  - Households may receive only one type of payment per program year (October 1–September 30).\n  - Source: https://humanservices.hawaii.gov/bessd/liheap/ (verified 2026-11-07).\n\nThe tool also returned Kūpuna Care (age 60 or older) and Veterans' Services help. Both depend on facts you haven't stated, such as a household member's age or veteran status.\n\nIf you tell me whether anyone in the household is pregnant, a veteran, or age 60 or older, I can check those programs more closely.",
+      "answer": "A family of 4 on Oʻahu with a child under 5 may qualify for the programs below. Only the administering agency can decide eligibility, so confirm with each one.\n\n**Most relevant**\n\n- **Special Supplemental Nutrition Program for Women, Infants and Children (WIC)** (Hawaiʻi State Department of Health, WIC Services Branch)\n  - It serves pregnant, breastfeeding or postpartum women, and infants and children under age five. They must meet income guidelines and have a medical or nutritional risk.\n  - Proof of Quest, TANF or food stamp benefits meets WIC's income requirement.\n  - To apply, contact a Hawaiʻi WIC clinic.\n- **Supplemental Nutrition Assistance Program (SNAP)** (Department of Human Services (DHS), Benefit, Employment & Support Services Division (BESSD))\n  - For a household of 4, the published gross monthly income standards effective 10/1/2026 are $4,112 (130% of the Federal Poverty Level) and $6,326 (200% Federal Poverty Level (BBCE)).\n  - The net monthly standard is $3,163 (100% Federal Poverty Level).\n  - The agency says its chart is for reference only. An intake worker makes the final determination.\n  - You can apply online, by mail, or in person. The information line is 1-855-643-1643.\n- **Med-QUEST (Hawaiʻi Medicaid)** (DHS, Med-QUEST Division)\n  - It has separate programs for children under 19 and for a parent or caretaker relative living with a child under 19.\n  - You can apply online through KOLEA, by phone, by mail or by fax.\n- **Child Care Subsidy** (DHS, Child Care Program)\n  - It helps with child care costs for a child under 13 whose parents or caretakers are working, in school, or in job training.\n  - Gross monthly income must not exceed 85% of the State Median Income for the family size. The tool did not give a dollar figure.\n  - You can apply online or with the DHS 911 paper form.\n\n**Other programs that may apply**\n\n- **Temporary Assistance for Needy Families (TANF) and Temporary Assistance for Other Needy Families (TAONF)**\n  - These give temporary monthly cash assistance to families with a minor child and a related adult.\n  - The agency's page gives income limits only for a family of three: $2,941 gross and $1,590 adjusted net. They are based on the 2006 federal poverty level. The tool gives no figure for a family of four.\n  - There is a 60-month lifetime limit, and families must take part in the First-To-Work Program.\n- **Free and Reduced-Price School Meals (National School Lunch Program)** (Department of Education)\n  - For school year 2026-27, free meals extend to households at or below 300% of the federal poverty level.\n  - Apply through EZMealApp. This applies once a child is in a public school.\n- **Hawaiʻi Home Energy Assistance Program (H-HEAP, Hawaiʻi's LIHEAP)**\n  - It makes a one-time payment toward an electric or gas bill.\n  - Energy Credit applications are accepted only June 1–30.\n  - Energy Crisis Intervention is for households with a disconnect notice. It is accepted year-round, but monthly approvals are limited.\n  - Apply through your island's Community Action Agency, not DHS offices.\n- **Housing Choice Voucher Program (Section 8), Hawaiʻi Public Housing Authority**\n  - It covers Oʻahu only.\n  - **Time-sensitive:** when verified, the agency said all waiting lists were closed.\n\nThe tool also covers Kūpuna Care (age 60+) and Veterans benefits help. I left them out because you didn't say anyone in the household is 60 or older or a veteran. Tell me if either applies.\n\n**Sources** (all verified 2026-11-07):\n- Hawaiʻi State Department of Health, WIC Services Branch, https://health.hawaii.gov/wic/program_details/\n- DHS BESSD, SNAP, https://humanservices.hawaii.gov/bessd/snap/\n- DHS Med-QUEST Division, https://medquest.hawaii.gov/en/members-applicants/get-started/programs\n- DHS Child Care Program, https://humanservices.hawaii.gov/bessd/ccch-subsidies/\n- DHS BESSD, TANF/TAONF, https://humanservices.hawaii.gov/bessd/tanf/\n- Hawaiʻi State Department of Education, School Food Services Branch, https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/\n- DHS, H-HEAP, https://humanservices.hawaii.gov/bessd/liheap/\n- Hawaiʻi Public Housing Authority, https://hpha.hawaii.gov/programs-and-resources/voucher-programs",
       "tools": [
         {
           "name": "find_programs",
@@ -95,32 +118,44 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 67,
-      "unsupported_numbers": [
-        "19",
-        "65"
-      ],
+      "numbers_checked": 36,
+      "numbers_supported": 36,
+      "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
-      "failures": [
-        "numbers not in tool results: ['19', '65']"
-      ],
-      "passed": false,
+      "failures": [],
+      "passed": true,
       "usage": {
-        "input_tokens": 8406,
-        "output_tokens": 1603,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 1759,
+        "cache_creation_input_tokens": 8301,
+        "cache_read_input_tokens": 10361,
         "requests": 2,
-        "total": 18245
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 100,
+            "cache_read": 5131,
+            "cache_creation": 99
+          },
+          {
+            "input": 2,
+            "output": 1659,
+            "cache_read": 5230,
+            "cache_creation": 8202
+          }
+        ],
+        "total": 20427
+      },
+      "latency_ms": 11828
     },
     {
       "id": "district_programs",
       "question": "Which assistance programs relate to the needs in House District 46?",
-      "answer": "**House District 46: district measures and related assistance programs**\n\nThe district covers a portion of Waipiʻo Acres, Wahiawā, Whitmore Village, a portion of Waialua, and Mokuleʻia on Oʻahu (2021 Reapportionment Commission Final Report, Appendix D, p. D-031).\n\nThese measures show where needs may be concentrated. They don't show who qualifies. Only the agency can decide that, and a household \"may qualify\" only after confirming with it.\n\n**District measures compared with the median of House districts**\n\n| Measure | HD 46 | Median of districts |\n|---|---|---|\n| Poverty rate | 10.32% (± 2.10%) | 9.82% |\n| Households receiving SNAP | 10.33% (± 1.74%); 1,560 (± 271) households | 9.90%; 841 households |\n| Renter households paying 30%+ of income on rent | 71.15% (± 5.18%) | 55.38% |\n| Median age | 28.2 (± 0.7) | 42.6 |\n| Civilian veterans, age 18+ | 3,306 (± 423); 12.25% (± 1.48%) | 1,576; 7.81% |\n\nThe poverty and SNAP rates are close to their medians, and their margins of error are wide. Any difference there may not be meaningful.\n\nSources: U.S. Census Bureau, ACS 2023 5-year, Tables B17001, B22003, B25070, B01002 and B21001; 2022 district boundaries.\n\n**Related programs**\n\n- **SNAP** (food). This is food and nutrition support for qualifying low-income households. You can apply online, by mail, or in person at a DHS processing center. The information line is 1-855-643-1643. (Hawaiʻi DHS BESSD, https://humanservices.hawaii.gov/bessd/snap/, verified 2026-11-07)\n- **Med-QUEST (Hawaiʻi Medicaid)** (health coverage). It has programs for adults, children, parents and caretakers, pregnant people, and aged, blind or disabled individuals. You can apply through KOLEA, by phone, by mail or by fax. (Med-QUEST Division, https://medquest.hawaii.gov/en/members-applicants/get-started/programs, verified 2026-11-07)\n- **WIC**. It serves pregnant, breastfeeding or postpartum women, and infants and children under age 5, who meet income guidelines and have a medical or nutritional risk. You apply by contacting a Hawaiʻi WIC clinic. (Hawaiʻi Department of Health, https://health.hawaii.gov/wic/program_details/, verified 2026-11-07)\n- **H-HEAP** (energy bills). It makes a one-time payment toward an electric or gas bill. You apply through your island's Community Action Agency, not through DHS offices. (Hawaiʻi DHS, https://humanservices.hawaii.gov/bessd/liheap/, verified 2026-11-07)\n- **TANF/TAONF** (cash assistance). This is temporary monthly cash assistance for families with a minor child living with a related adult. TAONF serves families who aren't eligible for TANF because of citizenship status. You can apply online or with the DHS 1240 paper form. (Hawaiʻi DHS BESSD, https://humanservices.hawaii.gov/bessd/tanf/, verified 2026-11-07)\n- **Housing Choice Voucher (Section 8), Hawaiʻi Public Housing Authority** (housing). This is rental assistance for low-income families renting in the private market, and it covers Oʻahu only. When verified, the HPHA said all waiting lists were closed. (https://hpha.hawaii.gov/programs-and-resources/voucher-programs, verified 2026-11-07)\n- **Free and Reduced-Price School Meals** (Hawaiʻi Department of Education). These are free or low-cost lunches for children in public schools. You apply through EZMealApp. (https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/, verified 2026-11-07)\n- **Kūpuna Care** (older adult care). It provides community-based long-term care services so older adults can keep living at home. On Oʻahu, call the Senior Helpline at (808) 768-7700. When verified, the Elderly Affairs Division said most services have waitlists. (https://elderlyaffairs.com/services/eligibility-requirements/, verified 2026-11-07) The district's median age is 28.2, which is lower than the 42.6 median of districts.\n- **Veterans benefits help, Office of Veterans' Services** (veterans). It offers advocacy and help with VA claims for veterans, their families and survivors, plus state benefits such as home tax exemptions for totally disabled veterans. (Hawaiʻi Department of Defense, https://dod.hawaii.gov/ovs/benefits-and-services/, verified 2026-11-07)\n- **Child Care Subsidy** (Hawaiʻi DHS). It helps low-income parents pay for child care so they can work, go to school or train. You can apply online or with the DHS 911 paper form. (https://humanservices.hawaii.gov/bessd/ccch-subsidies/, verified 2026-11-07)\n\n**Context on the district's population**\n\nThe ACS total population is 50,404 (± 1,940). The Commission's permanent resident population is 26,984. These two figures measure different things. The Commission removed non-permanent military and student residents from the U.S. Census population. The tool's stated ACS-minus-reapportionment difference is 23,420 ± 1,940. That is not a count of military members or students. The ACS also shows 10,544 (± 581) people in the Armed Forces, which is 27.49% (± 1.19%) of the population age 16 and over.\n\nSources: U.S. Census Bureau, ACS 2023 5-year, Tables B01003 and B23025; 2021 Reapportionment Commission Final Report, Table 9, p. 19.\n\nIf you tell me about a particular household, such as its size, whether it has children, or whether anyone is a veteran, I can narrow this list.",
+      "answer": "**Programs and House District 46 measures (Oʻahu)**\n\nThese district measures show where needs may be concentrated. They don't show who qualifies. Anyone interested may qualify for a program, and only the administering agency can decide.\n\n**District measures compared with the median of House districts**\n\n| Measure | HD 46 | Median of districts |\n|---|---|---|\n| Share of households that received SNAP/food stamps in the past 12 months | 11.20% (± 2.02%) | 10.13% |\n| Households that received SNAP/food stamps in the past 12 months | 1,693 (± 313) | 951 |\n| Share of people with income below the poverty level | 9.72% (± 2.03%) | 9.72% |\n| Share of renter households paying 30%+ of income on gross rent | 70.39% (± 3.91%) | 54.30% |\n| Median age | 28.6 (± 0.6) | 42.9 |\n| Civilian veterans (18 years and over) | 3,393 (± 453) | 1,584 |\n| Share of civilian population 18+ who are veterans | 12.38% (± 1.54%) | 7.47% |\n\nAll MOEs are at the 90% confidence level. None of these values is flagged low-reliability.\n\nSources:\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B22003; 2024 district boundaries\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B17001; 2024 district boundaries\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B25070; 2024 district boundaries\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B01002; 2024 district boundaries\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B21001; 2024 district boundaries\n\n**Related programs**\n\n- **Food:** Supplemental Nutrition Assistance Program (SNAP), run by DHS BESSD. It gives food and nutrition support to qualifying low-income households. You can apply online, by mail, or in person. It is linked to the SNAP receipt and poverty measures.\n- **Health coverage:** Med-QUEST (Hawaiʻi Medicaid), DHS Med-QUEST Division. It covers adults, children, parents and caretakers, pregnant people, and aged, blind or disabled individuals. You can apply online through KOLEA, by phone, by mail or by fax. It is linked to the poverty measure.\n- **Pregnancy and young children:** Special Supplemental Nutrition Program for Women, Infants and Children (WIC), Department of Health. It serves pregnant, breastfeeding or postpartum women, and children under five. Contact a Hawaiʻi WIC clinic. It is linked to the poverty measure.\n- **Energy bills:** Hawaiʻi Home Energy Assistance Program (H-HEAP, Hawaiʻi's LIHEAP). It makes a one-time payment toward an electric or gas bill. Apply through your island's Community Action Agency, not DHS offices. It is linked to the poverty measure.\n- **Cash assistance:** Temporary Assistance for Needy Families (TANF) and Temporary Assistance for Other Needy Families (TAONF), DHS BESSD. It gives temporary monthly cash to families with a minor child living with a related adult. TAONF serves families not eligible for TANF because of citizenship status. You can apply online or with the DHS 1240 paper form. It is linked to the poverty measure.\n- **Housing:** Housing Choice Voucher Program (Section 8), Hawaiʻi Public Housing Authority. It gives rental assistance to low-income families renting privately, and covers Oʻahu only. **Time-sensitive:** when verified, HPHA said all waiting lists were closed. It is linked to the renter cost burden measure.\n- **School meals:** Free and Reduced-Price School Meals (National School Lunch Program), Department of Education. You apply through EZMealApp. It is linked to the poverty measure.\n- **Older adult care:** Kūpuna Care, Executive Office on Aging. On Oʻahu it is run by the City and County of Honolulu Elderly Affairs Division. It gives community-based long-term care services to older adults. Call the Senior Helpline at (808) 768-7700. **Time-sensitive:** when verified, the agency said most services have waitlists. It is linked to the median age measure.\n- **Veterans:** Veterans benefits help, Hawaiʻi Office of Veterans' Services (OVS). It helps with VA claims for veterans, their families and survivors, and covers some state benefits. It is linked to the veteran measures.\n- **Child care:** Child Care Subsidy, DHS Child Care Program. It helps low-income parents pay for DHS-approved child care. You can apply online or with the DHS 911 paper form. It is linked to the poverty measure.\n\nAll program details were verified on 2026-11-07. Each program's source page is cited below.\n\nProgram sources:\n- Hawaiʻi Department of Human Services, Benefit, Employment & Support Services Division (BESSD), Supplemental Nutrition Assistance Program (SNAP), https://humanservices.hawaii.gov/bessd/snap/ (verified 2026-11-07)\n- Hawaiʻi Department of Human Services, Med-QUEST Division, Med-QUEST (Hawaiʻi Medicaid), https://medquest.hawaii.gov/en/members-applicants/get-started/programs (verified 2026-11-07)\n- Hawaiʻi State Department of Health, WIC Services Branch, Special Supplemental Nutrition Program for Women, Infants and Children (WIC), https://health.hawaii.gov/wic/program_details/ (verified 2026-11-07)\n- Hawaiʻi Department of Human Services; applications handled by each island's Community Action Agency, Hawaiʻi Home Energy Assistance Program (H-HEAP, Hawaiʻi's LIHEAP), https://humanservices.hawaii.gov/bessd/liheap/ (verified 2026-11-07)\n- Hawaiʻi Department of Human Services, Benefit, Employment & Support Services Division, Temporary Assistance for Needy Families (TANF) and Temporary Assistance for Other Needy Families (TAONF), https://humanservices.hawaii.gov/bessd/tanf/ (verified 2026-11-07)\n- Hawaiʻi Public Housing Authority (HPHA), Housing Choice Voucher Program (Section 8), Hawaiʻi Public Housing Authority, https://hpha.hawaii.gov/programs-and-resources/voucher-programs (verified 2026-11-07)\n- Hawaiʻi State Department of Education, School Food Services Branch, Free and Reduced-Price School Meals (National School Lunch Program), https://hawaiipublicschools.org/school-services/school-food-services/free-and-reduced-priced-meals-program/ (verified 2026-11-07)\n- Hawaiʻi Executive Office on Aging, through county Area Agencies on Aging, Kūpuna Care, https://elderlyaffairs.com/services/eligibility-requirements/ (verified 2026-11-07)\n- Hawaiʻi Department of Defense, Office of Veterans' Services; federal benefits from the U.S. Department of Veterans Affairs, Veterans benefits help, Hawaiʻi Office of Veterans' Services (OVS), https://dod.hawaii.gov/ovs/benefits-and-services/ (verified 2026-11-07)\n- Hawaiʻi Department of Human Services, Child Care Program, Child Care Subsidy, https://humanservices.hawaii.gov/bessd/ccch-subsidies/ (verified 2026-11-07)",
       "tools": [
         {
           "name": "district_program_context",
@@ -129,43 +164,52 @@
             "district": 46
           },
           "is_error": false
-        },
-        {
-          "name": "get_district_profile",
-          "input": {
-            "chamber": "house",
-            "district": 46
-          },
-          "is_error": false
         }
       ],
-      "tool_calls": 2,
+      "tool_calls": 1,
       "models": [
         "claude-sonnet-5-5",
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 88,
+      "numbers_checked": 89,
+      "numbers_supported": 89,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 23980,
-        "output_tokens": 2207,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 2732,
+        "cache_creation_input_tokens": 14452,
+        "cache_read_input_tokens": 10352,
         "requests": 2,
-        "total": 34423
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 72,
+            "cache_read": 5131,
+            "cache_creation": 90
+          },
+          {
+            "input": 2,
+            "output": 2660,
+            "cache_read": 5221,
+            "cache_creation": 14362
+          }
+        ],
+        "total": 27542
+      },
+      "latency_ms": 15395
     },
     {
       "id": "low_reliability",
       "question": "What share of households in House District 51 are limited-English speaking?",
-      "answer": "In House District 51, **0.99% ± 0.91%** of households are limited-English speaking. The 90% confidence range is 0.08% to 1.90%.\n\n**Reliability warning:** This estimate has low reliability. The margin of error is 92% of the estimate. Treat the figure as approximate, and don't draw firm conclusions from small differences.\n\nFor context, the median across House districts is 3.72%. That median comes from district estimates and is not a statewide ACS figure. The district values run from 0.98% (District 48, ± 0.65%, also low reliability) to 27.20% (District 28, ± 2.65%). Districts 51 and 48 are very close, and their margins of error overlap, so the difference between them may not be meaningful.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table C16002; 2022 district boundaries.",
+      "answer": "In House District 51, **0.65%** of households are limited-English speaking (± 0.72%, 90% confidence level). The range is 0.00% to 1.37%.\n\n**Low reliability:** The margin of error is 111% of the estimate. Treat this figure as approximate and avoid drawing firm conclusions from small differences.\n\nFor context, the median of House district estimates is 3.12%. District 51 has the lowest estimate of the House districts (51 districts have an estimate). The highest is District 28, at 27.30% (± 3.32%). Because District 51's margin of error is so large, its exact rank may not be meaningful.\n\nSource: U.S. Census Bureau, ACS 2020–2024 5-year, Table C16002; 2024 district boundaries. The measure is labeled \"Share of households that are limited English speaking.\"",
       "tools": [
         {
           "name": "compare_districts",
@@ -193,61 +237,97 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 19,
+      "numbers_checked": 18,
+      "numbers_supported": 18,
       "unsupported_numbers": [],
       "flagged_values_stated": [
-        "Share of households that are limited English speaking (district 51) = 0.99",
-        "Share of households that are limited English speaking (district 48) = 0.98"
+        "Share of households that are limited English speaking (district 51) = 0.65"
       ],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 2862,
-        "output_tokens": 465,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 452,
+        "cache_creation_input_tokens": 2786,
+        "cache_read_input_tokens": 10352,
         "requests": 2,
-        "total": 11563
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 183,
+            "cache_read": 5131,
+            "cache_creation": 90
+          },
+          {
+            "input": 2,
+            "output": 269,
+            "cache_read": 5221,
+            "cache_creation": 2696
+          }
+        ],
+        "total": 13596
+      },
+      "latency_ms": 5980
     },
     {
       "id": "out_of_scope",
       "question": "What is the unemployment rate in House District 10?",
-      "answer": "I can't give you the unemployment rate for House District 10. None of my tools include unemployment. They cover these ACS measures for each district:\n\n- Total population\n- Median age\n- Median household income\n- Poverty rate\n- Veterans (count and rate)\n- Armed Forces (count and rate)\n- SNAP households (count and rate)\n- Limited-English households\n- Renter cost burden\n\n**Where to find it:**\n- ACS Table S2301 (Employment Status) or B23025, using the State Legislative District geography on the Census Bureau's data site (data.census.gov).\n- The Hawaiʻi Department of Business, Economic Development & Tourism (DBEDT) or the Department of Labor and Industrial Relations (DLIR). They publish labor force data, though usually by county or island instead of by legislative district.\n\nI can pull the profile for House District 10 on any of the measures above. That could include poverty rate, median household income, or SNAP participation, which are sometimes used alongside employment data. Want me to do that?",
-      "tools": [],
-      "tool_calls": 0,
+      "answer": "I can't give you an unemployment rate for House District 10. None of the tools report it. The employment table they draw on (B23025) is used only for these two measures:\n\n- People in the Armed Forces (population 16 years and over)\n- Share of the population 16 years and over in the Armed Forces\n\nThe other measures I can report for a district are:\n- Total population\n- Median age\n- Median household income (2024 inflation-adjusted dollars)\n- Share of people with income below the poverty level (of population for whom poverty status is determined)\n- Share of renter households paying 30%+ of income on gross rent (excludes households where the percentage is not computed)\n- Share of households that received SNAP/food stamps in the past 12 months\n- Households that received SNAP/food stamps in the past 12 months\n- Share of households that are limited English speaking\n- Civilian veterans (18 years and over)\n- Share of civilian population 18+ who are veterans\n\nFor unemployment, you could use the ACS employment status table (B23025) at the district level, or the Hawaiʻi Department of Labor and Industrial Relations or DBEDT. Their figures are mostly published for the state and counties, not for legislative districts.\n\nI can pull any of the measures above for House District 10 if that would help.",
+      "tools": [
+        {
+          "name": "list_available_metrics",
+          "input": {},
+          "is_error": false
+        }
+      ],
+      "tool_calls": 1,
       "models": [
+        "claude-sonnet-5-5",
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 2,
+      "numbers_checked": 10,
+      "numbers_supported": 10,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
-      "unsourced_programs": [
-        "SNAP"
-      ],
+      "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
-      "failures": [
-        "programs named without a tool result: ['SNAP']"
-      ],
-      "passed": false,
+      "failures": [],
+      "passed": true,
       "usage": {
-        "input_tokens": 90,
-        "output_tokens": 329,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 4118,
-        "requests": 1,
-        "total": 4537
-      }
+        "input_tokens": 6,
+        "output_tokens": 430,
+        "cache_creation_input_tokens": 1681,
+        "cache_read_input_tokens": 10348,
+        "requests": 2,
+        "per_call": [
+          {
+            "input": 4,
+            "output": 30,
+            "cache_read": 5131,
+            "cache_creation": 86
+          },
+          {
+            "input": 2,
+            "output": 400,
+            "cache_read": 5217,
+            "cache_creation": 1595
+          }
+        ],
+        "total": 12465
+      },
+      "latency_ms": 4965
     },
     {
       "id": "invalid_district",
       "question": "What's the median household income in House District 60?",
-      "answer": "There is no House District 60. Hawaiʻi has State House districts 1 through 51.\n\nDid you mean a different House district? Or did you mean a State Senate district? The Senate has fewer districts, so I can check whether 60 is valid there. Tell me which district you want and I'll look up its median household income.",
+      "answer": "There is no House District 60. Hawaiʻi's State House districts are numbered 1 through 51.\n\nIf you meant a different House district, tell me the number and I'll look up its median household income. The State Senate has fewer districts, so if you meant a Senate district, give me that number instead.",
       "tools": [
         {
           "name": "compare_districts",
@@ -267,27 +347,44 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 4,
+      "numbers_checked": 3,
+      "numbers_supported": 3,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 476,
-        "output_tokens": 199,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 191,
+        "cache_creation_input_tokens": 387,
+        "cache_read_input_tokens": 10345,
         "requests": 2,
-        "total": 8911
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 101,
+            "cache_read": 5131,
+            "cache_creation": 83
+          },
+          {
+            "input": 2,
+            "output": 90,
+            "cache_read": 5214,
+            "cache_creation": 304
+          }
+        ],
+        "total": 10929
+      },
+      "latency_ms": 2547
     },
     {
       "id": "single_value",
       "question": "What is the median household income in Senate District 12?",
-      "answer": "The median household income in State Senate District 12 is **$74,157 ± $3,134**. The range is $71,023 to $77,291 at a 90% confidence level. The margin of error is 4.2% of the estimate. The figure is in 2023 inflation-adjusted dollars, and the tool did not flag it as low reliability.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B19013; 2022 district boundaries.",
+      "answer": "The median household income in State Senate District 12 is **$75,933** (± $3,486). The figure is in 2024 inflation-adjusted dollars. The margin of error is at the 90% confidence level, and it is 4.6% of the estimate. The range is $72,447 to $79,419.\n\nThe estimate is not flagged as low reliability.\n\nSource: U.S. Census Bureau, ACS 2020–2024 5-year, Table B19013; 2024 district boundaries.",
       "tools": [
         {
           "name": "compare_districts",
@@ -307,27 +404,44 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 11,
+      "numbers_checked": 12,
+      "numbers_supported": 12,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 1091,
-        "output_tokens": 251,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 257,
+        "cache_creation_input_tokens": 1009,
+        "cache_read_input_tokens": 10347,
         "requests": 2,
-        "total": 9578
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 102,
+            "cache_read": 5131,
+            "cache_creation": 85
+          },
+          {
+            "input": 2,
+            "output": 155,
+            "cache_read": 5216,
+            "cache_creation": 924
+          }
+        ],
+        "total": 11619
+      },
+      "latency_ms": 4265
     },
     {
       "id": "compare",
       "question": "Compare poverty rates in House Districts 20, 21, and 22.",
-      "answer": "**Poverty rate: share of people with income below the poverty level**\n\n| House District | Estimate | MOE (90% confidence) | Range |\n|---|---|---|---|\n| 20 | 6.82% | ± 1.23% | 5.59% to 8.05% |\n| 21 | 9.99% | ± 2.89% | 7.10% to 12.88% |\n| 22 | 8.84% | ± 1.50% | 7.34% to 10.34% |\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B17001; 2022 district boundaries.\n\nDistrict 20 has the lowest estimate and District 21 the highest. The ranges for Districts 21 and 22 overlap, so the difference between them may not be meaningful. The ranges for Districts 20 and 22 also overlap slightly, between 7.34% and 8.05%. District 21 has the widest margin of error, so its estimate is the least precise of the three.\n\nNone of the three values is flagged as low reliability.",
+      "answer": "Share of people with income below the poverty level, by State House district (MOEs at 90% confidence):\n\n| District | Poverty rate | MOE | Range |\n|---|---|---|---|\n| 20 | 7.10% | ± 1.15% | 5.95% to 8.25% |\n| 21 | 9.99% | ± 3.15% | 6.84% to 13.14% |\n| 22 | 9.45% | ± 1.79% | 7.66% to 11.24% |\n\n- **District 21 is low reliability.** Its margin of error is 32% of the estimate (rule: MOE / estimate > 30%). Treat this figure as approximate and avoid drawing firm conclusions from small differences.\n- **The ranges overlap.** District 20 is the lowest estimate. Its range overlaps with District 22's and District 21's, so the differences may not be meaningful. The ranges for Districts 21 and 22 overlap heavily, so the difference between those two may not be meaningful either.\n\nSource: U.S. Census Bureau, ACS 2020–2024 5-year, Table B17001; 2024 district boundaries.",
       "tools": [
         {
           "name": "compare_districts",
@@ -350,26 +464,45 @@
       ],
       "stop_reason": "end_turn",
       "numbers_checked": 28,
+      "numbers_supported": 28,
       "unsupported_numbers": [],
-      "flagged_values_stated": [],
+      "flagged_values_stated": [
+        "Share of people with income below the poverty level (of population for whom poverty status is determined) (district 21) = 9.99"
+      ],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 2471,
-        "output_tokens": 434,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 473,
+        "cache_creation_input_tokens": 2461,
+        "cache_read_input_tokens": 10356,
         "requests": 2,
-        "total": 11141
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 106,
+            "cache_read": 5131,
+            "cache_creation": 94
+          },
+          {
+            "input": 2,
+            "output": 367,
+            "cache_read": 5225,
+            "cache_creation": 2367
+          }
+        ],
+        "total": 13296
+      },
+      "latency_ms": 4006
     },
     {
       "id": "rank_top",
       "question": "Which five House districts have the highest renter cost burden?",
-      "answer": "These are the five State House districts with the highest share of renter households paying 30% or more of income on gross rent. The ranking covers 51 districts.\n\n| Rank | District | Share | MOE | Range |\n|---|---|---|---|---|\n| 1 | 46 | 71.15% | ± 5.18% | 65.97% to 76.33% |\n| 2 | 43 | 69.86% | ± 9.92% | 59.94% to 79.78% |\n| 3 | 45 | 69.65% | ± 7.94% | 61.71% to 77.59% |\n| 4 | 50 | 68.69% | ± 3.85% | 64.84% to 72.54% |\n| 5 | 47 | 65.98% | ± 8.25% | 57.73% to 74.23% |\n\nThe margins of error are at the 90% confidence level. None of these values is flagged as low reliability.\n\nThe ranges overlap, so the order among these five may not be meaningful. That is especially true of Districts 43, 45 and 50, whose values are close.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B25070; 2022 district boundaries.",
+      "answer": "Measure: Share of renter households paying 30%+ of income on gross rent (excludes households where the percentage is not computed). The 51 House districts were ranked.\n\n| Rank | House District | Value | MOE (90% confidence) | Range |\n|---|---|---|---|---|\n| 1 | 46 | 70.39% | ± 3.91% | 66.48% to 74.30% |\n| 2 | 45 | 69.13% | ± 9.78% | 59.35% to 78.91% |\n| 3 | 47 | 68.40% | ± 6.87% | 61.53% to 75.27% |\n| 4 | 50 | 66.81% | ± 4.54% | 62.27% to 71.35% |\n| 5 | 31 | 65.64% | ± 5.70% | 59.94% to 71.34% |\n\nThe margins of error overlap across all five districts. The differences between neighboring ranks may not be meaningful, so the exact order is uncertain. None of the five values is flagged as low reliability.\n\nSource: U.S. Census Bureau, ACS 2020–2024 5-year, Table B25070; 2024 district boundaries.",
       "tools": [
         {
           "name": "rank_districts",
@@ -388,36 +521,50 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 39,
+      "numbers_checked": 37,
+      "numbers_supported": 37,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 3954,
-        "output_tokens": 505,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 504,
+        "cache_creation_input_tokens": 3896,
+        "cache_read_input_tokens": 10350,
         "requests": 2,
-        "total": 12695
-      }
+        "per_call": [
+          {
+            "input": 4,
+            "output": 128,
+            "cache_read": 5131,
+            "cache_creation": 88
+          },
+          {
+            "input": 2,
+            "output": 376,
+            "cache_read": 5219,
+            "cache_creation": 3808
+          }
+        ],
+        "total": 14756
+      },
+      "latency_ms": 4832
     },
     {
       "id": "context",
       "question": "How does the veteran share in Senate District 24 compare to other Senate districts?",
-      "answer": "Senate District 24 ranks 7th of 25 Senate districts on veteran share, which is in the upper third. The measure is the share of the civilian population age 18 and over who are veterans.\n\n| | District | Veteran share (± MOE, 90% confidence) |\n|---|---|---|\n| **This district** | **SD 24** | **9.61% ± 1.00% (range 8.61% to 10.61%)** |\n| Highest | SD 20 | 13.56% ± 1.38% |\n| Median of Senate districts | n/a | 7.5% |\n| Lowest | SD 6 | 5.02% ± 0.70% |\n\n**Nearby ranks.** The districts just above and below SD 24 have these values:\n- SD 15 (rank 6): 10.27% ± 1.19%\n- SD 3 (rank 8): 9.22% ± 1.23%\n- SD 23 (rank 9): 8.91% ± 0.80%\n\nSD 24's margin of error overlaps with those of SD 15, SD 3 and SD 23. The differences between SD 24 and those districts may not be meaningful, so its exact rank is uncertain. SD 24's range does not overlap with SD 20's (12.18% to 14.94%) or SD 6's (4.32% to 5.72%).\n\nNone of the values has a low-reliability flag. The median is the median of district estimates, not a statewide ACS figure.\n\nSource: U.S. Census Bureau, ACS 2023 5-year, Table B21001; 2022 district boundaries.",
+      "answer": "Senate District 24's veteran share is 9.66% ± 0.91% (range 8.75% to 10.57%). The measure is the \"Share of civilian population 18+ who are veterans.\" The district ranks 7th of 25 Senate districts, from highest to lowest. The median of Senate district values is 7.10%.\n\n| Senate district | Veteran share (± MOE) |\n|---|---|\n| 20 (highest) | 14.28% ± 1.25% |\n| 16 | 11.21% ± 1.19% |\n| 18 | 11.13% ± 1.17% |\n| 17 | 10.73% ± 1.25% |\n| 21 | 10.50% ± 1.12% |\n| 15 | 9.66% ± 1.20% |\n| **24** | **9.66% ± 0.91%** |\n| 22 | 9.60% ± 1.20% |\n| 23 | 8.41% ± 0.86% |\n| 6 (lowest) | 5.12% ± 0.58% |\n\n- **Close values:** District 24 has the same value as District 15 and is close to District 22 (9.60%). Their margins of error overlap, so the differences between them may not be meaningful. The same applies to Districts 17 and 21, whose ranges overlap with District 24's.\n- **Higher and lower groups:** District 20 is clearly higher than District 24, and its range does not overlap. Districts 23 and below are mostly lower, but District 23's range (7.55% to 9.27%) is close to District 24's.\n- **Count:** District 24 has 4,545 ± 469 civilian veterans (18 and over).\n- **Armed Forces:** The district's Armed Forces share is 12.60% ± 0.65%. That measure is separate from civilian veterans.\n\n**Geography:** The Reapportionment Commission lists District 24 as covering Kaneʻohe, Puohala Village and a portion of Kailua, on Oʻahu.\n\n**Sources:**\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B21001; 2024 district boundaries.\n- U.S. Census Bureau, ACS 2020–2024 5-year, Table B23025; 2024 district boundaries.\n- State of Hawaiʻi 2021 Reapportionment Commission, Final Report and Reapportionment Plan, Appendix D, p. D-050.",
       "tools": [
         {
-          "name": "compare_districts",
+          "name": "get_district_profile",
           "input": {
             "chamber": "senate",
-            "districts": [
-              24
-            ],
-            "metric": "veteran_rate"
+            "district": 24
           },
           "is_error": false
         },
@@ -446,130 +593,145 @@
         "claude-sonnet-5-5"
       ],
       "stop_reason": "end_turn",
-      "numbers_checked": 45,
+      "numbers_checked": 70,
+      "numbers_supported": 70,
       "unsupported_numbers": [],
       "flagged_values_stated": [],
       "flagged_values_missing_caveat": [],
       "unsourced_programs": [],
+      "unsourced_legislators": [],
       "eligibility_claims": [],
       "failures": [],
       "passed": true,
       "usage": {
-        "input_tokens": 19959,
-        "output_tokens": 802,
-        "cache_creation_input_tokens": 0,
-        "cache_read_input_tokens": 8236,
+        "input_tokens": 6,
+        "output_tokens": 1054,
+        "cache_creation_input_tokens": 29257,
+        "cache_read_input_tokens": 10358,
         "requests": 2,
-        "total": 28997
-      }
-    }
-  ],
-  "results": {
-    "original live run": "7/10",
-    "re-scored with fixed checker": "9/10"
-  },
-  "rescore": {
-    "rescored_at": "2026-11-07",
-    "method": "Offline. The saved live answers were re-checked with the fixed checker; no API calls. The report stores each tool call's name and input, so the calls were replayed against the local data to rebuild the tool outputs. The live answers, tool calls, and the original 'run' result above are unchanged.",
-    "checker_changes": [
-      {
-        "fix": "Negation of the population-gap claim",
-        "why": "population_gap failed on 'the 23,420 difference is not a count of military members or students', which repeats the district_context note in the tool result almost word for word. The old check matched 'difference ... is ... military members' whether or not the sentence was negated.",
-        "change": "A match passes only if it is a pure 'is/are not a count of <groups>' statement, and a tool result makes that same negated statement about every group named. Negation is not a general pass: groups the tool never names ('troops'), a claim that adds a positive statement ('not a count of students, it is military members'), or a tool result without the note still fail."
-      },
-      {
-        "fix": "Number words in tool results",
-        "why": "programs failed on '19' and '65'. The Med-QUEST source text says 'nineteen' and 'sixty-five', so the digits were not found among the tool's numbers.",
-        "change": "collect_tool_numbers also parses number words in tool strings ('nineteen' = 19, 'sixty-five' = 65, 'twenty one' = 21). The system prompt is unchanged; digits are clearer for legislators. A digit that matches no number in any form (e.g. '64') still fails."
-      },
-      {
-        "fix": "Program names inside metric names",
-        "why": "out_of_scope (no tool calls) listed the measures the tools cover, including 'SNAP households', and was flagged for naming SNAP without a program tool result.",
-        "change": "A program name is not counted as a program mention when it is part of a measure the tools define: the metric id read as words ('SNAP households', 'SNAP household rate') or the metric's full label. Any other use of the name still needs a tool result."
-      }
-    ],
-    "questions": [
-      {
-        "id": "population_gap",
-        "passed": true,
-        "failures": [],
-        "original_passed": false,
-        "original_failures": [
-          "presents the population gap as a count of military members or students"
-        ]
-      },
-      {
-        "id": "programs",
-        "passed": true,
-        "failures": [],
-        "original_passed": false,
-        "original_failures": [
-          "numbers not in tool results: ['19', '65']"
-        ]
-      },
-      {
-        "id": "district_programs",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
-      },
-      {
-        "id": "low_reliability",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
-      },
-      {
-        "id": "out_of_scope",
-        "passed": false,
-        "failures": [
-          "programs named without a tool result: ['SNAP']"
+        "per_call": [
+          {
+            "input": 4,
+            "output": 271,
+            "cache_read": 5131,
+            "cache_creation": 96
+          },
+          {
+            "input": 2,
+            "output": 783,
+            "cache_read": 5227,
+            "cache_creation": 29161
+          }
         ],
-        "original_passed": false,
-        "original_failures": [
-          "programs named without a tool result: ['SNAP']"
-        ]
+        "total": 40675
       },
-      {
-        "id": "invalid_district",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
+      "latency_ms": 8261
+    },
+    {
+      "id": "legislator",
+      "question": "Which district does Stanley Chang represent?",
+      "answer": "Stanley Chang represents Senate District 9, as listed on capitol.hawaii.gov on November 10, 2026, a listing that does not reflect the Nov 3, 2026 general election. The roster shows him as currently serving.\n\nSource: Hawaiʻi State Legislature, member listing (https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S), fetched 2026-11-10.",
+      "tools": [
+        {
+          "name": "find_district_by_legislator",
+          "input": {
+            "name": "Stanley Chang"
+          },
+          "is_error": false
+        }
+      ],
+      "tool_calls": 1,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 8,
+      "numbers_supported": 8,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "unsourced_legislators": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 203,
+        "cache_creation_input_tokens": 668,
+        "cache_read_input_tokens": 10347,
+        "requests": 2,
+        "per_call": [
+          {
+            "input": 4,
+            "output": 59,
+            "cache_read": 5131,
+            "cache_creation": 85
+          },
+          {
+            "input": 2,
+            "output": 144,
+            "cache_read": 5216,
+            "cache_creation": 583
+          }
+        ],
+        "total": 11224
       },
-      {
-        "id": "single_value",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
+      "latency_ms": 3727
+    },
+    {
+      "id": "legislator_not_found",
+      "question": "Which district does Jane Madeup represent?",
+      "answer": "\"Jane Madeup\" isn't in the legislator roster. The roster is \"as listed on capitol.hawaii.gov on November 10, 2026, a listing that does not reflect the Nov 3, 2026 general election.\" It may predate the election, so a newly elected legislator might not be listed yet.\n\nNames are matched on whole words only, so a different spelling of the name would not match. If you have a district number, I can pull up that district's profile and the legislator listed for it.\n\nSource: capitol.hawaii.gov, House and Senate legislator rosters (https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=H and https://www.capitol.hawaii.gov/legislature/legislators.aspx?chamber=S), fetched 2026-11-10.",
+      "tools": [
+        {
+          "name": "find_district_by_legislator",
+          "input": {
+            "name": "Jane Madeup"
+          },
+          "is_error": true
+        }
+      ],
+      "tool_calls": 1,
+      "models": [
+        "claude-sonnet-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "stop_reason": "end_turn",
+      "numbers_checked": 7,
+      "numbers_supported": 7,
+      "unsupported_numbers": [],
+      "flagged_values_stated": [],
+      "flagged_values_missing_caveat": [],
+      "unsourced_programs": [],
+      "unsourced_legislators": [],
+      "eligibility_claims": [],
+      "failures": [],
+      "passed": true,
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 316,
+        "cache_creation_input_tokens": 481,
+        "cache_read_input_tokens": 10347,
+        "requests": 2,
+        "per_call": [
+          {
+            "input": 4,
+            "output": 59,
+            "cache_read": 5131,
+            "cache_creation": 85
+          },
+          {
+            "input": 2,
+            "output": 257,
+            "cache_read": 5216,
+            "cache_creation": 396
+          }
+        ],
+        "total": 11150
       },
-      {
-        "id": "compare",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
-      },
-      {
-        "id": "rank_top",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
-      },
-      {
-        "id": "context",
-        "passed": true,
-        "failures": [],
-        "original_passed": true,
-        "original_failures": []
-      }
-    ],
-    "still_failing": {
-      "out_of_scope": "Still fails, as intended. 'SNAP households' is now allowed, but the same answer also says 'SNAP participation', which is not a measure name the tools define, and no tool was called. That is a program named on its own, so it still needs a tool result."
+      "latency_ms": 3630
     }
-  }
+  ]
 }
