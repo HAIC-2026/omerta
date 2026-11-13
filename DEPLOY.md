@@ -41,8 +41,8 @@ Everything else uses the defaults in the README's [Configuration](README.md#conf
 | URL | Expect |
 |---|---|
 | `/healthz` | `{"ok":true}`. Render's health check polls this path. |
-| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, and the data dates. No configuration is shown here. |
-| `/readyz?deep=1` | Also `"ai_service": "ok"`: the API key works and the Anthropic API is reachable. This check uses no tokens and is cached for 60 seconds. Also shows `trust_proxy: 2` and, under `config`, the model, effort and the rate limits above. |
+| `/readyz` | `"ready": true`, `"chat_available": true`, `acs_districts: 76`, `legislators_serving: 76`, and the data dates. No configuration is shown by any endpoint; to check `TRUST_PROXY` or the rate limits, look at the Environment page. |
+| `/readyz?deep=1` | Also `"ai_service": "ok"`: the API key works and the Anthropic API is reachable. This check uses no tokens and is cached for 60 seconds. |
 
 ```bash
 curl -s https://know-your-district.onrender.com/readyz?deep=1
@@ -78,7 +78,7 @@ If the live commit is behind, check the deploy log in Events, or use **Manual De
 
 ## Logs
 
-Open the service → **Logs**. Each `/chat` request writes one JSON line (`"event":"chat"`): its `request_id` (also the `X-Request-ID` response header), status, latency, tool calls and token counts. Questions and answers are never logged.
+Open the service → **Logs**. Each `/chat` request writes one JSON line (`"event":"chat"`): its `request_id` (also the `X-Request-ID` response header), status, latency, tool calls and token counts. Questions and answers are never logged. An unexpected error appears as `chat failed: <ExceptionType> request_id=<id>` or `unhandled error: <ExceptionType> request_id=<id>`, with no message or traceback; the ID matches the `X-Request-ID` header of the failed response.
 
 | Symptom | Likely cause |
 |---|---|

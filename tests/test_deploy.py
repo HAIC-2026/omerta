@@ -170,14 +170,13 @@ def test_visitors_behind_the_same_proxy_get_separate_limits(monkeypatch):
     assert codes == [200, 200, 200, 200]
 
 
-def test_readyz_reports_roster_and_proxy_mode(monkeypatch):
+def test_readyz_reports_roster_but_not_proxy_mode(monkeypatch):
     c = TestClient(webapp.app).get("/readyz").json()["checks"]
-    assert "trust_proxy" not in c                      # operating config is only under ?deep=1
     monkeypatch.setattr(webapp, "_check_model_api", lambda: "ok")
     deep = TestClient(webapp.app).get("/readyz", params={"deep": 1}).json()["checks"]
+    assert "trust_proxy" not in c and "trust_proxy" not in deep   # operating config is never exposed
     assert c["legislators_serving"] == 76
     assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", c["legislators_fetched"])
-    assert isinstance(deep["trust_proxy"], int) and deep["trust_proxy"] >= 0
 
 
 @pytest.mark.parametrize("fname", ["requirements.txt", "requirements-dev.txt"])

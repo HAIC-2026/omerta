@@ -74,12 +74,14 @@ def test_readyz_reports_data_but_not_config(client):
     assert FAKE_KEY not in r.text and "sk-ant" not in r.text
 
 
-def test_readyz_deep_adds_operating_config(client, monkeypatch):
+def test_readyz_deep_adds_only_the_ai_service_check(client, monkeypatch):
     monkeypatch.setattr(webapp, "_check_model_api", lambda: "ok")
-    r = client.get("/readyz", params={"deep": 1})
+    plain, r = client.get("/readyz").json(), client.get("/readyz", params={"deep": 1})
     j = r.json()
-    assert j["config"]["model"] and j["config"]["effort"] and j["config"]["rate_limit_per_minute"] >= 1
-    assert isinstance(j["checks"]["trust_proxy"], int)
+    assert set(j) == {"ready", "chat_available", "checks"}
+    assert set(j["checks"]) == set(plain["checks"]) | {"ai_service"} and j["checks"]["ai_service"] == "ok"
+    for hidden in ("claude", "model", "effort", "rate_limit", "trust_proxy", "max_concurrent", "allowed_origins"):
+        assert hidden not in r.text
     assert FAKE_KEY not in r.text and "sk-ant" not in r.text
 
 
@@ -211,14 +213,38 @@ def test_missing_key_points_to_data_features(client, monkeypatch):
     assert r.json()["alternatives"]
 
 
-def test_unhandled_errors_never_show_a_stack_trace(client, monkeypatch):
+def test_unhandled_errors_never_show_a_stack_trace(client, monkeypatch, caplog, capfd):
     def broken():
         raise KeyError("internal detail /secret/path")
     monkeypatch.setattr(tools, "load_data", broken)
-    r = client.get("/api/meta")
+    with caplog.at_level("DEBUG"):
+        r = client.get("/api/meta")
     assert r.status_code == 500
     assert r.json() == {"error": "Something went wrong on our side. Please try again.", "code": "internal_error"}
     assert "Traceback" not in r.text and "secret" not in r.text
+    assert r.headers["x-content-type-options"] == "nosniff"
+    # The log has the exception type and the request ID, never the message or a traceback.
+    rid = r.headers["x-request-id"]
+    logged = caplog.text + "".join(capfd.readouterr())
+    assert f"unhandled error: KeyError request_id={rid}" in logged
+    assert "secret" not in logged and "internal detail" not in logged and "Traceback" not in logged
+    assert all(rec.exc_info is None for rec in caplog.records)
+
+
+def test_a_failed_chat_never_logs_the_question_or_the_exception_message(client, caplog, capfd):
+    from tests.test_web import FakeAgent
+    question = "What about my-private-question-text in District 7?"
+    webapp.app.dependency_overrides[webapp.get_agent] = lambda: FakeAgent(
+        "x", exc=ValueError(f"could not parse input: {question}"))
+    with caplog.at_level("DEBUG"):
+        r = client.post("/chat", json={"question": question})
+    assert r.status_code == 500 and r.json()["code"] == "internal_error"
+    rid = r.headers["x-request-id"]
+    logged = caplog.text + "".join(capfd.readouterr())
+    assert f"chat failed: ValueError request_id={rid}" in logged
+    assert '"error_type":"ValueError"' in logged              # the request log line has the type too
+    assert "my-private-question-text" not in logged and "could not parse" not in logged
+    assert "Traceback" not in logged and all(rec.exc_info is None for rec in caplog.records)
 
 
 # ---------------------------------------------------------------- configuration

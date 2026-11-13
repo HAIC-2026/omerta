@@ -271,7 +271,16 @@ app.add_middleware(ChatBodyLimit)   # added before security_headers, so its 413 
 
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        # Last resort, caught here so the exception never reaches the server's own error
+        # logger (which would print a traceback). Log the type and an ID only: an exception
+        # message can quote request input. Never send a stack trace to the browser.
+        rid = uuid.uuid4().hex[:16]
+        log.error("unhandled error: %s request_id=%s", type(exc).__name__, rid)
+        response = error(500, "internal_error", "Something went wrong on our side. Please try again.",
+                         headers={"X-Request-ID": rid})
     response.headers.setdefault("Content-Security-Policy", CSP)
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "no-referrer")
@@ -406,11 +415,10 @@ def _check_model_api() -> str:
 
 @app.get("/readyz")
 def readyz(deep: int = 0):
-    """Readiness: data files loaded, chat configured. The default response carries only what
-    monitoring needs: ready, counts, data dates and whether chat is available. ?deep=1 adds
-    the AI service check (no tokens used) and the operating config (model, effort, limits,
-    proxy hops). Data features stay up even when the AI service is down."""
-    from agent.chat import EFFORT, MODEL
+    """Readiness: data files loaded, chat configured. Carries only what monitoring needs:
+    ready, counts, data dates and whether chat is available. ?deep=1 adds the AI service
+    check (no tokens used). No operating config (model, effort, limits, proxy hops) is
+    exposed. Data features stay up even when the AI service is down."""
     checks: dict[str, Any] = {}
     try:
         data = tools.load_data()
@@ -434,15 +442,9 @@ def readyz(deep: int = 0):
     checks["chat_configured"] = bool(os.getenv("ANTHROPIC_API_KEY"))
     if deep:
         checks["ai_service"] = _check_model_api()
-        checks["trust_proxy"] = TRUST_PROXY
     data_ok = checks["acs_districts"] > 0
     chat_ok = checks["chat_configured"] and checks.get("ai_service", "ok") == "ok"
-    body: dict[str, Any] = {"ready": data_ok, "chat_available": chat_ok, "checks": checks}
-    if deep:
-        body["config"] = {"model": MODEL, "effort": EFFORT, "rate_limit_per_minute": RATE_PER_IP_PER_MINUTE,
-                       "rate_limit_per_day": RATE_PER_IP_PER_DAY, "rate_limit_global_per_minute":
-                       RATE_GLOBAL_PER_MINUTE, "rate_limit_global_per_day": RATE_GLOBAL_PER_DAY, "max_concurrent": MAX_CONCURRENT,
-                       "allowed_origins": ALLOWED_ORIGINS}
+    body = {"ready": data_ok, "chat_available": chat_ok, "checks": checks}
     return JSONResponse(body, status_code=200 if data_ok else 503)
 
 
@@ -621,8 +623,10 @@ def _chat(body: ChatRequest, request: Request, agent, rec: dict):
     except anthropic.APIError as exc:
         rec["upstream_error"] = type(exc).__name__
         return upstream_error(exc)
-    except Exception:
-        log.exception("chat failed")
+    except Exception as exc:
+        # Type and request ID only: an exception message or traceback can quote the question.
+        rec["error_type"] = type(exc).__name__
+        log.error("chat failed: %s request_id=%s", type(exc).__name__, rec["request_id"])
         return error(500, "internal_error", "Something went wrong on our side. Please try again.",
                      alternatives=True)
     else:
@@ -755,6 +759,6 @@ async def not_configured(_request: Request, exc: ServiceNotConfigured):
 
 @app.exception_handler(Exception)
 async def unhandled(_request: Request, exc: Exception):
-    # Last resort: log server-side, never send a stack trace to the browser.
-    log.exception("unhandled error")
+    # Fallback for errors outside the middleware above. Type only, never the message.
+    log.error("unhandled error: %s", type(exc).__name__)
     return error(500, "internal_error", "Something went wrong on our side. Please try again.")
