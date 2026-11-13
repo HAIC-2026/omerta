@@ -198,7 +198,7 @@ def test_as_listed_note_wording():
     d = date.fromisoformat(META["date_fetched"])
     assert NOTE.startswith(f"as listed on capitol.hawaii.gov on {d:%B} {d.day}, {d.year}")
     if META["election_status"] == "pre-election":
-        assert NOTE.endswith(", before the Nov 3, 2026 general election results took effect")
+        assert NOTE.endswith(", a listing that does not reflect the Nov 3, 2026 general election")
 
 
 def test_every_legislator_result_carries_the_note():

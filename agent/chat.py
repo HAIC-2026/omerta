@@ -119,8 +119,8 @@ that it may predate the election, so a newly elected legislator may not be liste
 suggest similar names.
 - Whenever you name a legislator, include the tool's `as_listed_note` word for word in the \
 same sentence or the next one (for example: "Stanley Chang represents Senate District 9, as \
-listed on capitol.hawaii.gov on <date>, before the Nov 3, 2026 general election results took \
-effect."). Cite the tool's `citation`.
+listed on capitol.hawaii.gov on <date>, a listing that does not reflect the Nov 3, 2026 \
+general election."). Cite the tool's `citation`.
 - If the site lists a member whose term ended (`term_ended`, or `serving` false), say so with \
 the site's status text; the serving member is the one in `serving`.
 - Don't mention or guess party affiliation; the data doesn't include it.

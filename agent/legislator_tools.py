@@ -54,8 +54,12 @@ def _date_words(iso: str) -> str:
 
 def as_listed_note(meta: dict | None = None) -> str | None:
     """The freshness phrase shown with every legislator name, e.g. "as listed on
-    capitol.hawaii.gov on November 10, 2026, before the Nov 3, 2026 general election results
-    took effect". The election clause is added only when the roster is marked pre-election."""
+    capitol.hawaii.gov on November 10, 2026, a listing that does not reflect the Nov 3, 2026
+    general election". The election clause is added only when the roster is marked pre-election.
+
+    It doesn't say the results hadn't "taken effect": under Article III, section 4 of the Hawaiʻi
+    Constitution a legislator's term begins on general election day, so the newly elected
+    members were already in office when the site still listed the 2026 session's."""
     if meta is None:
         roster = load_legislators()
         if roster is None:
@@ -63,7 +67,7 @@ def as_listed_note(meta: dict | None = None) -> str | None:
         meta = roster["metadata"]
     note = f"as listed on capitol.hawaii.gov on {_date_words(meta['date_fetched'])}"
     if meta.get("election_status") == "pre-election":
-        note += ", before the Nov 3, 2026 general election results took effect"
+        note += ", a listing that does not reflect the Nov 3, 2026 general election"
     return note
 
 
