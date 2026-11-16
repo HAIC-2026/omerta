@@ -2,6 +2,10 @@
 
 **Live demo:** https://know-your-district.onrender.com · No login needed.
 
+[![tests](https://github.com/HAIC-2026/omerta/actions/workflows/tests.yml/badge.svg)](https://github.com/HAIC-2026/omerta/actions/workflows/tests.yml)
+
+[![The district map shaded by poverty rate, with low-reliability districts hatched](docs/map.png)](https://know-your-district.onrender.com/map)
+
 ## Evaluate in 3 minutes
 
 **1. Ask three questions.** Open the [live demo](https://know-your-district.onrender.com) and paste each of these into the question box:
@@ -29,7 +33,7 @@ An AI assistant that gives Hawaiʻi legislators and staff sourced, nonpartisan s
 - **One-page profiles:** a print-ready page for any district, including its legislator as listed on capitol.hawaii.gov with source and fetch date (both names where the site lists two), built straight from the data with no AI involved.
 - **Assistance programs:** official facts about SNAP, Med-QUEST, WIC and others, framed as "may qualify, confirm with the agency".
 - **Legislators:** which district a legislator represents, and who represents a district, from the member listings on capitol.hawaii.gov. Names are as written there; party is not recorded. Every legislator shown, in chat answers, under them in the UI, and on the one-page profile, comes with the note "as listed on capitol.hawaii.gov on November 13, 2026, while the site was being updated after the Nov 3, 2026 general election". For three House districts (14, 18, 32) the site listed two members on that date, one with a term-end date that had not yet passed. The tool doesn't pick one: it shows both with the site's own status text, for example "capitol.hawaii.gov lists Joe Gedeon (Term of Office Ended: 11/16/2026) and James Wataru", and an answer that names only one of them fails verification. When a name isn't found, the answer says a newly elected legislator may not be listed yet, not just "not found".
-- **About:** `/about` explains the sources, the grounding guarantee and the limitations.
+- **About:** `/about` explains the sources, the grounding guarantee, privacy and security (what is sent, kept and logged) and the limitations.
 
 ## Architecture
 
@@ -204,7 +208,7 @@ Open-source libraries: FastAPI, Uvicorn, the Anthropic Python SDK and python-dot
 - **Program facts are a snapshot** quoted from agency pages and re-checked on 2026-11-07. Income limits and waiting lists change; the tool never says someone is eligible.
 - **The grounding check verifies numbers, names, programs, caveats and eligibility wording, not every sentence.** An answer that passes can still be worded badly. An answer that fails after one retry is shown with a "Not verified" warning rather than blocked.
 - **Chat depends on the Anthropic API and a spending cap.** The demo stops answering after 500 questions in 24 hours, or if the API is down or out of credit. The map and profiles keep working.
-- **Answers arrive all at once (no streaming)** and can take up to a minute for a question that needs several lookups.
+- **Answers arrive all at once (no streaming).** Most take 5 to 15 seconds (p50 4.8 s, p95 15.4 s in the last live run); a question that needs several lookups, or an answer that is re-checked, can take up to a minute. The page shows the elapsed time while it waits.
 - **One server process, memory only.** Conversations and rate limits are lost on a restart or deploy, a conversation holds 10 questions, and the app can't scale past one instance without moving that state to a shared store.
 - **The map draws 2022 boundary files** (the Census Bureau reports no change for Hawaiʻi since) and leaves out the Northwestern Hawaiian Islands at map scale.
 - **English only**, with Hawaiian place names spelled with ʻokina and kahakō. The last live guardrail run (2026-11-13, on the current 2024 data) passed 12 of 12 questions; that is a small fixed set, not proof that every possible answer is grounded, which is why every answer is also checked at runtime (see [Tests](#tests)).
@@ -245,4 +249,4 @@ python -m pytest -m live -s        # live guardrail suite (uses the API and cost
 | `test_a11y.py` | axe-core (WCAG 2.0/2.1 A/AA plus best practices) on every page and state; keyboard paths; focus rings; 200% zoom; 375px phone width; profile prints on one page |
 | `test_chat_guardrails.py` (live) | Real questions on Sonnet; every number traced to tool results, caveats present, programs sourced, no eligibility claims |
 
-Latest offline run: 454 passed. Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, 2026-11-13, on the current ACS 2020–2024 5-year data: 12/12 questions passed on `claude-sonnet-5-5`; latency per question p50 4.8 s, p95 15.4 s), `guardrail_report_acs2023.json` (the first live run, on the ACS 2023 5-year data: 7/10, or 9/10 after fixing the checker; an offline test replays it against the archived file) and `acs_2023_vs_2024.json`.
+Latest offline run: 455 passed (on Python 3.12 with the pinned requirements; on another Python version the two tests that check the pins are skipped). GitHub Actions runs this suite on every push to `main` ([.github/workflows/tests.yml](.github/workflows/tests.yml)). Reports are in [reports/](reports/): `a11y_report.json`, `guardrail_report.json` (the last live run, 2026-11-13, on the current ACS 2020–2024 5-year data: 12/12 questions passed on `claude-sonnet-5-5`; latency per question p50 4.8 s, p95 15.4 s), `guardrail_report_acs2023.json` (the first live run, on the ACS 2023 5-year data: 7/10, or 9/10 after fixing the checker; an offline test replays it against the archived file) and `acs_2023_vs_2024.json`.

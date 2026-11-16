@@ -425,16 +425,33 @@
     log.appendChild(art);
   }
 
+  var loadingTimer = null;
   function showLoading() {
+    // Visible progress with elapsed time. The node is aria-hidden: screen readers get the
+    // two status messages below instead of a counter that changes every second.
+    var label = el("span", { text: "Looking up Census data and writing an answer… most answers take 5 to 15 seconds." });
     var node = el("div", { class: "loading", id: "loading", "aria-hidden": "true" }, [
-      el("span", { class: "spinner" }),
-      el("span", { text: "Looking up Census data and writing an answer…" })
+      el("span", { class: "spinner" }), label
     ]);
     log.appendChild(node);
-    setStatus("Looking up Census data. This can take up to a minute.");
+    setStatus("Looking up Census data. Most answers take 5 to 15 seconds.");
+    var started = Date.now(), toldSlow = false;
+    loadingTimer = window.setInterval(function () {
+      var secs = Math.round((Date.now() - started) / 1000);
+      if (secs < 20) {
+        label.textContent = "Looking up Census data and writing an answer… " + secs + " seconds (most take 5 to 15).";
+      } else {
+        label.textContent = "Still working: " + secs + " seconds. Questions that need several lookups, and answers being re-checked, take longer.";
+        if (!toldSlow) {
+          toldSlow = true;
+          setStatus("Still working. Questions that need several lookups can take up to a minute.");
+        }
+      }
+    }, 1000);
   }
 
   function hideLoading() {
+    if (loadingTimer) { window.clearInterval(loadingTimer); loadingTimer = null; }
     var n = $("loading");
     if (n) n.remove();
   }

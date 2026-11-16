@@ -496,3 +496,13 @@ def test_failed_and_limited_requests_are_logged(client, logged):
     ask(client, "q")
     rec = json.loads(logged[-1])
     assert rec["status"] == 429 and rec["code"] == "rate_limited"
+
+
+def test_about_page_states_privacy_and_security():
+    """The About page says what is sent, kept and logged, using the configured session lifetime."""
+    from web import about_page
+    html = about_page.render()
+    assert 'id="privacy"' in html and "Privacy and security" in html
+    assert "No accounts, cookies or analytics" in html
+    assert f"{webapp.SESSION_TTL_MINUTES} minutes" in html
+    assert "never logged" in html

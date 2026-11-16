@@ -15,6 +15,7 @@ def render() -> str:
     from agent.chat import MODEL
     from agent.legislator_tools import as_listed_note, load_legislators
     from agent.program_tools import load_programs
+    from web.app import SESSION_TTL_MINUTES
 
     meta = tools.load_data()["metadata"]
     counts = meta.get("counts_by_chamber", {})
@@ -122,6 +123,27 @@ def render() -> str:
     declared.</li>
     <li>The district map and the one-page profiles are built directly from the data files, with no AI model
     involved.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="privacy">
+  <h2 id="privacy">Privacy and security</h2>
+  <ul>
+    <li><strong>No accounts, cookies or analytics.</strong> You don't sign in, and the pages load no
+    third-party scripts, fonts or trackers.</li>
+    <li><strong>Don't enter personal information.</strong> The tool answers about districts, not people, and
+    never needs a name, address or case details.</li>
+    <li><strong>Where a question goes.</strong> Your question and the data looked up for it are sent to the
+    AI service (Anthropic) to write the answer. The map and the one-page profiles send nothing to it.</li>
+    <li><strong>What is kept.</strong> A conversation is held in the server's memory so you can ask
+    follow-ups. It is dropped after {SESSION_TTL_MINUTES} minutes without a question or when the server
+    restarts, and is never written to a database or file.</li>
+    <li><strong>What is logged.</strong> One line per question with timing, the tools used and whether the
+    answer passed verification. The question and the answer are never logged. The hosting provider keeps
+    standard access logs (address, time, page); questions travel in the request body and don't appear in them.</li>
+    <li><strong>Protections.</strong> The AI service key stays on the server. Pages are served over HTTPS
+    under a strict content security policy, answers are inserted as text and never as HTML, and rate limits
+    and a daily cap bound use.</li>
   </ul>
 </section>
 
