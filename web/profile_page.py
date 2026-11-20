@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from html import escape
 
 from agent import tools
+from web.census_links import CENSUS_TABLE_LINKS, census_table_url, strip_api_key
 
 CHAMBER_NAMES = {"house": "State House", "senate": "State Senate"}
 
@@ -43,6 +44,12 @@ def render(chamber: str, district: int) -> tuple[int, str]:
     keys = [k for k, _ in ROWS if k in m] + [k for k in m if k not in dict(ROWS)]
     labels = dict(ROWS)
 
+    where = f"all {CENSUS_TABLE_LINKS['chamber_names'][p['chamber']]} districts (see District {p['district']})"
+
+    def table_link(table_id: str) -> str:
+        return (f'<a href="{e(census_table_url(table_id, p["chamber"]))}">'
+                f'<span class="sr">Census table </span>{e(table_id)}<span class="sr">: {e(where)}</span></a>')
+
     rows = []
     flagged = []
     for k in keys:
@@ -58,7 +65,7 @@ def render(chamber: str, district: int) -> tuple[int, str]:
         rows.append(
             f"<tr{' class=\"flag\"' if lr else ''}><th scope=\"row\">{mark}{e(labels.get(k, v['label']))}</th>"
             f"<td>{e(v['value_display'] or 'n/a')}</td><td>{e(v['moe_display'] or 'n/a')}</td>"
-            f"<td>{rel}</td><td>{e(v['table_id'])}</td></tr>")
+            f"<td>{rel}</td><td>{table_link(v['table_id'])}</td></tr>")
 
     ctx = p.get("district_context") or {}
     ctx_html = ""
@@ -124,9 +131,13 @@ def render(chamber: str, district: int) -> tuple[int, str]:
         citations.append(ctx["reapportionment_population"]["citation"])
     if leg_html:
         citations.append(leg["citation"])
+    # Primary Census links: each row's ACS table ID links to the data.census.gov page for that
+    # table, all districts in this chamber (see `table_link`); a screen-only note says so
+    # (links don't work on paper, and the page must print on one sheet). The raw API query follows as a secondary link.
+    tables_note = f"Table IDs above link to data.census.gov: {where}"
     src_urls = []
     first = m[keys[0]]["source_url"]
-    src_urls.append(("Census API query", first if isinstance(first, str) else first[0]))
+    src_urls.append(("API query", strip_api_key(first if isinstance(first, str) else first[0])))
     if ctx.get("source_url"):
         src_urls.append(("2021 Reapportionment Commission final report (PDF)", ctx["source_url"]))
     src_urls.extend(leg_links)
@@ -154,6 +165,7 @@ def render(chamber: str, district: int) -> tuple[int, str]:
 <section aria-labelledby="src-h">
   <h2 id="src-h">Sources</h2>
   <ul>{''.join(f'<li>{e(c)}</li>' for c in citations)}</ul>
+  <p class="small noprint">{e(tables_note)}.</p>
   <p class="small">{' · '.join(f'<a href="{e(u)}">{e(label)}</a>' for label, u in src_urls)}</p>
   <p class="small">Every figure on this page comes directly from the data files behind the chat tool; none is written by an AI model. Not an official product of the Hawaiʻi State Legislature or the U.S. Census Bureau.</p>
 </section>

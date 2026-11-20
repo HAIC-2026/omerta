@@ -100,6 +100,31 @@ def test_citations_and_sources(client):
     assert "key=" not in r.text
 
 
+@pytest.mark.parametrize("chamber,d,geo", [("house", 46, "040XX00US15$6200000"),
+                                           ("senate", 8, "040XX00US15$6100000")])
+def test_census_table_links_come_first_and_the_api_query_second(client, chamber, d, geo):
+    from web.census_links import CENSUS_TABLE_LINKS, census_table_url
+    assert CENSUS_TABLE_LINKS["chamber_geo"][chamber] == geo
+    r = get(client, chamber, d)
+    metrics = tools.get_district_profile(chamber, d)["metrics"]
+    tables = {m["table_id"] for m in metrics.values()}
+    where = f"all {chamber.title()} districts (see District {d})"
+    for t in tables:
+        url = f"https://data.census.gov/table/ACSDT5Y2024.{t}?g={geo}"
+        assert url == census_table_url(t, chamber)
+        # Each row's table ID is the link; screen readers get the full label.
+        assert (f'<a href="{url}"><span class="sr">Census table </span>{t}'
+                f'<span class="sr">: {where}</span></a>') in r.text
+    assert len(tables) == 9
+    assert r.text.count('href="https://data.census.gov/table/') == len(metrics)   # one per row
+    assert f"Table IDs above link to data.census.gov: {where}" in r.text
+    # The raw query is still linked, once, after the table links, labelled "API query", no key.
+    api = re.findall(r'<a href="(https://api\.census\.gov/[^"]*)">([^<]*)</a>', r.text)
+    assert len(api) == 1 and api[0][1] == "API query" and "key=" not in api[0][0].lower()
+    assert "Census API query" not in r.text
+    assert r.text.index("https://data.census.gov/table/") < r.text.index('href="https://api.census.gov/')
+
+
 def test_download_header(client):
     r = get(client, "senate", 12, download=1)
     assert r.status_code == 200
