@@ -289,6 +289,16 @@
         // Where the site lists two members for a district, the lookup shows both, as listed.
         var listed = t.output && (t.output.listing_statement || (t.output.legislator && t.output.legislator.listing_statement));
         if (listed) li.appendChild(el("span", { class: "both-listed", text: " — " + listed }));
+        // Primary Census links: the data.census.gov table page (readable in a browser), built
+        // on the server. The raw API query follows as a secondary link.
+        (t.census_tables || []).forEach(function (c) {
+          if (!c || String(c.url).indexOf("https://data.census.gov/table/") !== 0) return;
+          li.appendChild(document.createTextNode(" — "));
+          li.appendChild(el("a", { href: c.url, rel: "noopener noreferrer", target: "_blank" }, [
+            c.label,
+            el("span", { class: "visually-hidden", text: " (opens in a new tab)" })
+          ]));
+        });
         var census = (t.source_urls || []).filter(function (u) { return u.indexOf("https://api.census.gov/") === 0; });
         (t.source_urls || []).forEach(function (u) {
           var isReport = u.indexOf("https://elections.hawaii.gov/") === 0;
@@ -296,7 +306,7 @@
           var isRoster = u.indexOf("https://www.capitol.hawaii.gov/") === 0;
           var label = isReport ? "Reapportionment Commission final report (PDF)"
             : isRoster ? "Legislature member listing (capitol.hawaii.gov)"
-            : isCensus ? "Census API query" + (census.length > 1 ? " " + (census.indexOf(u) + 1) : "")
+            : isCensus ? "API query" +(census.length > 1 ? " " + (census.indexOf(u) + 1) : "")
             : "Program source: " + u.replace(/^https:\/\/(www\.)?/, "").split("/")[0];
           li.appendChild(document.createTextNode(" — "));
           li.appendChild(el("a", { href: u, rel: "noopener noreferrer", target: "_blank" }, [

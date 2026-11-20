@@ -39,6 +39,7 @@ from agent import tools
 from agent.chat import ServiceNotConfigured
 from agent.grounding import (both_listed_in_answer, check_answer_runtime, roster_note_for,
                              stated_flagged_values, supports_answer)
+from web.census_links import census_table_links, strip_api_key
 from web.sessions import SessionsFull, SessionStore
 
 log = logging.getLogger("web")
@@ -525,8 +526,10 @@ def _source_urls(output: dict) -> list[str]:
         if isinstance(o, dict):
             u = o.get("source_url")
             for x in (u if isinstance(u, list) else [u]):
-                if isinstance(x, str) and x.startswith(SOURCE_URL_PREFIXES) and x not in urls:
-                    urls.append(x)
+                if isinstance(x, str) and x.startswith(SOURCE_URL_PREFIXES):
+                    x = strip_api_key(x)
+                    if x not in urls:
+                        urls.append(x)
             for v in o.values():
                 walk(v)
         elif isinstance(o, list):
@@ -673,6 +676,8 @@ def _chat(body: ChatRequest, request: Request, agent, rec: dict):
             {"tool": t["tool"], "input": t["input"], "is_error": t["is_error"],
              "reused": t["turn"] != len(session.questions), "turn": t["turn"],
              "citations": _citations([t["output"]]), "source_urls": _source_urls(t["output"]),
+             # Primary links: the data.census.gov table for each ACS table + chamber used.
+             "census_tables": census_table_links(t["output"]),
              "output": t["output"]}
             for t in lookups
         ],
