@@ -11,6 +11,10 @@ from web.census_links import CENSUS_TABLE_LINKS, census_table_url, strip_api_key
 CHAMBER_NAMES = {"house": "State House", "senate": "State Senate"}
 
 # Display order and short row labels (the full ACS label is kept as a tooltip-free note).
+# Measures the tools report that this page leaves out so it prints on one sheet: of the
+# rent-burden bands, only the 50%+ share is shown (the others are in the chat tool).
+NOT_ON_PAGE = {"renter_burden_30_to_34_rate", "renter_burden_35_to_39_rate", "renter_burden_40_to_49_rate"}
+
 ROWS = [
     ("total_population", "Total population"),
     ("median_age", "Median age (years)"),
@@ -19,6 +23,7 @@ ROWS = [
     ("snap_households", "Households receiving SNAP"),
     ("snap_household_rate", "Share of households receiving SNAP"),
     ("renter_cost_burden_rate", "Renters paying 30%+ of income on rent"),
+    ("renter_severe_cost_burden_rate", "Renters paying 50%+ of income on rent"),
     ("veterans", "Veterans (civilian, 18+)"),
     ("veteran_rate", "Veteran share of adults"),
     ("armed_forces", "People in the Armed Forces (16+)"),
@@ -41,7 +46,7 @@ def render(chamber: str, district: int) -> tuple[int, str]:
     meta = tools.load_data()["metadata"]
     title = f"Hawaiʻi {CHAMBER_NAMES[p['chamber']]} District {p['district']}"
     m = p["metrics"]
-    keys = [k for k, _ in ROWS if k in m] + [k for k in m if k not in dict(ROWS)]
+    keys = [k for k, _ in ROWS if k in m] + [k for k in m if k not in dict(ROWS) and k not in NOT_ON_PAGE]
     labels = dict(ROWS)
 
     where = f"all {CENSUS_TABLE_LINKS['chamber_names'][p['chamber']]} districts (see District {p['district']})"

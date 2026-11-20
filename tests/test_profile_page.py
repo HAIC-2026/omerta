@@ -42,7 +42,15 @@ def test_profile_page_has_every_tool_value(client):
     r = get(client, "house", 46)
     assert r.status_code == 200 and "text/html" in r.headers["content-type"]
     p = tools.get_district_profile("house", 46)
+    from web.profile_page import NOT_ON_PAGE
+    # Of the rent-burden bands, only the 50%+ share is on the page (it must print on one sheet).
+    assert NOT_ON_PAGE == {"renter_burden_30_to_34_rate", "renter_burden_35_to_39_rate",
+                           "renter_burden_40_to_49_rate"}
+    assert "Renters paying 50%+ of income on rent" in r.text
     for k, m in p["metrics"].items():
+        if k in NOT_ON_PAGE:
+            assert m["value_display"] not in r.text, k
+            continue
         assert m["value_display"] in r.text, k
         assert m["moe_display"] in r.text, k
         assert m["table_id"] in r.text
@@ -116,7 +124,8 @@ def test_census_table_links_come_first_and_the_api_query_second(client, chamber,
         assert (f'<a href="{url}"><span class="sr">Census table </span>{t}'
                 f'<span class="sr">: {where}</span></a>') in r.text
     assert len(tables) == 9
-    assert r.text.count('href="https://data.census.gov/table/') == len(metrics)   # one per row
+    from web.profile_page import NOT_ON_PAGE
+    assert r.text.count('href="https://data.census.gov/table/') == len(set(metrics) - NOT_ON_PAGE)  # one per row
     assert f"Table IDs above link to data.census.gov: {where}" in r.text
     # The raw query is still linked, once, after the table links, labelled "API query", no key.
     api = re.findall(r'<a href="(https://api\.census\.gov/[^"]*)">([^<]*)</a>', r.text)

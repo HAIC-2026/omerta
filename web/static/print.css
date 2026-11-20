@@ -39,7 +39,7 @@ button {
   h1 { font-size: 15pt; }
   h2 { font-size: 10.5pt; margin: 4pt 0 2pt; }
   table { font-size: 8.5pt; }
-  th, td { padding: 1.5pt 4pt; }
+  th, td { padding: 1pt 4pt; }
   .small, .cite { font-size: 7.5pt; }
   .noprint { display: none; }
   a { color: var(--text); text-decoration: none; }

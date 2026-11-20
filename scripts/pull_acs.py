@@ -132,6 +132,26 @@ METRICS: dict[str, dict] = {
         "denominator_add": ["B25070_001"],
         "denominator_sub": ["B25070_011"],  # Not computed
     },
+    # Rent-burden bands: the four parts of the 30%+ measure above, each over the same
+    # denominator (total minus not computed). check_rent_bands() verifies they add up to it.
+    **{
+        key: {
+            "label": f"Share of renter households paying {band} of income on gross rent "
+            "(excludes households where the percentage is not computed)",
+            "unit": "percent",
+            "table": "B25070",
+            "kind": "rate",
+            "numerator": [var],
+            "denominator_add": ["B25070_001"],
+            "denominator_sub": ["B25070_011"],  # Not computed
+        }
+        for key, band, var in (
+            ("renter_burden_30_to_34_rate", "30.0% to 34.9%", "B25070_007"),
+            ("renter_burden_35_to_39_rate", "35.0% to 39.9%", "B25070_008"),
+            ("renter_burden_40_to_49_rate", "40.0% to 49.9%", "B25070_009"),
+            ("renter_severe_cost_burden_rate", "50%+ (severe cost burden)", "B25070_010"),
+        )
+    },
     "veterans": {
         "label": "Civilian veterans (18 years and over)",
         "unit": "people",
@@ -442,6 +462,46 @@ def build_metric(key, spec, rec, labels, source_url):
 
 
 # ---------------------------------------------------------------------------
+# Rent-burden band check
+# ---------------------------------------------------------------------------
+
+RENT_BURDEN_TOTAL = "renter_cost_burden_rate"
+RENT_BURDEN_BANDS = ("renter_burden_30_to_34_rate", "renter_burden_35_to_39_rate",
+                     "renter_burden_40_to_49_rate", "renter_severe_cost_burden_rate")
+# Each share is rounded to 2 decimals, so four bands and the total can differ by 5 * 0.005.
+RENT_BAND_TOLERANCE = 0.025
+
+
+def check_rent_bands(records: list[dict]) -> None:
+    """Fail loudly unless, in every district, the four band shares add up to the 30%+ share:
+    same denominator, numerators that sum exactly, and rounded shares within rounding."""
+    problems = []
+    for r in records:
+        m = r["metrics"]
+        where = f"{r['chamber']} {r['district']}"
+        total, bands = m[RENT_BURDEN_TOTAL], [m[k] for k in RENT_BURDEN_BANDS]
+        if total["value"] is None:
+            if any(b["value"] is not None for b in bands):
+                problems.append(f"{where}: bands have values but the 30%+ share does not")
+            continue
+        if any(b["value"] is None for b in bands):
+            problems.append(f"{where}: a band share is missing")
+            continue
+        if any(b["denominator_estimate"] != total["denominator_estimate"] for b in bands):
+            problems.append(f"{where}: band denominators differ from the 30%+ denominator")
+        num = sum(b["numerator_estimate"] for b in bands)
+        if num != total["numerator_estimate"]:
+            problems.append(f"{where}: band numerators sum to {num}, 30%+ numerator is "
+                            f"{total['numerator_estimate']}")
+        share = sum(b["value"] for b in bands)
+        if abs(share - total["value"]) > RENT_BAND_TOLERANCE + 1e-9:
+            problems.append(f"{where}: band shares sum to {share:.2f}, 30%+ share is {total['value']}")
+    if problems:
+        raise CensusError("Rent-burden bands do not add up to the 30%+ share:\n  "
+                          + "\n  ".join(problems))
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -482,6 +542,7 @@ def main() -> int:
             for c, n in EXPECTED_DISTRICTS.items():
                 if got[c] != list(range(1, n + 1)):
                     raise CensusError(f"expected {c} districts 1-{n}, got {got[c]}")
+            check_rent_bands(records)
         except CensusError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             return 1

@@ -9,7 +9,11 @@
     total_population: "total population", median_age: "median age",
     median_household_income: "median household income", poverty_rate: "poverty rate",
     snap_households: "households receiving SNAP", snap_household_rate: "share of households receiving SNAP",
-    renter_cost_burden_rate: "share of renters paying 30%+ of income on rent", veterans: "veterans",
+    renter_cost_burden_rate: "share of renters paying 30%+ of income on rent",
+    renter_burden_30_to_34_rate: "share of renters paying 30.0% to 34.9% of income on rent",
+    renter_burden_35_to_39_rate: "share of renters paying 35.0% to 39.9% of income on rent",
+    renter_burden_40_to_49_rate: "share of renters paying 40.0% to 49.9% of income on rent",
+    renter_severe_cost_burden_rate: "share of renters paying 50%+ of income on rent", veterans: "veterans",
     veteran_rate: "veteran share of adults", armed_forces: "people in the Armed Forces",
     armed_forces_rate: "Armed Forces share of people 16+", limited_english_household_rate: "limited-English households"
   };
